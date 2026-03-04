@@ -84,7 +84,7 @@ EOF
     fi
 
     echo "正在根据当前环境变量同步配置状态..."
-    python3 -c "
+    CONFIG_FILE="$config_file" python3 - <<'PYCODE'
 import json, sys, os, re
 from datetime import datetime
 
@@ -251,7 +251,7 @@ def validate_wecom_multi_accounts(channels):
 
 
 def sync():
-    path = '$config_file'
+    path = os.environ.get('CONFIG_FILE', '/home/node/.openclaw/openclaw.json')
     try:
         with open(path, 'r', encoding='utf-8') as f:
             config = json.load(f)
@@ -498,7 +498,7 @@ def sync():
         sys.exit(1)
 
 sync()
-"
+PYCODE
 }
 
 sync_config_with_env
