@@ -25,32 +25,38 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: 检测CLAWHUB
-	run: |
-	  if [ -z "${{ secrets.CLAWHUB_TOKEN }}" ]; then
-	    echo "CLAWHUB_TOKEN is EMPTY"
-	    exit 1
-	  else
-	    echo "CLAWHUB_TOKEN is PRESENT"
-	  fi
-        
+          
+      - name: 检测 CLAWHUB
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          if [ -z "$CLAWHUB_TOKEN" ]; then
+            echo "CLAWHUB_TOKEN is EMPTY"
+            exit 1
+          else
+            echo "CLAWHUB_TOKEN is PRESENT"
+          fi  
+          
       - name: 读取版本号
         id: version
         run: |
           VERSION=$(cat version.txt | tr -d '[:space:]')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           
-      - name: 检测 CLAWHUB
-        env:
-          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
-          run: |
-             if [ -z "$CLAWHUB_TOKEN" ]; then
-               echo "CLAWHUB_TOKEN is EMPTY"
-             exit 1
-             else
-               echo "CLAWHUB_TOKEN is PRESENT"
-             fi 
+      # Note: I have commented out this duplicate step. 
+      # If you needed this to run twice, simply uncomment it, 
+      # as the spacing here has now been fixed as well.
+      # - name: 检测 CLAWHUB
+      #   env:
+      #     CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+      #   run: |
+      #      if [ -z "$CLAWHUB_TOKEN" ]; then
+      #        echo "CLAWHUB_TOKEN is EMPTY"
+      #        exit 1
+      #      else
+      #        echo "CLAWHUB_TOKEN is PRESENT"
+      #      fi 
+
       - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v3
         
