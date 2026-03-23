@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.4
+# syntax=docker/dockerfile:1.10
 # OpenClaw Docker 镜像
 FROM node:22-slim
 
@@ -127,13 +127,12 @@ WORKDIR /home/node/.openclaw/
 # 5. 配置与技能安装 (合并指令)
 # 直接使用全局安装的命令，省去 npx 的开销
 
-RUN --mount=type=secret,id=clawhub \
-    TOKEN=$(cat /run/secrets/clawhub) && \
-    clawhub login --token $TOKEN --no-browser
+RUN --mount=type=secret,id=clawhub,env=CLAWHUB_TOKEN,required=true \
+    clawhub login --token "$CLAWHUB_TOKEN" --no-browser
 
 RUN clawhub install --force proactive-agent && \
     clawhub install mcporter && \
-    clawhub install self-improving-agent && \
+    clawhub install self-improving && \
     clawhub install --force agent-browser && \
     clawhub install --force browser-use && \
     clawhub install --force evolver && \
@@ -164,8 +163,6 @@ RUN git clone https://github.com/ACautomata/model-guidance /home/node/.openclaw/
 
 WORKDIR /home/node
 ENV NODE_OPTIONS="--max-old-space-size=1280"
-RUN openclaw hooks enable session-memory && \
-    openclaw hooks enable bootstrap-extra-files 
   
 # 3. 最终配置
 USER root
