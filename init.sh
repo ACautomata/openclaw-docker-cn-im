@@ -2034,6 +2034,9 @@ install_signal_traps() {
 start_gateway() {
     log_section "启动 OpenClaw Gateway"
 
+    gosu node openclaw hooks enable session-memory
+    gosu node openclaw hooks enable bootstrap-extra-files
+
     gosu node env HOME=/home/node DBUS_SESSION_BUS_ADDRESS=/dev/null \
         BUN_INSTALL="/usr/local" AGENT_REACH_HOME="/home/node/.agent-reach" AGENT_REACH_VENV_HOME="/home/node/.agent-reach-venv" \
         PATH="/home/node/.agent-reach-venv/bin:/usr/local/bin:$PATH" \
