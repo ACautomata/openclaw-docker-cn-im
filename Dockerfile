@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 # OpenClaw Docker 镜像
 FROM node:22-slim
 
@@ -126,7 +127,8 @@ WORKDIR /home/node/.openclaw/
 # 5. 配置与技能安装 (合并指令)
 # 直接使用全局安装的命令，省去 npx 的开销
 
-RUN clawhub login --token $(cat /run/secrets/clawhub) --no-browser && \
+RUN --mount=type=secret,id=clawhub \
+    clawhub login --token $(cat /run/secrets/clawhub) --no-browser && \
     clawhub install --force proactive-agent && \
     clawhub install mcporter && \
     clawhub install self-improving-agent && \
