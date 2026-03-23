@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 检测CLAWHUB_TOKEN
+      - name: 检测CLAWHUB
 	run: |
 	  if [ -z "${{ secrets.CLAWHUB_TOKEN }}" ]; then
 	    echo "CLAWHUB_TOKEN is EMPTY"
