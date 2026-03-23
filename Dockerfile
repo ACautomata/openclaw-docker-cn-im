@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 # OpenClaw Docker 镜像
 FROM node:22-slim
 
@@ -87,6 +88,84 @@ RUN cd /home/node/.openclaw/extensions && \
   mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
   printf '%s\n' '2026.3.23-2' > /home/node/.openclaw-seed/extensions/.seed-version && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
+
+USER root
+# 1. 安装 UV (使用 COPY 也就是多阶段构建，不增加额外下载层)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# 2. 系统层依赖安装 & 清理 (合并指令，减少层数)
+# 使用 root 权限进行系统级安装
+# --no-install-recommends: 仅安装必要的依赖，不安装推荐包（显著减小体积）
+# rm -rf /var/lib/apt/lists/*: 清除 apt 缓存，这是减小体积的关键
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources && \
+    sed -i 's@security.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+
+
+# 3. Node 全局包安装 (合并指令)
+# 既然下面要用 mcporter 和 clawhub，直接全局安装，不需要反复 npx (npx 会临时下载)
+# npm cache clean: 清除 npm 缓存
+RUN npm install -g mcporter clawhub && \
+    npm install -g agent-browser && \
+    npm cache clean --force
+
+# 4. 切换到 node 用户进行应用配置
+# 关键优化：避免在最后使用 chown -R。
+# 如果在 root 下生成文件再 chown，Docker 会复制一份文件到新层，导致体积翻倍。
+# 直接以 node 用户身份运行配置命令，文件所有权天然就是 node。
+USER node
+WORKDIR /home/node/.openclaw/workspace/
+
+# Update Feishu
+RUN mcporter config  add rednote http://rednote.mcp:18060/mcp && \
+    mcporter config add freesearch --command "uvx mcp-server-freesearch --break-system-packages" --env SEARXNG_API_URL="https://searx.bndkt.io" 
+
+WORKDIR /home/node/.openclaw/
+# 5. 配置与技能安装 (合并指令)
+# 直接使用全局安装的命令，省去 npx 的开销
+
+RUN --mount=type=secret,id=clawhub \
+    TOKEN=$(cat /run/secrets/clawhub) && \
+    clawhub login --token $TOKEN --no-browser
+
+RUN clawhub install --force proactive-agent && \
+    clawhub install mcporter && \
+    clawhub install self-improving-agent && \
+    clawhub install --force agent-browser && \
+    clawhub install --force browser-use && \
+    clawhub install --force evolver && \
+    clawhub install --force capability-evolver && \
+    clawhub install --force summarize && \
+    clawhub install --force humanizer && \
+    clawhub install skill-vetter && \
+    clawhub install --force clawddocs && \
+    clawhub install --force parallel-deep-research && \
+    clawhub install --force deep-research-pro && \
+    clawhub install agent-builder && \
+    clawhub install creativity  && \
+    clawhub install --force skill-improvement && \
+    clawhub install --force skill-refiner && \
+    clawhub install --force skill-creator && \
+    clawhub install agent && \
+    clawhub install --force agent-evaluation && \
+    clawhub install --force cron-mastery && \
+    clawhub install --force news-summary && \
+    clawhub install --force openclaw-subagents && \
+    clawhub install --force create-subagent
+
+RUN git clone https://github.com/ACautomata/model-guidance /home/node/.openclaw/skills/model-guidance && \
+    git clone https://github.com/ACautomata/openclaw-optimizer /home/node/.openclaw/skills/openclaw-optimizer && \
+    git clone https://github.com/win4r/openclaw-workspace /home/node/.openclaw/skills/openclaw-workspace
+
+    
+
+WORKDIR /home/node
+ENV NODE_OPTIONS="--max-old-space-size=1280"
+RUN openclaw hooks enable session-memory && \
+    openclaw hooks enable bootstrap-extra-files 
   
 # 3. 最终配置
 USER root
@@ -94,7 +173,8 @@ USER root
 # 复制初始化脚本并确保换行符为 LF
 COPY ./init.sh /usr/local/bin/init.sh
 RUN sed -i 's/\r$//' /usr/local/bin/init.sh && \
-    chmod +x /usr/local/bin/init.sh
+    chmod +x /usr/local/bin/init.sh&& \
+    chown -R node:node /home/node/.openclaw/ /home/node/.npm/
 
 # 设置环境变量
 ENV HOME=/home/node \
