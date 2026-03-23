@@ -127,9 +127,8 @@ WORKDIR /home/node/.openclaw/
 # 5. 配置与技能安装 (合并指令)
 # 直接使用全局安装的命令，省去 npx 的开销
 
-RUN --mount=type=secret,id=clawhub \
-    TOKEN=$(cat /run/secrets/clawhub) && \
-    clawhub login --token $TOKEN --no-browser
+RUN --mount=type=secret,id=clawhub,env=CLAWHUB_TOKEN,required=true \
+    clawhub login --token "$CLAWHUB_TOKEN" --no-browser
 
 RUN clawhub install --force proactive-agent && \
     clawhub install mcporter && \
