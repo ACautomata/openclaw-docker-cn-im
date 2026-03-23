@@ -128,8 +128,10 @@ WORKDIR /home/node/.openclaw/
 # 直接使用全局安装的命令，省去 npx 的开销
 
 RUN --mount=type=secret,id=clawhub \
-    clawhub login --token $(cat /run/secrets/clawhub) --no-browser && \
-    clawhub install --force proactive-agent && \
+    TOKEN=$(cat /run/secrets/clawhub) && \
+    clawhub login --token $TOKEN --no-browser
+
+RUN clawhub install --force proactive-agent && \
     clawhub install mcporter && \
     clawhub install self-improving-agent && \
     clawhub install --force agent-browser && \
