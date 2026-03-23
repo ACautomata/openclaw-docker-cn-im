@@ -92,7 +92,7 @@ RUN cd /home/node/.openclaw/extensions && \
   rm -rf /home/node/.openclaw/qqbot/.git && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
 
-
+USER root
 # 1. 安装 UV (使用 COPY 也就是多阶段构建，不增加额外下载层)
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
