@@ -88,7 +88,7 @@ RUN cd /home/node/.openclaw/extensions && \
   printf '%s\n' '2026.3.23-2' > /home/node/.openclaw-seed/extensions/.seed-version && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
 
-
+USER root
 # 1. 安装 UV (使用 COPY 也就是多阶段构建，不增加额外下载层)
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
