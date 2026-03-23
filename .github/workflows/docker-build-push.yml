@@ -25,6 +25,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Check CLAWHUB_TOKEN
+	  run: |
+	    if [ -z "${{ secrets.CLAWHUB_TOKEN }}" ]; then
+	      echo "CLAWHUB_TOKEN is EMPTY"
+	      exit 1
+	    else
+	      echo "CLAWHUB_TOKEN is PRESENT"
+	    fi
         
       - name: 读取版本号
         id: version
