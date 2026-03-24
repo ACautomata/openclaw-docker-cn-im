@@ -41,7 +41,7 @@ RUN apt-get update && \
     git config --system url."https://github.com/".insteadOf ssh://git@github.com/ && \
     # 更新 npm 并安装全局包
     npm install -g npm@latest && \
-    npm install -g openclaw@2026.3.13 opencode-ai@latest playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
+    npm install -g openclaw@latest opencode-ai@latest playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
     # 安装 bun、uv 和 qmd
     curl -fsSL https://bun.sh/install | BUN_INSTALL=/usr/local bash && \
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh && \
