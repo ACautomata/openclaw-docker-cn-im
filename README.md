@@ -29,9 +29,9 @@
 
 本项目提供开箱即用的 OpenClaw 体验，并针对国内 IM 场景进行了深度增强：
 
-- **全平台支持**：预装飞书（官方/旧版）、钉钉、QQ 机器人、企业微信插件，支持多账号与多 Agent 路由，组建AI团队。
+- **全平台支持**：预装飞书（官方/旧版）、钉钉、QQ 机器人、企业微信插件，并集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach) 支持 Twitter、小红书、微博、抖音等全网渠道。
 - **配置驱动**：支持通过环境变量自动生成配置，提供 [`.env.example`](.env.example) 快速上手。
-- **工具集增强**：集成 OpenCode AI、Playwright、FFmpeg、中文 TTS 等 AI 常用工具。
+- **工具集增强**：集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach)、OpenCode AI、Playwright、FFmpeg、中文 TTS 等 AI 常用工具。
 - **生产友好**：支持数据持久化挂载，提供独立工具容器用于飞书插件安装等一次性操作。
 
 ## 📖 文档索引
@@ -53,6 +53,8 @@
 - ✅ **钉钉**：[soimy/dingtalk](https://github.com/soimy/openclaw-channel-dingtalk)
 - ✅ **QQ 机器人**：[sliverp/qqbot](https://github.com/sliverp/qqbot)
 - ✅ **企业微信**：[sunnoy/wecom](https://github.com/sunnoy/openclaw-plugin-wecom)
+- ✅ **微信**：[官方插件接入指南](docs/wechat.md)
+- ✅ **全网渠道搜索**：通过集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach) 支持 Twitter、小红书、微博、抖音、小宇宙等。可在对话中输入 `禁止使用web_search，web_fetch 工具， 必须使用 agent-reach 的工具来替代你自带的web_search，web_fetch ，并写入tools和记忆文档中` 进行初始化。
 
 ## 📦 快速部署
 

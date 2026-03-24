@@ -6,6 +6,9 @@ x-openclaw-common-env: &openclaw-common-env
   TERM: xterm-256color
   # 配置同步开关
   SYNC_OPENCLAW_CONFIG: ${SYNC_OPENCLAW_CONFIG}
+  # 插件同步配置
+  SYNC_EXTENSIONS_ON_START: ${SYNC_EXTENSIONS_ON_START}
+  SYNC_EXTENSIONS_MODE: ${SYNC_EXTENSIONS_MODE}
   # 模型配置
   SYNC_MODEL_CONFIG: ${SYNC_MODEL_CONFIG}
   MODEL_ID: ${MODEL_ID}
@@ -168,7 +171,8 @@ x-openclaw-common-env: &openclaw-common-env
   OPENCLAW_PLUGINS_ENABLED: ${OPENCLAW_PLUGINS_ENABLED}
   # 工具配置
   OPENCLAW_TOOLS_JSON: ${OPENCLAW_TOOLS_JSON}
-
+  AGENT_REACH_ENABLED: ${AGENT_REACH_ENABLED}
+ 
 services:
   openclaw-gateway:
     container_name: openclaw-gateway

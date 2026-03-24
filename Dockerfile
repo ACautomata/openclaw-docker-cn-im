@@ -31,6 +31,8 @@ RUN apt-get update && \
     socat \
     tini \
     unzip \
+    pipx \
+    python3-venv \
     websockify && \
     sed -i 's/^# *en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen && \
@@ -40,7 +42,7 @@ RUN apt-get update && \
     git config --system url."https://github.com/".insteadOf ssh://git@github.com/ && \
     # 更新 npm 并安装全局包
     npm install -g npm@latest && \
-    npm install -g openclaw@2026.3.13 opencode-ai@latest playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
+    npm install -g openclaw@2026.3.23-2 opencode-ai@latest playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
     # 安装 bun、uv 和 qmd
     curl -fsSL https://bun.sh/install | BUN_INSTALL=/usr/local bash && \
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh && \
@@ -69,27 +71,21 @@ RUN mkdir -p /home/node/.linuxbrew/Homebrew && \
     chmod -R g+rwX /home/node/.linuxbrew
 
 RUN cd /home/node/.openclaw/extensions && \
-  git clone --depth 1 https://github.com/soimy/openclaw-channel-dingtalk.git dingtalk && \
-  cd dingtalk && \
-  npm install --omit=dev --legacy-peer-deps && \
-  timeout 300 openclaw plugins install -l . || true && \
-  cd /home/node/.openclaw/extensions && \
   git clone --depth 1 -b v4.17.25 https://github.com/Daiyimo/openclaw-napcat.git napcat && \
   cd napcat && \
   npm install --production && \
   timeout 300 openclaw plugins install -l . || true && \
-  cd /home/node/.openclaw && \
-  git clone https://github.com/sliverp/qqbot.git && \
-  cd qqbot && \
-  timeout 300 bash ./scripts/upgrade.sh || true && \
-  timeout 300 openclaw plugins install . || true && \
+  cd /home/node/.openclaw/extensions && \
+  timeout 300 openclaw plugins install @soimy/dingtalk || true && \
+  timeout 300 openclaw plugins install @tencent-connect/openclaw-qqbot@latest || true && \
   timeout 300 openclaw plugins install @sunnoy/wecom || true && \
-  mkdir -p /home/node/.openclaw && \
-  printf '{\n  "channels": {\n    "feishu": {\n      "enabled": false,\n      "appId": "2222222222222222",\n      "appSecret": "1111111111111111",\n      "accounts": {\n        "default": {\n          "appId": "2222222222222222",\n          "appSecret": "1111111111111111",\n          "botName": "OpenClaw Bot"\n        }\n      }\n    }\n  }\n}\n' > /home/node/.openclaw/openclaw.json && \
+  mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
   # 预执行安装命令（容器内需手动交互，此处仅作声明或环境准备）
+  #  printf '{\n  "channels": {\n    "feishu": {\n      "enabled": false,\n      "appId": "2222222222222222",\n      "appSecret": "1111111111111111",\n      "accounts": {\n        "default": {\n          "appId": "2222222222222222",\n          "appSecret": "1111111111111111",\n          "botName": "OpenClaw Bot"\n        }\n      }\n    }\n  }\n}\n' > /home/node/.openclaw/openclaw.json && \
   # npx -y @larksuite/openclaw-lark-tools install && \
   find /home/node/.openclaw/extensions -name ".git" -type d -exec rm -rf {} + && \
-  rm -rf /home/node/.openclaw/qqbot/.git && \
+  mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
+  printf '%s\n' '2026.3.23-2' > /home/node/.openclaw-seed/extensions/.seed-version && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
   
 # 3. 最终配置

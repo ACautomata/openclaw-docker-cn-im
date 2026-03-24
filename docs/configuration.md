@@ -22,6 +22,8 @@
 项目支持两类协议：
 
 - `openai-completions`
+- `openai-responses`
+- `google-generative-ai`
 - `anthropic-messages`
 
 推荐先完成这一部分，再接入 IM 平台。
@@ -44,6 +46,8 @@
 | 协议类型 | 适用模型 | Base URL 习惯 | 说明 |
 | --- | --- | --- | --- |
 | `openai-completions` | OpenAI、Gemini 等 | 通常需要 `/v1` | 最常见接入方式 |
+| `openai-responses` | OpenAI (Beta) | 通常需要 `/v1` | 适合 OpenAI 新版协议 |
+| `google-generative-ai` | Gemini (Native) | 通常不需要 `/v1` | 适合 Google 原生协议 |
 | `anthropic-messages` | Claude | 通常不需要 `/v1` | 适合 Claude 原生协议 |
 
 ### OpenAI 协议示例
