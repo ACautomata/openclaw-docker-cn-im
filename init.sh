@@ -2246,13 +2246,15 @@ start_gateway() {
 }
 
 wait_for_gateway() {
-    if ! wait "$GATEWAY_PID"; then
-        log_error "OpenClaw Gateway 异常退出 (退出码: $?)"
+    local exit_code=0
+    wait "$GATEWAY_PID" || exit_code=$?
+    if [ "$exit_code" -ne 0 ]; then
+        log_error "OpenClaw Gateway 异常退出 (退出码: $exit_code)"
         log_error "请查看上方日志排查原因，或参考 FAQ: https://github.com/justlikemaki/OpenClaw-Docker-CN-IM/blob/main/docs/faq.md"
     else
         log_info "OpenClaw Gateway 已正常退出"
     fi
-    exit $?
+    exit "$exit_code"
 }
 
 finalize_permissions() {
