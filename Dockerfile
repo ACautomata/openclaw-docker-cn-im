@@ -40,11 +40,7 @@ RUN git config --system url."https://github.com/".insteadOf ssh://git@github.com
 # Phase 2: Node 层 - npm 核心工具（变更较少）
 # =============================================================================
 
-# 2.1 更新 npm（独立层，确保后续安装使用最新版本）
-RUN npm install -g npm@latest && \
-    npm cache clean --force
-
-# 2.2 全局 npm 工具（OpenClaw 核心依赖）
+# 2.1 全局 npm 工具（OpenClaw 核心依赖）
 RUN npm install -g \
         openclaw@latest \
         opencode-ai@latest \
