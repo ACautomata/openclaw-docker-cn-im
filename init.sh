@@ -16,6 +16,37 @@ ensure_directories() {
     mkdir -p "$OPENCLAW_HOME" "$OPENCLAW_WORKSPACE"
 }
 
+ensure_config_persistence() {
+    log_section "配置 .config 目录持久化"
+    local persistent_config_dir="$OPENCLAW_HOME/.config"
+    local container_config_dir="/home/node/.config"
+
+    # 1. 创建持久化目录
+    mkdir -p "$persistent_config_dir"
+    
+    # 2. 处理现有目录与迁移
+    if [ -d "$container_config_dir" ] && [ ! -L "$container_config_dir" ]; then
+        # 如果持久化目录为空，将现有配置迁移过去
+        if [ -z "$(ls -A "$persistent_config_dir")" ]; then
+            echo "检测到容器内已有 .config 目录，正在迁移到持久化目录..."
+            cp -a "$container_config_dir/." "$persistent_config_dir/"
+        fi
+        rm -rf "$container_config_dir"
+    fi
+
+    # 3. 创建软链接
+    if [ ! -L "$container_config_dir" ]; then
+        ln -sfn "$persistent_config_dir" "$container_config_dir"
+        echo "已建立软链接: $container_config_dir -> $persistent_config_dir"
+    fi
+
+    # 4. 权限修复
+    if is_root; then
+        chown -R node:node "$persistent_config_dir" || true
+        chown -h node:node "$container_config_dir" || true
+    fi
+}
+
 sync_seed_extensions() {
     local seed_dir="/home/node/.openclaw-seed/extensions"
     local target_dir="$OPENCLAW_HOME/extensions"
@@ -2099,6 +2130,7 @@ finalize_permissions() {
 main() {
     log_section "OpenClaw 初始化脚本"
     ensure_directories
+    ensure_config_persistence
     fix_permissions_if_needed
     sync_seed_extensions
     install_agent_reach
