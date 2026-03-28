@@ -138,7 +138,8 @@ RUN --mount=type=secret,id=clawhub,env=CLAWHUB_TOKEN,required=true \
 RUN clawhub install --force proactive-agent && \
     clawhub install mcporter && \
     clawhub install self-improving && \
-    clawhub install --force agent-browser && \
+    # clawhub install --force agent-browser && \
+    clawhub install agent-browser-clawdbot && \
     clawhub install --force browser-use && \
     clawhub install --force evolver && \
     clawhub install --force capability-evolver && \
@@ -150,7 +151,7 @@ RUN clawhub install --force proactive-agent && \
     clawhub install --force deep-research-pro && \
     clawhub install agent-builder && \
     clawhub install creativity && \
-    clawhub install --force skill-improvement && \
+    # clawhub install --force skill-improvement && \
     clawhub install --force skill-refiner && \
     clawhub install --force skill-creator && \
     clawhub install agent && \
@@ -159,6 +160,9 @@ RUN clawhub install --force proactive-agent && \
     clawhub install --force news-summary && \
     clawhub install --force openclaw-subagents && \
     clawhub install --force create-subagent
+
+RUN openclaw plugins install clawhub:openclaw-memory-plugin && \
+    openclaw plugins install clawhub:humanizeai 
 
 # 6.3 克隆外部技能仓库
 RUN git clone https://github.com/ACautomata/model-guidance /home/node/.openclaw/skills/model-guidance && \
