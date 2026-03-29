@@ -2039,26 +2039,26 @@ install_agent_reach() {
         source ~/.agent-reach-venv/bin/activate
 
         # 配置代理（如果提供）
-        if [ -n "$AGENT_REACH_PROXY" ]; then
-            agent-reach configure proxy "$AGENT_REACH_PROXY"
+        if [ -n \"$AGENT_REACH_PROXY\" ]; then
+            agent-reach configure proxy \"$AGENT_REACH_PROXY\"
         fi
 
         # 配置 Twitter Cookies
-        if [ -n "$AGENT_REACH_TWITTER_COOKIES" ]; then
-            agent-reach configure twitter-cookies "$AGENT_REACH_TWITTER_COOKIES"
+        if [ -n \"$AGENT_REACH_TWITTER_COOKIES\" ]; then
+            agent-reach configure twitter-cookies \"$AGENT_REACH_TWITTER_COOKIES\"
         fi
 
         # 配置 Groq Key
-        if [ -n "$AGENT_REACH_GROQ_KEY" ]; then
-            agent-reach configure groq-key "$AGENT_REACH_GROQ_KEY"
+        if [ -n \"$AGENT_REACH_GROQ_KEY\" ]; then
+            agent-reach configure groq-key \"$AGENT_REACH_GROQ_KEY\"
         fi
 
 
         # 配置小红书 Cookies
-        if [ -n "$AGENT_REACH_XHS_COOKIES" ]; then
-            agent-reach configure xhs-cookies "$AGENT_REACH_XHS_COOKIES"
+        if [ -n \"$AGENT_REACH_XHS_COOKIES\" ]; then
+            agent-reach configure xhs-cookies \"$AGENT_REACH_XHS_COOKIES\"
         fi
-    '
+    "
 
     # 建立软链接到 /usr/local/bin 以便全局访问（如果需要）
     # 但我们已经在 setup_runtime_env 中处理了 PATH
