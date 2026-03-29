@@ -160,7 +160,9 @@ RUN clawhub install --force proactive-agent && \
     clawhub install --force cron-mastery && \
     clawhub install --force news-summary && \
     clawhub install --force openclaw-subagents && \
-    clawhub install --force create-subagent
+    clawhub install --force create-subagent && \
+    clawhub install ontology && \
+    clawhub install multi-search-engine
 
 # 6.3 克隆外部技能仓库
 RUN git clone https://github.com/ACautomata/model-guidance /home/node/.openclaw/skills/model-guidance && \
