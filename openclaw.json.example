@@ -96,7 +96,12 @@
         "mode": "safeguard"
       },
       "sandbox": {
-        "mode": "off"
+        "mode": "off",
+        "scope": "agent",
+        "workspaceAccess": "none",
+        "docker": {
+          "image": "openclaw-sandbox:bookworm-slim"
+        }
       },
       "elevatedDefault": "full",
       "maxConcurrent": 4,

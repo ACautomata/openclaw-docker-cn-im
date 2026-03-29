@@ -3,7 +3,9 @@
 set -e
 
 OPENCLAW_HOME="/home/node/.openclaw"
-OPENCLAW_WORKSPACE="${WORKSPACE:-/home/node/.openclaw/workspace}"
+OPENCLAW_WORKSPACE_ROOT="${OPENCLAW_WORKSPACE_ROOT:-$OPENCLAW_HOME}"
+OPENCLAW_WORKSPACE_ROOT="${OPENCLAW_WORKSPACE_ROOT%/}"
+OPENCLAW_WORKSPACE="${OPENCLAW_WORKSPACE_ROOT}/workspace"
 NODE_UID="$(id -u node)"
 NODE_GID="$(id -g node)"
 GATEWAY_PID=""
@@ -12,7 +14,41 @@ log_section() {
     echo "=== $1 ==="
 }
 
+ensure_workspace_root_link() {
+    mkdir -p "$OPENCLAW_HOME"
+
+    if [ "$OPENCLAW_WORKSPACE_ROOT" = "$OPENCLAW_HOME" ]; then
+        return
+    fi
+
+    local workspace_root_parent
+    workspace_root_parent="$(dirname "$OPENCLAW_WORKSPACE_ROOT")"
+    mkdir -p "$workspace_root_parent"
+    mkdir -p "$OPENCLAW_WORKSPACE_ROOT"
+
+    if [ -L "$OPENCLAW_WORKSPACE_ROOT" ]; then
+        local current_target
+        current_target="$(readlink "$OPENCLAW_WORKSPACE_ROOT" || true)"
+        if [ "$current_target" = "$OPENCLAW_HOME" ]; then
+            return
+        fi
+        rm -f "$OPENCLAW_WORKSPACE_ROOT"
+    elif [ -e "$OPENCLAW_WORKSPACE_ROOT" ]; then
+        if [ -d "$OPENCLAW_WORKSPACE_ROOT" ] && [ -z "$(ls -A "$OPENCLAW_WORKSPACE_ROOT" 2>/dev/null)" ]; then
+            rmdir "$OPENCLAW_WORKSPACE_ROOT"
+        else
+            echo "❌ OPENCLAW_WORKSPACE_ROOT 已存在且不能替换为指向 $OPENCLAW_HOME 的软链接: $OPENCLAW_WORKSPACE_ROOT"
+            echo "   请清理或改用其他路径后重试。"
+            exit 1
+        fi
+    fi
+
+    ln -s "$OPENCLAW_HOME" "$OPENCLAW_WORKSPACE_ROOT"
+    echo "已创建工作空间根目录软链接: $OPENCLAW_WORKSPACE_ROOT -> $OPENCLAW_HOME"
+}
+
 ensure_directories() {
+    ensure_workspace_root_link
     mkdir -p "$OPENCLAW_HOME" "$OPENCLAW_WORKSPACE"
 }
 
@@ -159,6 +195,11 @@ fix_permissions_if_needed() {
         chown -R node:node "$OPENCLAW_HOME" || true
     fi
 
+    if [ -S /var/run/docker.sock ]; then
+        echo "检测到 Docker Socket，正在尝试修复权限以支持沙箱..."
+        chmod 666 /var/run/docker.sock || true
+    fi
+
     if ! gosu node test -w "$OPENCLAW_HOME"; then
         echo "❌ 权限检查失败：node 用户无法写入 $OPENCLAW_HOME"
         echo "请在宿主机执行（Linux）："
@@ -192,7 +233,7 @@ ensure_base_config() {
   "agents": {
     "defaults": {
       "compaction": { "mode": "safeguard" },
-      "sandbox": { "mode": "off" },
+      "sandbox": { "mode": "off", "workspaceAccess": "none" },
       "elevatedDefault": "full",
       "maxConcurrent": 4,
       "subagents": { "maxConcurrent": 8 }
@@ -1265,7 +1306,8 @@ def sync_models(ctx):
     ensure_path(ctx.config, ['agents', 'defaults', 'model'])['primary'] = primary_model
     ensure_path(ctx.config, ['agents', 'defaults', 'imageModel'])['primary'] = primary_image_model
 
-    workspace = ctx.env.get('WORKSPACE') or '/home/node/.openclaw/workspace'
+    workspace_root = (ctx.env.get('OPENCLAW_WORKSPACE_ROOT') or '/home/node/.openclaw').rstrip('/') or '/'
+    workspace = f"{workspace_root}/workspace" if workspace_root != '/' else '/workspace'
     ctx.config['agents']['defaults']['workspace'] = workspace
 
     memory = ensure_path(ctx.config, ['memory'])
@@ -1329,7 +1371,48 @@ def sync_models(ctx):
 
 
 def sync_agent_and_tools(ctx):
-    ensure_path(ctx.config, ['agents', 'defaults', 'sandbox'])['mode'] = 'off'
+    sandbox = ensure_path(ctx.config, ['agents', 'defaults', 'sandbox'])
+    # 参考官方文档模式: off | non-main | all
+    sandbox_mode = (ctx.env.get('OPENCLAW_SANDBOX_MODE') or 'off').strip().lower()
+    sandbox['mode'] = sandbox_mode
+
+    # 参考官方文档范围: session | agent | shared
+    sandbox_scope = (ctx.env.get('OPENCLAW_SANDBOX_SCOPE') or 'agent').strip().lower()
+    sandbox['scope'] = sandbox_scope
+
+    # 参考官方文档访问: none | ro | rw
+    sandbox_workspace_access = (ctx.env.get('OPENCLAW_SANDBOX_WORKSPACE_ACCESS') or 'none').strip().lower()
+    sandbox['workspaceAccess'] = sandbox_workspace_access
+
+    # 如果启用了沙箱模式且非 off，允许指定 Docker 镜像
+    if sandbox_mode != 'off':
+        docker_cfg = ensure_path(sandbox, ['docker'])
+        if ctx.env.get('OPENCLAW_SANDBOX_DOCKER_IMAGE'):
+            docker_cfg['image'] = ctx.env['OPENCLAW_SANDBOX_DOCKER_IMAGE']
+        elif 'image' not in docker_cfg:
+            # 默认使用官方标准镜像
+            docker_cfg['image'] = 'openclaw-sandbox:bookworm-slim'
+
+        # 自动配置加入当前容器网络（解决沙箱无网络问题）
+        if parse_bool(ctx.env.get('OPENCLAW_SANDBOX_JOIN_NETWORK'), False):
+            hostname = ctx.env.get('HOSTNAME')
+            if hostname:
+                docker_cfg['network'] = f"container:{hostname}"
+                docker_cfg['dangerouslyAllowContainerNamespaceJoin'] = True
+
+    sandbox_json = parse_json_object(ctx.env.get('OPENCLAW_SANDBOX_JSON'), 'OPENCLAW_SANDBOX_JSON')
+    if sandbox_json is not None:
+        deep_merge(sandbox, sandbox_json)
+        print('✅ 已从 OPENCLAW_SANDBOX_JSON 同步沙箱配置')
+
+    # 自动补全加入容器网络所需的特殊权限
+    if 'docker' in sandbox and isinstance(sandbox['docker'], dict):
+        d_cfg = sandbox['docker']
+        net = d_cfg.get('network')
+        if isinstance(net, str) and net.startswith('container:'):
+            if d_cfg.get('dangerouslyAllowContainerNamespaceJoin') is not True:
+                d_cfg['dangerouslyAllowContainerNamespaceJoin'] = True
+                print(f'✅ 检测到沙箱网络配置为 {net}，已自动开启 dangerouslyAllowContainerNamespaceJoin')
 
     tools = ensure_path(ctx.config, ['tools'])
     tools_json = parse_json_object(ctx.env.get('OPENCLAW_TOOLS_JSON'), 'OPENCLAW_TOOLS_JSON')
@@ -1342,7 +1425,7 @@ def sync_agent_and_tools(ctx):
         tools['profile'] = 'full'
         ensure_path(tools, ['sessions'])['visibility'] = 'all'
         ensure_path(tools, ['fs'])['workspaceOnly'] = True
-        print('✅ Agent/工具配置同步完成: sandbox.mode=off, profile=full, sessions.visibility=all, fs.workspaceOnly=true')
+        print(f'✅ Agent/工具配置同步完成: sandbox.mode={sandbox_mode}, scope={sandbox_scope}, workspaceAccess={sandbox_workspace_access}, profile=full')
 
 
 def sync_feishu_channel(ctx, channel):
@@ -1962,6 +2045,9 @@ print_runtime_summary() {
     echo "Gateway 允许不安全认证: ${OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH:-true}"
     echo "Gateway 禁用设备认证: ${OPENCLAW_GATEWAY_DANGEROUSLY_DISABLE_DEVICE_AUTH:-false}"
     echo "插件启用: ${OPENCLAW_PLUGINS_ENABLED:-true}"
+    echo "沙箱模式: ${OPENCLAW_SANDBOX_MODE:-off}"
+    echo "沙箱范围: ${OPENCLAW_SANDBOX_SCOPE:-agent}"
+    echo "沙箱访问权限: ${OPENCLAW_SANDBOX_WORKSPACE_ACCESS:-none}"
     echo "允许插件列表已由系统自动同步"
 }
 

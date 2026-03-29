@@ -32,6 +32,7 @@
 - **全平台支持**：预装飞书（官方/旧版）、钉钉、QQ 机器人、企业微信插件，并集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach) 支持 Twitter、小红书、微博、抖音等全网渠道。
 - **配置驱动**：支持通过环境变量自动生成配置，提供 [`.env.example`](.env.example) 快速上手。
 - **工具集增强**：集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach)、OpenCode AI、Playwright、FFmpeg、中文 TTS 等 AI 常用工具。
+- **安全沙箱**：支持 Docker-in-Docker 沙箱模式，实现 Python 代码与 Shell 脚本的隔离运行，确保宿主机安全(使用官方最小镜像，无使用示例)。
 - **生产友好**：支持数据持久化挂载，提供独立工具容器用于飞书插件安装等一次性操作。
 
 ## 📖 文档索引
@@ -74,6 +75,7 @@ docker compose up -d
 - 生产或长期维护场景，建议直接克隆仓库而不是只单独下载 [`docker-compose.yml`](docker-compose.yml) 和 [`.env.example`](.env.example)
 - 每次升级前，先同步 [`README.md`](README.md)、[`docker-compose.yml`](docker-compose.yml)、[`.env.example`](.env.example) 与新增文档
 - 如果你手动维护 [`openclaw.json`](openclaw.json.example)，建议同时关注 [`openclaw.json.example`](openclaw.json.example) 的结构变化
+- 如需启用 **Docker 沙箱** 功能，请确保在 `.env` 中设置 `OPENCLAW_SANDBOX_MODE=all` (或 `non-main`)，并取消 `docker-compose.yml` 中 `/var/run/docker.sock` 挂载行的注释。
 
 ## 📈 Star History
 

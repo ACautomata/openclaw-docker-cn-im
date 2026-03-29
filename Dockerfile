@@ -23,7 +23,7 @@ RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debia
     sed -i 's@security.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        bash ca-certificates chromium curl build-essential ffmpeg \
+        bash ca-certificates chromium curl docker.io build-essential ffmpeg \
         fonts-liberation fonts-noto-cjk fonts-noto-color-emoji \
         git gosu jq locales openssh-client procps python3 socat \
         tini unzip pipx python3-venv python3-pip websockify && \
@@ -98,7 +98,7 @@ RUN cd /home/node/.openclaw/extensions && \
     timeout 300 openclaw plugins install -l . || true && \
     cd /home/node/.openclaw/extensions && \
     timeout 300 openclaw plugins install clawhub:openclaw-memory-plugin && \
-    timeout 300 openclaw plugins install clawhub:humanizeai  && \
+    timeout 300 openclaw plugins install clawhub:humanizeai && \
     timeout 300 openclaw plugins install clawhub:@openclaw/ralph-loop && \
     timeout 300 openclaw plugins install @soimy/dingtalk || true && \
     timeout 300 openclaw plugins install @tencent-connect/openclaw-qqbot@latest || true && \
@@ -106,7 +106,7 @@ RUN cd /home/node/.openclaw/extensions && \
     mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
     find /home/node/.openclaw/extensions -name ".git" -type d -exec rm -rf {} + && \
     mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
-    printf '%s\n' '2026.3.24' > /home/node/.openclaw-seed/extensions/.seed-version && \
+    printf '%s\n' '2026.3.28' > /home/node/.openclaw-seed/extensions/.seed-version && \
     rm -rf /tmp/* /home/node/.npm /home/node/.cache
 
 # =============================================================================
@@ -141,7 +141,6 @@ RUN --mount=type=secret,id=clawhub,env=CLAWHUB_TOKEN,required=true \
 RUN clawhub install --force proactive-agent && \
     clawhub install mcporter && \
     clawhub install self-improving && \
-    # clawhub install --force agent-browser && \
     clawhub install agent-browser-clawdbot && \
     clawhub install --force browser-use && \
     clawhub install --force evolver && \
@@ -154,7 +153,6 @@ RUN clawhub install --force proactive-agent && \
     clawhub install --force deep-research-pro && \
     clawhub install agent-builder && \
     clawhub install creativity && \
-    # clawhub install --force skill-improvement && \
     clawhub install --force skill-refiner && \
     clawhub install --force skill-creator && \
     clawhub install agent && \
@@ -163,7 +161,6 @@ RUN clawhub install --force proactive-agent && \
     clawhub install --force news-summary && \
     clawhub install --force openclaw-subagents && \
     clawhub install --force create-subagent
-
 
 # 6.3 克隆外部技能仓库
 RUN git clone https://github.com/ACautomata/model-guidance /home/node/.openclaw/skills/model-guidance && \

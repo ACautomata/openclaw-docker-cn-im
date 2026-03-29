@@ -108,6 +108,31 @@ docker compose up -d
 
 ---
 
+## 启用沙箱支持 (可选)
+
+沙箱功能用于隔离 AI 执行 Python 代码与 Shell 脚本的环境，防止对主容器造成潜在安全威胁。
+
+1. 修改 `.env` 文件，启用沙箱模式：
+   ```bash
+   OPENCLAW_SANDBOX_MODE=all
+   ```
+2. 修改 `docker-compose.yml`，取消第 200 行左右关于 `/var/run/docker.sock` 挂载的注释：
+   ```yaml
+   volumes:
+     - ${OPENCLAW_DATA_DIR}:/home/node/.openclaw
+     - openclaw-extensions:/home/node/.openclaw/extensions
+     # 取消下面这一行的注释
+     - /var/run/docker.sock:/var/run/docker.sock
+   ```
+3. 重新启动服务：
+   ```bash
+   docker compose up -d --force-recreate
+   ```
+
+详细配置说明请参考 [配置指南](configuration.md#沙箱配置-sandbox)。
+
+---
+
 ## 升级建议
 
 推荐直接克隆仓库进行维护。升级时，先同步项目文件，再拉取镜像并重建容器，避免遗漏新增的环境变量、Compose 编排或文档变更。
