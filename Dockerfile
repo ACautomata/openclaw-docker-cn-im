@@ -97,6 +97,8 @@ RUN cd /home/node/.openclaw/extensions && \
     npm install --production && \
     timeout 300 openclaw plugins install -l . || true && \
     cd /home/node/.openclaw/extensions && \
+    timeout openclaw plugins install clawhub:openclaw-memory-plugin && \
+    timeout openclaw plugins install clawhub:humanizeai  && \
     timeout 300 openclaw plugins install @soimy/dingtalk || true && \
     timeout 300 openclaw plugins install @tencent-connect/openclaw-qqbot@latest || true && \
     timeout 300 openclaw plugins install @sunnoy/wecom || true && \
@@ -161,8 +163,6 @@ RUN clawhub install --force proactive-agent && \
     clawhub install --force openclaw-subagents && \
     clawhub install --force create-subagent
 
-RUN openclaw plugins install clawhub:openclaw-memory-plugin && \
-    openclaw plugins install clawhub:humanizeai 
 
 # 6.3 克隆外部技能仓库
 RUN git clone https://github.com/ACautomata/model-guidance /home/node/.openclaw/skills/model-guidance && \
