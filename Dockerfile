@@ -45,7 +45,7 @@ RUN npm config set registry https://registry.npmmirror.com
 
 # 2.2 全局 npm 工具（OpenClaw 核心依赖）
 RUN npm install -g \
-        openclaw@2026.3.28 \
+        openclaw@2026.3.31 \
         opencode-ai@latest \
         clawhub \
         playwright \
@@ -106,7 +106,7 @@ RUN cd /home/node/.openclaw/extensions && \
     mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
     find /home/node/.openclaw/extensions -name ".git" -type d -exec rm -rf {} + && \
     mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
-    printf '%s\n' '2026.3.28' > /home/node/.openclaw-seed/extensions/.seed-version && \
+    printf '%s\n' '2026.3.31' > /home/node/.openclaw-seed/extensions/.seed-version && \
     rm -rf /tmp/* /home/node/.npm /home/node/.cache
 USER root
 
