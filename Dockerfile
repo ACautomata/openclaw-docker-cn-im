@@ -48,6 +48,7 @@ RUN apt-get update && \
     PYTHON_PATH=$(uv python find 3.12) && \
     PYTHON_ROOT=$(dirname $(dirname "$PYTHON_PATH")) && \
     mv "$PYTHON_ROOT" /usr/local/python312 && \
+    chmod -R 755 /usr/local/python312 && \
     ln -sf /usr/local/python312/bin/python3 /usr/local/bin/python3 && \
     ln -sf /usr/local/python312/bin/python3 /usr/local/bin/python && \
     # 移除 EXTERNALLY-MANAGED 限制并安装 websockify
