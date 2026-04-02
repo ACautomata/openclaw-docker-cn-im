@@ -28,13 +28,9 @@ RUN apt-get update && \
     locales \
     openssh-client \
     procps \
-    python3 \
     socat \
     tini \
-    unzip \
-    pipx \
-    python3-venv \
-    websockify && \
+    unzip && \
     sed -i 's/^# *en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen && \
     # update-locale 在部分 slim 基础镜像中会返回 invalid locale settings，这里改为直接写入默认 locale 配置
@@ -43,10 +39,17 @@ RUN apt-get update && \
     git config --system url."https://github.com/".insteadOf ssh://git@github.com/ && \
     # 设置 npm 镜像并安装全局包
     npm config set registry https://registry.npmmirror.com && \
-    npm install -g openclaw@2026.3.28 opencode-ai@latest clawhub playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
-    # 安装 bun、uv 和 qmd
+    npm install -g openclaw@2026.4.1 opencode-ai@latest clawhub playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
+    # 安装 bun、uv 和 qmd，并使用 uv 安装 Python 3.12
     curl -fsSL https://bun.sh/install | BUN_INSTALL=/usr/local bash && \
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh && \
+    uv python install 3.12 && \
+    # 将 uv 管理的 python 复制到全局目录，确保 node 用户也可访问
+    PYTHON_PATH=$(uv python find 3.12) && \
+    cp -ra $(dirname $(dirname "$PYTHON_PATH")) /usr/local/python312 && \
+    ln -sf /usr/local/python312/bin/python3 /usr/local/bin/python3 && \
+    ln -sf /usr/local/python312/bin/python3 /usr/local/bin/python && \
+    uv pip install --system websockify && \
     npm install -g @tobilu/qmd@1.1.6 && \
     # 安装 Playwright 浏览器依赖
     npx playwright install chromium --with-deps && \
@@ -86,7 +89,7 @@ RUN cd /home/node/.openclaw/extensions && \
   # npx -y @larksuite/openclaw-lark-tools install && \
   find /home/node/.openclaw/extensions -name ".git" -type d -exec rm -rf {} + && \
   mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
-  printf '%s\n' '2026.3.28' > /home/node/.openclaw-seed/extensions/.seed-version && \
+  printf '%s\n' '2026.4.1' > /home/node/.openclaw-seed/extensions/.seed-version && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
   
 # 3. 最终配置
