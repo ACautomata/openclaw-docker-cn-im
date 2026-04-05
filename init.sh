@@ -9,6 +9,7 @@ OPENCLAW_WORKSPACE="${OPENCLAW_WORKSPACE_ROOT}/workspace"
 NODE_UID="$(id -u node)"
 NODE_GID="$(id -g node)"
 GATEWAY_PID=""
+CLAWHUB_INIT_MARKER="$OPENCLAW_HOME/.clawhub-init-complete"
 
 log_section() {
     echo "=== $1 ==="
@@ -2162,6 +2163,96 @@ EOF
     export DBUS_SESSION_BUS_ADDRESS=/dev/null
 }
 
+install_clawhub_extras() {
+    # 仅在首次运行时执行（标记文件不存在时）
+    if [ -f "$CLAWHUB_INIT_MARKER" ]; then
+        log_section "ClawHub 扩展已初始化，跳过安装"
+        return
+    fi
+
+    log_section "首次运行：安装 ClawHub 扩展（全局工具、插件、技能）"
+
+    # 1. 安装额外全局 Node 工具（mcporter, agent-browser）
+    if command -v npm >/dev/null 2>&1; then
+        echo "安装全局 Node 工具 (mcporter, agent-browser)..."
+        npm install -g mcporter agent-browser 2>/dev/null || true
+        npm cache clean --force 2>/dev/null || true
+    fi
+
+    # 2. 配置 mcporter MCP 服务
+    if command -v mcporter >/dev/null 2>&1; then
+        echo "配置 mcporter MCP 服务..."
+        mcporter config add rednote http://rednote.mcp:18060/mcp 2>/dev/null || true
+        mcporter config add freesearch --command "uvx mcp-server-freesearch --break-system-packages" --env SEARXNG_API_URL="https://searx.bndkt.io" 2>/dev/null || true
+    fi
+
+    # 3. ClawHub 登录并安装插件（需要 CLAWHUB_TOKEN 环境变量）
+    local clawhub_token="${CLAWHUB_TOKEN:-}"
+    if [ -n "$clawhub_token" ]; then
+        echo "使用 CLAWHUB_TOKEN 登录 ClawHub..."
+        clawhub login --token "$clawhub_token" --no-browser 2>/dev/null || true
+
+        echo "安装 ClawHub 插件..."
+        timeout 300 openclaw plugins install --dangerously-force-unsafe-install clawhub:humanizeai 2>/dev/null || true
+        timeout 300 openclaw plugins install --dangerously-force-unsafe-install clawhub:@openclaw/ralph-loop 2>/dev/null || true
+    else
+        echo "未设置 CLAWHUB_TOKEN，跳过 ClawHub 登录和插件安装"
+    fi
+
+    # 4. 安装 ClawHub 技能包
+    if [ -n "$clawhub_token" ]; then
+        echo "安装 ClawHub 技能包..."
+        clawhub install --force proactive-agent 2>/dev/null || true
+        clawhub install mcporter 2>/dev/null || true
+        clawhub install self-improving 2>/dev/null || true
+        clawhub install agent-browser-clawdbot 2>/dev/null || true
+        clawhub install --force browser-use 2>/dev/null || true
+        clawhub install --force evolver 2>/dev/null || true
+        clawhub install --force capability-evolver 2>/dev/null || true
+        clawhub install --force humanizer 2>/dev/null || true
+        clawhub install skill-vetter 2>/dev/null || true
+        clawhub install --force clawddocs 2>/dev/null || true
+        clawhub install --force parallel-deep-research 2>/dev/null || true
+        clawhub install --force deep-research-pro 2>/dev/null || true
+        clawhub install agent-builder 2>/dev/null || true
+        clawhub install creativity 2>/dev/null || true
+        clawhub install --force skill-refiner 2>/dev/null || true
+        clawhub install --force skill-creator 2>/dev/null || true
+        clawhub install agent 2>/dev/null || true
+        clawhub install --force agent-evaluation 2>/dev/null || true
+        clawhub install --force cron-mastery 2>/dev/null || true
+        clawhub install --force news-summary 2>/dev/null || true
+        clawhub install --force openclaw-subagents 2>/dev/null || true
+        clawhub install --force create-subagent 2>/dev/null || true
+        clawhub install ontology 2>/dev/null || true
+        clawhub install multi-search-engine 2>/dev/null || true
+    fi
+
+    # 5. 克隆外部技能仓库
+    echo "克隆外部技能仓库..."
+    mkdir -p "$OPENCLAW_HOME/skills"
+    if [ ! -d "$OPENCLAW_HOME/skills/model-guidance" ]; then
+        git clone --depth 1 https://github.com/ACautomata/model-guidance "$OPENCLAW_HOME/skills/model-guidance" 2>/dev/null || true
+    fi
+    if [ ! -d "$OPENCLAW_HOME/skills/openclaw-optimizer" ]; then
+        git clone --depth 1 https://github.com/ACautomata/openclaw-optimizer "$OPENCLAW_HOME/skills/openclaw-optimizer" 2>/dev/null || true
+    fi
+    if [ ! -d "$OPENCLAW_HOME/skills/openclaw-workspace" ]; then
+        git clone --depth 1 https://github.com/win4r/openclaw-workspace "$OPENCLAW_HOME/skills/openclaw-workspace" 2>/dev/null || true
+    fi
+    if [ ! -d "$OPENCLAW_HOME/skills/memory-lancedb-pro-skill" ]; then
+        git clone --depth 1 https://github.com/CortexReach/memory-lancedb-pro-skill "$OPENCLAW_HOME/skills/memory-lancedb-pro-skill" 2>/dev/null || true
+    fi
+
+    # 6. 修复权限并创建完成标记
+    if is_root; then
+        chown -R node:node "$OPENCLAW_HOME" 2>/dev/null || true
+    fi
+
+    touch "$CLAWHUB_INIT_MARKER"
+    echo "✅ ClawHub 扩展安装完成，已创建标记文件: $CLAWHUB_INIT_MARKER"
+}
+
 install_agent_reach() {
     if [ "${AGENT_REACH_ENABLED:-false}" != "true" ]; then
         return
@@ -2309,6 +2400,7 @@ main() {
     ensure_config_persistence
     fix_permissions_if_needed
     sync_seed_extensions
+    install_clawhub_extras
     install_agent_reach
     sync_config_with_env
     finalize_permissions
