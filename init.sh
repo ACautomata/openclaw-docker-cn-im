@@ -2191,17 +2191,17 @@ install_clawhub_extras() {
     if [ -n "$clawhub_token" ]; then
         echo "使用 CLAWHUB_TOKEN 登录 ClawHub..."
         clawhub login --token "$clawhub_token" --no-browser 2>/dev/null || true
-
-        echo "安装 ClawHub 插件..."
-        timeout 300 openclaw plugins install --dangerously-force-unsafe-install clawhub:humanizeai 2>/dev/null || true
-        timeout 300 openclaw plugins install --dangerously-force-unsafe-install clawhub:@openclaw/ralph-loop 2>/dev/null || true
     else
-        echo "未设置 CLAWHUB_TOKEN，跳过 ClawHub 登录和插件安装"
+        echo "未设置 CLAWHUB_TOKEN，尝试匿名安装"
     fi
 
-    # 4. 安装 ClawHub 技能包
-    if [ -n "$clawhub_token" ]; then
-        echo "安装 ClawHub 技能包..."
+    # 4. 安装 ClawHub 插件
+    echo "安装 ClawHub 插件..."
+    timeout 300 openclaw plugins install --dangerously-force-unsafe-install clawhub:humanizeai 2>/dev/null || true
+    timeout 300 openclaw plugins install --dangerously-force-unsafe-install clawhub:@openclaw/ralph-loop 2>/dev/null || true
+
+    # 5. 安装 ClawHub 技能包
+    echo "安装 ClawHub 技能包..."
         clawhub install --force proactive-agent 2>/dev/null || true
         clawhub install mcporter 2>/dev/null || true
         clawhub install self-improving 2>/dev/null || true
@@ -2226,9 +2226,8 @@ install_clawhub_extras() {
         clawhub install --force create-subagent 2>/dev/null || true
         clawhub install ontology 2>/dev/null || true
         clawhub install multi-search-engine 2>/dev/null || true
-    fi
 
-    # 5. 克隆外部技能仓库
+    # 6. 克隆外部技能仓库
     echo "克隆外部技能仓库..."
     mkdir -p "$OPENCLAW_HOME/skills"
     if [ ! -d "$OPENCLAW_HOME/skills/model-guidance" ]; then
@@ -2244,7 +2243,7 @@ install_clawhub_extras() {
         git clone --depth 1 https://github.com/CortexReach/memory-lancedb-pro-skill "$OPENCLAW_HOME/skills/memory-lancedb-pro-skill" 2>/dev/null || true
     fi
 
-    # 6. 修复权限并创建完成标记
+    # 7. 修复权限并创建完成标记
     if is_root; then
         chown -R node:node "$OPENCLAW_HOME" 2>/dev/null || true
     fi
