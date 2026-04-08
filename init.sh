@@ -354,8 +354,15 @@ WECOM_ACCOUNT_FIELDS = {
     'groupChat', 'dm', 'workspaceTemplate'
 }
 WECOM_RESERVED_FIELDS = {'enabled', 'defaultAccount', 'adminUsers', 'commands', 'dynamicAgents'}
-QQBOT_ACCOUNT_FIELDS = {'appId', 'clientSecret', 'enabled'}
-QQBOT_RESERVED_FIELDS = {'enabled', 'appId', 'clientSecret', 'dmPolicy', 'allowFrom', 'groupPolicy', 'accounts'}
+QQBOT_ACCOUNT_FIELDS = {
+    'enabled', 'name', 'appId', 'clientSecret', 'clientSecretFile', 'allowFrom',
+    'systemPrompt', 'markdownSupport', 'voiceDirectUploadFormats', 'audioFormatPolicy',
+    'urlDirectUpload', 'upgradeUrl', 'upgradeMode'
+}
+QQBOT_RESERVED_FIELDS = {
+    'enabled', 'appId', 'clientSecret', 'allowFrom',
+    'accounts', 'defaultAccount', 'tts', 'stt'
+}
 
 CHANNEL_INSTALLS = {
     'feishu': {'source': 'npm', 'spec': '@openclaw/feishu', 'installPath': '/home/node/.openclaw/extensions/feishu'},
@@ -546,7 +553,10 @@ def is_wecom_account_config(value):
 
 
 def is_qqbot_account_config(value):
-    return isinstance(value, dict) and any(key in value for key in QQBOT_ACCOUNT_FIELDS)
+    if not isinstance(value, dict):
+        return False
+    # 至少包含 appId 或 clientSecret 之一，或者包含其他账号特定字段
+    return any(key in value for key in {'appId', 'clientSecret', 'name', 'systemPrompt', 'markdownSupport'})
 
 
 def get_feishu_accounts(feishu):
@@ -693,6 +703,18 @@ def normalize_qqbot_config(channels):
         return
 
     migrated = False
+    
+    # 移除不再支持的顶层字段
+    removed_fields = []
+    for field in ['dmPolicy', 'groupPolicy']:
+        if field in qqbot:
+            del qqbot[field]
+            removed_fields.append(field)
+            migrated = True
+    
+    if removed_fields:
+        print(f'✅ QQ 机器人配置已移除过时字段: {", ".join(removed_fields)}')
+    
     accounts = qqbot.get('accounts')
     if not isinstance(accounts, dict):
         accounts = {}
@@ -740,6 +762,33 @@ def normalize_qqbot_config(channels):
 
     if migrated:
         print('✅ QQ 机器人配置已标准化为多 Bot 结构')
+
+
+def normalize_telegram_config(channels):
+    telegram = channels.get('telegram')
+    if not isinstance(telegram, dict):
+        return
+
+    streaming = telegram.get('streaming')
+    if streaming is None:
+        return
+
+    # 检测旧版格式：streaming 是字符串而非对象
+    if isinstance(streaming, str):
+        print('检测到 Telegram 旧版 streaming 配置格式，正在执行自动迁移...')
+        mode = streaming
+        telegram['streaming'] = {
+            'mode': mode,
+            'chunkMode': 'default',
+            'preview': {
+                'chunk': True
+            },
+            'block': {
+                'enabled': False,
+                'coalesce': True
+            }
+        }
+        print('✅ Telegram 配置已迁移到新版嵌套结构')
 
 
 def normalize_feishu_config(channels):
@@ -1054,7 +1103,7 @@ def merge_qqbot_bots_from_env(channels, env):
         if not is_valid_account_id(account_id):
             raise ValueError(f'QQBOT_BOTS_JSON 账号 ID 不合法: {account_id}，仅支持小写字母、数字、-、_')
         if not isinstance(account_cfg, dict) or not is_qqbot_account_config(account_cfg):
-            raise ValueError(f'QQBOT_BOTS_JSON 账号配置非法: {account_id}，至少包含 appId/clientSecret/enabled 中的一项')
+            raise ValueError(f'QQBOT_BOTS_JSON 账号配置非法: {account_id}，至少包含 appId/clientSecret/name/systemPrompt/markdownSupport 中的一项')
 
         old_cfg = accounts.get(account_id)
         if not isinstance(old_cfg, dict):
@@ -1570,9 +1619,7 @@ def sync_qqbot_channel(ctx, channel):
         'enabled': True,
         'appId': env['QQBOT_APP_ID'],
         'clientSecret': env['QQBOT_CLIENT_SECRET'],
-        'dmPolicy': env.get('QQBOT_DM_POLICY') or ctx.default_dm_policy,
         'allowFrom': parse_csv(env.get('QQBOT_ALLOW_FROM')) or ctx.default_allow_from,
-        'groupPolicy': env.get('QQBOT_GROUP_POLICY') or ctx.default_group_policy,
     })
     ensure_path(channel, ['accounts', 'default']).update({
         'enabled': True,
@@ -1692,7 +1739,17 @@ def apply_channel_rules(ctx):
                 'dmPolicy': ctx.env.get('TELEGRAM_DM_POLICY') or ctx.default_dm_policy,
                 'allowFrom': parse_csv(ctx.env.get('TELEGRAM_ALLOW_FROM')) or ctx.default_allow_from,
                 'groupPolicy': ctx.env.get('TELEGRAM_GROUP_POLICY') or ctx.default_group_policy,
-                'streaming': 'partial',
+                'streaming': {
+                    'mode': 'partial',
+                    'chunkMode': 'default',
+                    'preview': {
+                        'chunk': True,
+                    },
+                    'block': {
+                        'enabled': False,
+                        'coalesce': True,
+                    },
+                },
             }),
             'install': False,
         },
@@ -1995,6 +2052,7 @@ def sync():
         normalize_dingtalk_config(ctx.channels)
         normalize_wecom_config(ctx.channels)
         normalize_qqbot_config(ctx.channels)
+        normalize_telegram_config(ctx.channels)
 
         sync_models(ctx)
         sync_agent_and_tools(ctx)

@@ -148,7 +148,17 @@
       "allowFrom": ["*"],
       "botToken": "your-token",
       "groupPolicy": "open",
-      "streaming": "partial"
+      "streaming": {
+        "mode": "partial",
+        "chunkMode": "default",
+        "preview": {
+          "chunk": true
+        },
+        "block": {
+          "enabled": false,
+          "coalesce": true
+        }
+      }
     },
     "feishu": {
       "enabled": true,
@@ -251,9 +261,7 @@
       "enabled": true,
       "appId": "your-qqbot-app-id",
       "clientSecret": "your-qqbot-client-secret",
-      "dmPolicy": "open",
       "allowFrom": ["*"],
-      "groupPolicy": "open",
       "accounts": {
         "default": {
           "enabled": true,
