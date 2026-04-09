@@ -1,4 +1,4 @@
-# OpenClaw-CN-Docker
+# OpenClaw-CHINA-Docker
 
 > 面向中国 IM 场景的 OpenClaw Docker 整合镜像，预装飞书、钉钉、QQ 机器人、企业微信等常用插件，适合快速搭建统一的 AI 机器人网关。
 
@@ -81,7 +81,7 @@ docker compose up -d
 
 - 如果项目对你有帮助，欢迎点一个 Star。
 
-[![Star History Chart](https://api.star-history.com/svg?repos=justlovemaki/OpenClaw-CN-Docker&type=Date)](https://star-history.com/#justlovemaki/OpenClaw-CN-Docker&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=justlovemaki/OpenClaw-CHINA-Docker&type=Date)](https://star-history.com/#justlovemaki/OpenClaw-CHINA-Docker&Date)
 
 ## 许可证
 
