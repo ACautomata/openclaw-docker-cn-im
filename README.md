@@ -1,4 +1,4 @@
-# OpenClaw-China-Docker
+# OpenClaw-China-Docker (暂停更新)
 
 > 面向中国 IM 场景的 OpenClaw Docker 整合镜像，预装飞书、钉钉、QQ 机器人、企业微信等常用插件，适合快速搭建统一的 AI 机器人网关。
 
