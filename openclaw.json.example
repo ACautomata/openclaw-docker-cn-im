@@ -335,7 +335,17 @@
     }
   },
   "plugins": {
+    "slots": {
+      "contextEngine": "lossless-claw"
+    },
     "entries": {
+      "lossless-claw": {
+        "enabled": true,
+        "config": {
+          "freshTailCount": 32,
+          "contextThreshold": 0.75
+        }
+      },
       "telegram": {
         "enabled": true
       },
@@ -353,6 +363,12 @@
       }
     },
     "installs": {
+      "lossless-claw": {
+        "source": "path",
+        "sourcePath": "/home/node/.openclaw/extensions/lossless-claw",
+        "installPath": "/home/node/.openclaw/extensions/lossless-claw",
+        "installedAt": "2026-04-23T00:00:00.000Z"
+      },
       "feishu": {
         "source": "npm",
         "spec": "@openclaw/feishu",

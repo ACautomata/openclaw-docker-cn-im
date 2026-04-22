@@ -387,6 +387,7 @@ CHANNEL_INSTALLS = {
     'openclaw-qqbot': {'source': 'path', 'sourcePath': '/home/node/.openclaw/openclaw-qqbot', 'installPath': '/home/node/.openclaw/extensions/openclaw-qqbot'},
     'napcat': {'source': 'path', 'sourcePath': '/home/node/.openclaw/extensions/napcat', 'installPath': '/home/node/.openclaw/extensions/napcat'},
     'wecom': {'source': 'npm', 'spec': '@sunnoy/wecom', 'installPath': '/home/node/.openclaw/extensions/wecom'},
+    'lossless-claw': {'source': 'path', 'sourcePath': '/home/node/.openclaw/extensions/lossless-claw', 'installPath': '/home/node/.openclaw/extensions/lossless-claw'},
 }
 
 
@@ -1375,6 +1376,68 @@ def is_openclaw_sync_enabled(env):
     return parse_bool(env.get('SYNC_OPENCLAW_CONFIG', 'true'), True)
 
 
+def _lcm_env_str(env, key, cfg, cfg_key):
+    v = (env.get(key) or '').strip()
+    if v:
+        cfg[cfg_key] = v
+
+def _lcm_env_num(env, key, cfg, cfg_key, cast):
+    v = (env.get(key) or '').strip()
+    if v:
+        try:
+            cfg[cfg_key] = cast(v)
+        except (ValueError, TypeError):
+            pass
+
+def _lcm_env_csv(env, key, cfg, cfg_key):
+    v = (env.get(key) or '').strip()
+    if v:
+        cfg[cfg_key] = [p.strip() for p in v.split(',') if p.strip()]
+
+def _lcm_env_bool(env, key, cfg, cfg_key):
+    v = (env.get(key) or '').strip().lower()
+    if v in ('true', '1', 'yes'):
+        cfg[cfg_key] = True
+    elif v in ('false', '0', 'no'):
+        cfg[cfg_key] = False
+
+
+def sync_lossless_claw(ctx):
+    lcm_env = (ctx.env.get('LCM_ENABLED') or '').strip().lower()
+    lcm_explicitly_disabled = lcm_env in ('false', '0', 'no', 'off')
+
+    if lcm_explicitly_disabled:
+        ctx.entries['lossless-claw'] = {'enabled': False}
+        slots = ctx.plugins.get('slots')
+        if isinstance(slots, dict) and slots.get('contextEngine') == 'lossless-claw':
+            del slots['contextEngine']
+        return
+
+    config = {}
+    _lcm_env_num(ctx.env, 'LCM_CONTEXT_THRESHOLD', config, 'contextThreshold', float)
+    _lcm_env_num(ctx.env, 'LCM_FRESH_TAIL_COUNT', config, 'freshTailCount', int)
+    _lcm_env_num(ctx.env, 'LCM_INCREMENTAL_MAX_DEPTH', config, 'incrementalMaxDepth', int)
+    _lcm_env_num(ctx.env, 'LCM_LEAF_CHUNK_TOKENS', config, 'leafChunkTokens', int)
+    _lcm_env_str(ctx.env, 'LCM_SUMMARY_MODEL', config, 'summaryModel')
+    _lcm_env_str(ctx.env, 'LCM_SUMMARY_PROVIDER', config, 'summaryProvider')
+    _lcm_env_str(ctx.env, 'LCM_EXPANSION_MODEL', config, 'expansionModel')
+    _lcm_env_str(ctx.env, 'LCM_EXPANSION_PROVIDER', config, 'expansionProvider')
+    _lcm_env_str(ctx.env, 'LCM_DATABASE_PATH', config, 'dbPath')
+    _lcm_env_csv(ctx.env, 'LCM_IGNORE_SESSION_PATTERNS', config, 'ignoreSessionPatterns')
+    _lcm_env_csv(ctx.env, 'LCM_STATELESS_SESSION_PATTERNS', config, 'statelessSessionPatterns')
+    _lcm_env_bool(ctx.env, 'LCM_SKIP_STATELESS_SESSIONS', config, 'skipStatelessSessions')
+    _lcm_env_num(ctx.env, 'LCM_LARGE_FILE_TOKEN_THRESHOLD', config, 'largeFileThresholdTokens', int)
+
+    ctx.entries['lossless-claw'] = {
+        'enabled': True,
+        **({'config': config} if config else {}),
+    }
+
+    slots = ensure_path(ctx.plugins, ['slots'])
+    slots['contextEngine'] = 'lossless-claw'
+    ctx.install('lossless-claw')
+
+
 def sync_models(ctx):
     if not is_openclaw_sync_enabled(ctx.env):
         print('ℹ️ 已关闭整体配置同步，跳过模型同步')
@@ -2062,6 +2125,7 @@ def sync_channels_and_plugins(ctx):
     migrate_qqbot_plugin_entry(ctx)
     apply_multi_account_plugin_state(ctx)
     apply_feishu_plugin_switch(ctx)
+    sync_lossless_claw(ctx)
     finalize_plugins(ctx)
     validate_feishu_multi_accounts(ctx.channels)
     validate_dingtalk_multi_accounts(ctx.channels)
