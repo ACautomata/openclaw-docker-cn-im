@@ -82,6 +82,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            CLAWHUB_TOKEN=${{ secrets.CLAWHUB_TOKEN }}
           
       - name: 输出镜像信息
         run: |

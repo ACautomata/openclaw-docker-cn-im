@@ -1,6 +1,6 @@
 # 配置指南
 
-本文聚焦 [`OpenClaw-Docker-CN-IM`](../README.md) 的核心配置项，包括模型、Gateway、工作空间、环境变量组织方式，以及与 [`openclaw.json.example`](../openclaw.json.example) 的对应关系。
+本文聚焦 [`OpenClaw-China-Docker`](../README.md) 的核心配置项，包括模型、Gateway、工作空间、环境变量组织方式，以及与 [`openclaw.json.example`](../openclaw.json.example) 的对应关系。
 
 ## 配置文件关系
 
@@ -8,7 +8,8 @@
 
 | 文件 | 作用 |
 | --- | --- |
-| [`.env.example`](../.env.example) | 环境变量模板，复制为 `.env` 后使用 |
+| [`.env.example`](../.env.example) | 完整环境变量模板，包含所有可选配置及详细注释 |
+| [`.env.minimal`](../.env.minimal) | 精简环境变量模板，仅包含运行必需的核心参数 |
 | [`docker-compose.yml`](../docker-compose.yml) | 把环境变量注入容器并定义卷、端口、服务 |
 | [`openclaw.json.example`](../openclaw.json.example) | OpenClaw 配置结构示例，用于理解最终生成结果 |
 | [`init.sh`](../init.sh) | 启动时读取环境变量并生成 / 修正实际配置 |
@@ -138,7 +139,6 @@ IMAGE_MODEL_ID=aliyun/qwen-vl-max
 | `OPENCLAW_GATEWAY_TOKEN` | Gateway 访问令牌 | `123456` |
 | `OPENCLAW_GATEWAY_BIND` | 绑定地址 | `lan` |
 | `OPENCLAW_GATEWAY_PORT` | Gateway 端口 | `18789` |
-| `OPENCLAW_BRIDGE_PORT` | Bridge 端口 | `18790` |
 | `OPENCLAW_GATEWAY_MODE` | 运行模式 | `local` |
 | `OPENCLAW_GATEWAY_ALLOWED_ORIGINS` | 允许的来源域 | `http://localhost` |
 | `OPENCLAW_GATEWAY_ALLOW_INSECURE_AUTH` | 是否允许不安全认证 | `true` |

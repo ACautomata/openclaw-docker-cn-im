@@ -140,6 +140,24 @@
     },
     "fs": {
       "workspaceOnly": true
+    },
+    "web": {
+      "search": {
+        "enabled": true,
+        "openaiCodex": {
+          "enabled": true,
+          "mode": "cached",
+          "allowedDomains": [
+            "example.com"
+          ],
+          "contextSize": "high",
+          "userLocation": {
+            "country": "US",
+            "city": "New York",
+            "timezone": "America/New_York"
+          }
+        }
+      }
     }
   },
   "channels": {
@@ -148,7 +166,23 @@
       "allowFrom": ["*"],
       "botToken": "your-token",
       "groupPolicy": "open",
-      "streaming": "partial"
+      "streaming": {
+        "mode": "partial",
+        "chunkMode": "length",
+        "preview": {
+          "chunk": {
+            "minChars": 200,
+            "maxChars": 800,
+            "breakPreference": "paragraph"
+          }
+        },
+        "block": {
+          "enabled": false,
+          "coalesce": {
+            "idleMs": 1000
+          }
+        }
+      }
     },
     "feishu": {
       "enabled": true,
@@ -195,26 +229,19 @@
       "enabled": true,
       "clientId": "dingxxxxxx",
       "clientSecret": "your-app-secret",
-      "robotCode": "dingxxxxxx",
-      "corpId": "dingxxxxxx",
-      "agentId": "123456789",
       "dmPolicy": "open",
       "allowFrom": ["*"],
       "groupPolicy": "open",
       "messageType": "markdown",
       "journalTTLDays": 7,
-      "showThinking": true,
-      "thinkingMessage": "🤔 思考中，请稍候...",
-      "asyncMode": false,
-      "asyncAckText": "已收到，正在处理中，稍后回复。",
+      "cardStreamingMode": "answer",
+      "cardStreamInterval": 1000,
+      "ackReaction": "emoji",
       "debug": false,
       "accounts": {
         "default": {
           "clientId": "dingxxxxxx",
           "clientSecret": "your-app-secret",
-          "robotCode": "dingxxxxxx",
-          "corpId": "dingxxxxxx",
-          "agentId": "123456789",
           "dmPolicy": "open",
           "groupPolicy": "open",
           "messageType": "markdown",
@@ -223,23 +250,16 @@
         "bot_1": {
           "clientId": "your-client-id-1",
           "clientSecret": "your-client-secret-1",
-          "robotCode": "your-robot-code-1",
-          "corpId": "your-corp-id",
-          "agentId": "your-dingtalk-agent-id-1",
           "dmPolicy": "open",
           "groupPolicy": "open",
           "messageType": "card",
-          "cardTemplateId": "your-card-template-id.schema",
-          "cardTemplateKey": "content",
+          "cardStreamingMode": "all",
           "maxReconnectCycles": 10,
           "allowFrom": ["*"]
         },
         "bot_2": {
           "clientId": "your-client-id-2",
           "clientSecret": "your-client-secret-2",
-          "robotCode": "your-robot-code-2",
-          "corpId": "your-corp-id",
-          "agentId": "your-dingtalk-agent-id-2",
           "dmPolicy": "open",
           "groupPolicy": "open",
           "messageType": "markdown",
@@ -251,9 +271,7 @@
       "enabled": true,
       "appId": "your-qqbot-app-id",
       "clientSecret": "your-qqbot-client-secret",
-      "dmPolicy": "open",
       "allowFrom": ["*"],
-      "groupPolicy": "open",
       "accounts": {
         "default": {
           "enabled": true,

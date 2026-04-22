@@ -27,7 +27,6 @@ docker run -d \
   -v ~/.openclaw:/home/node/.openclaw \
   -v ~/.openclaw/workspace:/home/node/.openclaw/workspace \
   -p 18789:18789 \
-  -p 18790:18790 \
   --restart unless-stopped \
   justlikemaki/openclaw-docker-cn-im:latest
 ```
@@ -46,7 +45,6 @@ docker run -d \
 | 端口 | 说明 |
 | --- | --- |
 | `18789` | OpenClaw Gateway |
-| `18790` | OpenClaw Bridge |
 
 ## 自定义配置文件
 

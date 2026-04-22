@@ -1,4 +1,4 @@
-# OpenClaw-Docker-CN-IM
+# OpenClaw-China-Docker (暂停更新)
 
 > 面向中国 IM 场景的 OpenClaw Docker 整合镜像，预装飞书、钉钉、QQ 机器人、企业微信等常用插件，适合快速搭建统一的 AI 机器人网关。
 
@@ -30,7 +30,7 @@
 本项目提供开箱即用的 OpenClaw 体验，并针对国内 IM 场景进行了深度增强：
 
 - **全平台支持**：预装飞书（官方/旧版）、钉钉、QQ 机器人、企业微信插件，并集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach) 支持 Twitter、小红书、微博、抖音等全网渠道。
-- **配置驱动**：支持通过环境变量自动生成配置，提供 [`.env.example`](.env.example) 快速上手。
+- **配置驱动**：支持通过环境变量自动生成配置，提供 [`.env.example`](.env.example) (完整版) 和 [`.env.minimal`](.env.minimal) (精简版) 快速上手。
 - **工具集增强**：集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach)、OpenCode AI、Playwright、FFmpeg、中文 TTS 等 AI 常用工具。
 - **安全沙箱**：支持 Docker-in-Docker 沙箱模式，实现 Python 代码与 Shell 脚本的隔离运行，确保宿主机安全(使用官方最小镜像，无使用示例)。
 - **生产友好**：支持数据持久化挂载，提供独立工具容器用于飞书插件安装等一次性操作。
@@ -65,7 +65,7 @@ Docker Hub：[`justlikemaki/openclaw-docker-cn-im`](https://hub.docker.com/r/jus
 docker pull justlikemaki/openclaw-docker-cn-im:latest
 ```
 
-建议克隆本仓库，参考 [`.env.example`](.env.example) 配置环境变量，然后执行：
+建议克隆本仓库，参考 [`.env.example`](.env.example) (或更简洁的 [`.env.minimal`](.env.minimal)) 配置环境变量，然后执行：
 ```bash
 docker compose up -d
 ```
@@ -81,7 +81,7 @@ docker compose up -d
 
 - 如果项目对你有帮助，欢迎点一个 Star。
 
-[![Star History Chart](https://api.star-history.com/svg?repos=justlovemaki/OpenClaw-Docker-CN-IM&type=Date)](https://star-history.com/#justlovemaki/OpenClaw-Docker-CN-IM&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=justlovemaki/OpenClaw-China-Docker&type=Date)](https://star-history.com/#justlovemaki/OpenClaw-China-Docker&Date)
 
 ## 许可证
 

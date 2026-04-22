@@ -324,7 +324,7 @@ import os
 import re
 import sys
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 
 WECOM_ACCOUNT_ID_RE = re.compile(r'^[a-z0-9_-]+$')
 FEISHU_ACCOUNT_FIELDS = {
@@ -339,15 +339,32 @@ FEISHU_RESERVED_FIELDS = {
     'accounts', 'groups'
 }
 DINGTALK_ACCOUNT_FIELDS = {
-    'clientId', 'clientSecret', 'robotCode', 'corpId', 'agentId', 'dmPolicy',
-    'allowFrom', 'groupPolicy', 'messageType', 'cardTemplateId', 'cardTemplateKey',
-    'maxReconnectCycles', 'debug'
+    'name', 'enabled', 'clientId', 'clientSecret', 'dmPolicy', 'groupPolicy',
+    'allowFrom', 'groupAllowFrom', 'displayNameResolution', 'contextVisibility',
+    'mediaUrlAllowlist', 'ackReaction', 'journalTTLDays', 'debug', 'messageType',
+    'cardTemplateId', 'cardTemplateKey', 'groups', 'maxConnectionAttempts',
+    'initialReconnectDelay', 'maxReconnectDelay', 'reconnectJitter',
+    'maxReconnectCycles', 'reconnectDeadlineMs', 'useConnectionManager',
+    'mediaMaxMb', 'keepAlive', 'bypassProxyForSend', 'proactivePermissionHint',
+    'cardRealTimeStream', 'cardStreamingMode', 'cardStreamInterval',
+    'aicardDegradeMs', 'learningEnabled', 'learningAutoApply', 'learningNoteTtlMs',
+    'convertMarkdownTables', 'cardAtSender'
 }
 DINGTALK_RESERVED_FIELDS = {
-    'enabled', 'clientId', 'clientSecret', 'robotCode', 'corpId', 'agentId',
-    'dmPolicy', 'allowFrom', 'groupPolicy', 'messageType', 'cardTemplateId',
-    'cardTemplateKey', 'maxReconnectCycles', 'debug', 'journalTTLDays',
-    'showThinking', 'thinkingMessage', 'asyncMode', 'asyncAckText', 'accounts'
+    'enabled', 'clientId', 'clientSecret', 'dmPolicy', 'allowFrom', 'groupPolicy',
+    'messageType', 'cardTemplateId', 'cardTemplateKey', 'maxReconnectCycles',
+    'debug', 'journalTTLDays', 'accounts', 'groupAllowFrom',
+    'displayNameResolution', 'contextVisibility', 'mediaUrlAllowlist',
+    'ackReaction', 'groups', 'maxConnectionAttempts', 'initialReconnectDelay',
+    'maxReconnectDelay', 'reconnectJitter', 'reconnectDeadlineMs',
+    'useConnectionManager', 'mediaMaxMb', 'keepAlive', 'bypassProxyForSend',
+    'proactivePermissionHint', 'cardRealTimeStream', 'cardStreamingMode',
+    'cardStreamInterval', 'aicardDegradeMs', 'learningEnabled',
+    'learningAutoApply', 'learningNoteTtlMs', 'convertMarkdownTables',
+    'cardAtSender',
+    # 仍保留在 Reserved 中以防止这些过时字段被误识别为账号 ID，但不再包含在 ACCOUNT_FIELDS 中
+    'robotCode', 'corpId', 'agentId', 'showThinking', 'thinkingMessage',
+    'asyncMode', 'asyncAckText'
 }
 WECOM_ACCOUNT_FIELDS = {
     'botId', 'secret', 'dmPolicy', 'allowFrom', 'groupPolicy', 'groupAllowFrom',
@@ -355,8 +372,15 @@ WECOM_ACCOUNT_FIELDS = {
     'groupChat', 'dm', 'workspaceTemplate'
 }
 WECOM_RESERVED_FIELDS = {'enabled', 'defaultAccount', 'adminUsers', 'commands', 'dynamicAgents'}
-QQBOT_ACCOUNT_FIELDS = {'appId', 'clientSecret', 'enabled'}
-QQBOT_RESERVED_FIELDS = {'enabled', 'appId', 'clientSecret', 'dmPolicy', 'allowFrom', 'groupPolicy', 'accounts'}
+QQBOT_ACCOUNT_FIELDS = {
+    'enabled', 'name', 'appId', 'clientSecret', 'clientSecretFile', 'allowFrom',
+    'systemPrompt', 'markdownSupport', 'voiceDirectUploadFormats', 'audioFormatPolicy',
+    'urlDirectUpload', 'upgradeUrl', 'upgradeMode'
+}
+QQBOT_RESERVED_FIELDS = {
+    'enabled', 'appId', 'clientSecret', 'allowFrom',
+    'accounts', 'defaultAccount', 'tts', 'stt'
+}
 
 CHANNEL_INSTALLS = {
     'feishu': {'source': 'npm', 'spec': '@openclaw/feishu', 'installPath': '/home/node/.openclaw/extensions/feishu'},
@@ -416,7 +440,10 @@ def parse_bool(value, default=False):
         return default
     if isinstance(value, bool):
         return value
-    return str(value).strip().lower() in ('1', 'true', 'yes', 'on')
+    val = str(value).strip().lower()
+    if not val:
+        return default
+    return val in ('1', 'true', 'yes', 'on')
 
 
 def parse_csv(value):
@@ -441,7 +468,7 @@ def parse_json_object(raw, env_name):
 
 
 def utc_now_iso():
-    return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    return datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
 
 def first_csv_item(raw, default=''):
@@ -454,7 +481,7 @@ def normalize_model_ref(raw, provider_names=None, default_provider='default'):
 
     规则：
     1. 不含 / 时，补成 default/<model_id>
-    2. 含 / 且首段是已知 provider 名称时，视为完整 provider/model 引用，原样返回
+    2. 含 / 且首段是已知 provider 名称或内置 provider 名称时，视为完整 provider/model 引用，原样返回
     3. 含 / 但首段不是已知 provider 名称时，视为 default provider 下的模型 ID，补成 default/<raw>
     """
     val = str(raw or '').strip()
@@ -463,6 +490,8 @@ def normalize_model_ref(raw, provider_names=None, default_provider='default'):
 
     provider_names = set(provider_names or [])
     provider_names.add(default_provider)
+    provider_names.add('openai-codex')
+    provider_names.add('opencode')
 
     if '/' not in val:
         return f'{default_provider}/{val}'
@@ -479,7 +508,7 @@ def resolve_primary_model(env, default_model_id, provider_names=None):
     解析主模型：
     1. 优先使用 PRIMARY_MODEL。
     2. 留空时，使用默认模型。
-    3. 归一化时仅当首段是已知 provider 名称时，才视为 provider/model；否则补 default/。
+    3. 归一化时仅当首段是已知 provider 名称或内置 provider 名称时，才视为 provider/model；否则补 default/。
     """
     raw = str(env.get('PRIMARY_MODEL') or '').strip()
     if raw:
@@ -500,36 +529,6 @@ def resolve_image_model(env, default_model_id, provider_names=None):
     return normalize_model_ref(default_model_id, provider_names=provider_names)
 
 
-def collect_extra_model_providers(env, start=2, end=6):
-    providers = []
-    for index in range(start, end + 1):
-        prefix = f'MODEL{index}'
-        raw_name = str(env.get(f'{prefix}_NAME') or '').strip()
-        provider_name = raw_name or f'model{index}'
-        model_ids = str(env.get(f'{prefix}_MODEL_ID') or '').strip()
-        base_url = str(env.get(f'{prefix}_BASE_URL') or '').strip()
-        api_key = str(env.get(f'{prefix}_API_KEY') or '').strip()
-        protocol = str(env.get(f'{prefix}_PROTOCOL') or '').strip()
-        context_window = str(env.get(f'{prefix}_CONTEXT_WINDOW') or '').strip()
-        max_tokens = str(env.get(f'{prefix}_MAX_TOKENS') or '').strip()
-
-        has_any = any([raw_name, model_ids, base_url, api_key, protocol, context_window, max_tokens])
-        if not has_any:
-            continue
-
-        providers.append({
-            'index': index,
-            'provider_name': provider_name,
-            'model_ids': model_ids,
-            'base_url': base_url,
-            'api_key': api_key,
-            'protocol': protocol,
-            'context_window': context_window,
-            'max_tokens': max_tokens,
-        })
-    return providers
-
-
 def is_valid_account_id(account_id):
     return WECOM_ACCOUNT_ID_RE.match(str(account_id)) is not None
 
@@ -547,7 +546,10 @@ def is_wecom_account_config(value):
 
 
 def is_qqbot_account_config(value):
-    return isinstance(value, dict) and any(key in value for key in QQBOT_ACCOUNT_FIELDS)
+    if not isinstance(value, dict):
+        return False
+    # 至少包含 appId 或 clientSecret 之一，或者包含其他账号特定字段
+    return any(key in value for key in {'appId', 'clientSecret', 'name', 'systemPrompt', 'markdownSupport'})
 
 
 def get_feishu_accounts(feishu):
@@ -673,7 +675,8 @@ def normalize_dingtalk_config(channels):
     normalized_accounts = {}
     for account_id, cfg in accounts.items():
         if is_valid_account_id(account_id) and is_dingtalk_account_config(cfg):
-            normalized_accounts[account_id] = cfg
+            # 严格过滤账号字段，确保不包含 Schema 之外的属性（如 agentId, corpId 等）
+            normalized_accounts[account_id] = {k: v for k, v in cfg.items() if k in DINGTALK_ACCOUNT_FIELDS}
 
     if normalized_accounts:
         dingtalk['accounts'] = normalized_accounts
@@ -683,6 +686,13 @@ def normalize_dingtalk_config(channels):
                 if key in default_cfg:
                     dingtalk[key] = default_cfg[key]
         migrated = migrated or dingtalk.get('accounts') != accounts
+
+    # 再次清理顶层，移除不在 Reserved 字段中的过时属性（如 robotCode, corpId, agentId 等）
+    # 注意：这些字段虽在 DINGTALK_RESERVED_FIELDS 中定义以防止被解析为账号，但在运行时会被校验为多余属性
+    active_keys = DINGTALK_ACCOUNT_FIELDS | {'accounts'}
+    for key in list(dingtalk.keys()):
+        if key not in active_keys:
+            del dingtalk[key]
 
     if migrated:
         print('✅ 钉钉配置已标准化为多机器人结构')
@@ -694,6 +704,18 @@ def normalize_qqbot_config(channels):
         return
 
     migrated = False
+    
+    # 移除不再支持的顶层字段
+    removed_fields = []
+    for field in ['dmPolicy', 'groupPolicy']:
+        if field in qqbot:
+            del qqbot[field]
+            removed_fields.append(field)
+            migrated = True
+    
+    if removed_fields:
+        print(f'✅ QQ 机器人配置已移除过时字段: {", ".join(removed_fields)}')
+    
     accounts = qqbot.get('accounts')
     if not isinstance(accounts, dict):
         accounts = {}
@@ -741,6 +763,84 @@ def normalize_qqbot_config(channels):
 
     if migrated:
         print('✅ QQ 机器人配置已标准化为多 Bot 结构')
+
+
+def normalize_telegram_config(channels):
+    telegram = channels.get('telegram')
+    if not isinstance(telegram, dict):
+        return
+
+    streaming = telegram.get('streaming')
+    if streaming is None:
+        return
+
+    migrated = False
+
+    # 旧版格式：streaming 是字符串，迁移为新版嵌套对象
+    if isinstance(streaming, str):
+        print('检测到 Telegram 旧版 streaming 配置格式，正在执行自动迁移...')
+        mode = streaming if streaming in ('off', 'partial', 'block', 'progress') else 'partial'
+        telegram['streaming'] = {
+            'mode': mode,
+            'chunkMode': 'length',
+        }
+        print('✅ Telegram 配置已迁移到新版嵌套结构')
+        return
+
+    if not isinstance(streaming, dict):
+        return
+
+    normalized = dict(streaming)
+
+    chunk_mode = normalized.get('chunkMode')
+    if chunk_mode == 'default':
+        normalized['chunkMode'] = 'length'
+        migrated = True
+
+    preview = normalized.get('preview')
+    if isinstance(preview, dict):
+        preview = dict(preview)
+        preview_chunk = preview.get('chunk')
+        if preview_chunk is True:
+            preview['chunk'] = {
+                'minChars': 200,
+                'maxChars': 800,
+                'breakPreference': 'paragraph',
+            }
+            normalized['preview'] = preview
+            migrated = True
+        elif preview_chunk in (False, None):
+            preview.pop('chunk', None)
+            if preview:
+                normalized['preview'] = preview
+            else:
+                normalized.pop('preview', None)
+            if preview_chunk is False:
+                migrated = True
+
+    block = normalized.get('block')
+    if isinstance(block, dict):
+        block = dict(block)
+        coalesce = block.get('coalesce')
+        if coalesce is True:
+            block['coalesce'] = {
+                'idleMs': 1000,
+            }
+            normalized['block'] = block
+            migrated = True
+        elif coalesce in (False, None):
+            block.pop('coalesce', None)
+            if block:
+                normalized['block'] = block
+            else:
+                normalized.pop('block', None)
+            if coalesce is False:
+                migrated = True
+
+    if migrated:
+        print('检测到 Telegram streaming 子字段包含旧版值，正在修正为当前 schema...')
+        telegram['streaming'] = normalized
+        print('✅ Telegram 配置已迁移到新版嵌套结构')
 
 
 def normalize_feishu_config(channels):
@@ -999,7 +1099,7 @@ def merge_dingtalk_accounts_from_env(channels, env):
         if not is_valid_account_id(account_id):
             raise ValueError(f'DINGTALK_ACCOUNTS_JSON 账号 ID 不合法: {account_id}，仅支持小写字母、数字、-、_')
         if not isinstance(account_cfg, dict) or not is_dingtalk_account_config(account_cfg):
-            raise ValueError(f'DINGTALK_ACCOUNTS_JSON 账号配置非法: {account_id}，至少包含 clientId/clientSecret/robotCode/corpId/agentId/messageType 中的一项')
+            raise ValueError(f'DINGTALK_ACCOUNTS_JSON 账号配置非法: {account_id}，请检查配置字段是否符合要求')
 
         old_cfg = accounts.get(account_id)
         if not isinstance(old_cfg, dict):
@@ -1055,7 +1155,7 @@ def merge_qqbot_bots_from_env(channels, env):
         if not is_valid_account_id(account_id):
             raise ValueError(f'QQBOT_BOTS_JSON 账号 ID 不合法: {account_id}，仅支持小写字母、数字、-、_')
         if not isinstance(account_cfg, dict) or not is_qqbot_account_config(account_cfg):
-            raise ValueError(f'QQBOT_BOTS_JSON 账号配置非法: {account_id}，至少包含 appId/clientSecret/enabled 中的一项')
+            raise ValueError(f'QQBOT_BOTS_JSON 账号配置非法: {account_id}，至少包含 appId/clientSecret/name/systemPrompt/markdownSupport 中的一项')
 
         old_cfg = accounts.get(account_id)
         if not isinstance(old_cfg, dict):
@@ -1273,8 +1373,7 @@ def set_qqbot_plugin_entries(ctx, enabled, install=False):
 
 
 def is_openclaw_sync_enabled(env):
-    sync_all = (env.get('SYNC_OPENCLAW_CONFIG') or 'true').strip().lower()
-    return sync_all in ('', 'true', '1', 'yes')
+    return parse_bool(env.get('SYNC_OPENCLAW_CONFIG', 'true'), True)
 
 
 def sync_models(ctx):
@@ -1282,40 +1381,64 @@ def sync_models(ctx):
         print('ℹ️ 已关闭整体配置同步，跳过模型同步')
         return
 
-    sync_model = (ctx.env.get('SYNC_MODEL_CONFIG') or 'true').strip().lower()
-    if sync_model not in ('', 'true', '1', 'yes'):
+    if not parse_bool(ctx.env.get('SYNC_MODEL_CONFIG', 'true'), True):
+        print('ℹ️ 已关闭模型配置同步，跳过模型同步')
         return
 
     def sync_provider(provider_name, api_key, base_url, protocol, model_ids_raw, context_window, max_tokens):
+        providers = ensure_path(ctx.config, ['models', 'providers'])
         if not ((api_key and base_url) or model_ids_raw):
+            if provider_name in providers:
+                del providers[provider_name]
             return None
 
-        provider = ensure_path(ctx.config, ['models', 'providers', provider_name])
+        provider = providers.setdefault(provider_name, {})
+        
+        # API Key
         if api_key:
             provider['apiKey'] = api_key
+        else:
+            provider.pop('apiKey', None)
+            
+        # Base URL
         if base_url:
             provider['baseUrl'] = base_url
-        provider['api'] = protocol or 'openai-completions'
+        else:
+            provider.pop('baseUrl', None)
+            
+        # Protocol
+        if protocol:
+            provider['api'] = protocol
+        elif 'api' not in provider:
+            provider['api'] = 'openai-completions'
 
-        models = provider.get('models', [])
+        # Models
         model_ids = parse_csv(model_ids_raw)
-        for model_id in model_ids:
-            model_obj = next((item for item in models if item.get('id') == model_id), None)
-            if not model_obj:
-                model_obj = {
-                    'id': model_id,
-                    'name': model_id,
-                    'reasoning': False,
-                    'input': ['text', 'image'],
-                    'cost': {'input': 0, 'output': 0, 'cacheRead': 0, 'cacheWrite': 0},
-                }
-                models.append(model_obj)
-            model_obj['contextWindow'] = int(context_window or 200000)
-            model_obj['maxTokens'] = int(max_tokens or 8192)
-
-        provider['models'] = models
+        if not model_ids:
+            provider.pop('models', None)
+        else:
+            existing_models = provider.get('models', [])
+            new_models = []
+            for model_id in model_ids:
+                model_obj = next((item for item in existing_models if item.get('id') == model_id), None)
+                if not model_obj:
+                    model_obj = {
+                        'id': model_id,
+                        'name': model_id,
+                        'reasoning': False,
+                        'input': ['text', 'image'],
+                        'cost': {'input': 0, 'output': 0, 'cacheRead': 0, 'cacheWrite': 0},
+                    }
+                model_obj['contextWindow'] = int(context_window or 200000)
+                model_obj['maxTokens'] = int(max_tokens or 8192)
+                new_models.append(model_obj)
+            provider['models'] = new_models
+            
         return provider_name
 
+    synced_provider_names = []
+    
+    # 1. 同步默认提供商
     primary_provider = sync_provider(
         'default',
         ctx.env.get('API_KEY'),
@@ -1325,20 +1448,34 @@ def sync_models(ctx):
         ctx.env.get('CONTEXT_WINDOW'),
         ctx.env.get('MAX_TOKENS'),
     )
+    if primary_provider:
+        synced_provider_names.append(primary_provider)
 
+    # 2. 同步额外提供商 (2-6)
     enabled_extra_providers = []
-    for provider_cfg in collect_extra_model_providers(ctx.env):
+    for index in range(2, 7):
+        prefix = f'MODEL{index}'
+        raw_name = str(ctx.env.get(f'{prefix}_NAME') or '').strip()
+        p_name = raw_name or f'model{index}'
+        
         synced_name = sync_provider(
-            provider_cfg['provider_name'],
-            provider_cfg['api_key'],
-            provider_cfg['base_url'],
-            provider_cfg['protocol'],
-            provider_cfg['model_ids'],
-            provider_cfg['context_window'],
-            provider_cfg['max_tokens'],
+            p_name,
+            str(ctx.env.get(f'{prefix}_API_KEY') or '').strip(),
+            str(ctx.env.get(f'{prefix}_BASE_URL') or '').strip(),
+            str(ctx.env.get(f'{prefix}_PROTOCOL') or '').strip(),
+            str(ctx.env.get(f'{prefix}_MODEL_ID') or '').strip(),
+            str(ctx.env.get(f'{prefix}_CONTEXT_WINDOW') or '').strip(),
+            str(ctx.env.get(f'{prefix}_MAX_TOKENS') or '').strip(),
         )
         if synced_name:
             enabled_extra_providers.append(synced_name)
+            synced_provider_names.append(synced_name)
+
+    # 3. 清理不再存在的提供商（除了已同步的）
+    providers_dict = ensure_path(ctx.config, ['models', 'providers'])
+    for name in list(providers_dict.keys()):
+        if name not in synced_provider_names:
+            del providers_dict[name]
 
     # 提取默认模型 ID (MODEL_ID 的第一个)
     default_model_id = first_csv_item(ctx.env.get('MODEL_ID') or 'gpt-4o', 'gpt-4o')
@@ -1353,9 +1490,25 @@ def sync_models(ctx):
     ensure_path(ctx.config, ['agents', 'defaults', 'model'])['primary'] = primary_model
     ensure_path(ctx.config, ['agents', 'defaults', 'imageModel'])['primary'] = primary_image_model
 
+    msg = f'✅ 模型同步完成: 主模型={primary_model}'
+    if primary_model_raw:
+        msg += f' (来自 PRIMARY_MODEL={primary_model_raw})'
+    msg += f', 图片模型={primary_image_model}'
+    if enabled_extra_providers:
+        msg += f", 已启用额外提供商: {', '.join(enabled_extra_providers)}"
+    print(msg)
+
+
+def sync_agent_and_tools(ctx):
+    if not is_openclaw_sync_enabled(ctx.env):
+        print('ℹ️ 已关闭整体配置同步，跳过 Agent 与工具同步')
+        return
+
     workspace_root = (ctx.env.get('OPENCLAW_WORKSPACE_ROOT') or '/home/node/.openclaw').rstrip('/') or '/'
     workspace = f"{workspace_root}/workspace" if workspace_root != '/' else '/workspace'
-    ctx.config['agents']['defaults']['workspace'] = workspace
+    ensure_path(ctx.config, ['agents', 'defaults'])['workspace'] = workspace
+
+    sandbox = ensure_path(ctx.config, ['agents', 'defaults', 'sandbox'])
 
     memory = ensure_path(ctx.config, ['memory'])
     memory.setdefault('backend', 'qmd')
@@ -1407,22 +1560,6 @@ def sync_models(ctx):
                 memory['backend'] = 'off'
     else:
         memory_cfg.setdefault('command', '/usr/local/bin/qmd')
-
-    msg = f'✅ 模型同步完成: 主模型={primary_model}'
-    if primary_model_raw:
-        msg += f' (来自 PRIMARY_MODEL={primary_model_raw})'
-    msg += f', 图片模型={primary_image_model}'
-    if enabled_extra_providers:
-        msg += f", 已启用额外提供商: {', '.join(enabled_extra_providers)}"
-    print(msg)
-
-
-def sync_agent_and_tools(ctx):
-    if not is_openclaw_sync_enabled(ctx.env):
-        print('ℹ️ 已关闭整体配置同步，跳过 Agent 与工具同步')
-        return
-
-    sandbox = ensure_path(ctx.config, ['agents', 'defaults', 'sandbox'])
     # 参考官方文档模式: off | non-main | all
     sandbox_mode = (ctx.env.get('OPENCLAW_SANDBOX_MODE') or 'off').strip().lower()
     sandbox['mode'] = sandbox_mode
@@ -1512,16 +1649,19 @@ def sync_dingtalk_channel(ctx, channel):
         'enabled': True,
         'clientId': env['DINGTALK_CLIENT_ID'],
         'clientSecret': env['DINGTALK_CLIENT_SECRET'],
-        'robotCode': env.get('DINGTALK_ROBOT_CODE') or env['DINGTALK_CLIENT_ID'],
         'dmPolicy': env.get('DINGTALK_DM_POLICY') or ctx.default_dm_policy,
         'groupPolicy': env.get('DINGTALK_GROUP_POLICY') or ctx.default_group_policy,
         'messageType': env.get('DINGTALK_MESSAGE_TYPE') or 'markdown',
         'allowFrom': parse_csv(env.get('DINGTALK_ALLOW_FROM')) or ctx.default_allow_from,
     })
-    if env.get('DINGTALK_CORP_ID'):
-        channel['corpId'] = env['DINGTALK_CORP_ID']
-    if env.get('DINGTALK_AGENT_ID'):
-        channel['agentId'] = env['DINGTALK_AGENT_ID']
+    # 注意：根据最新 Schema，agentId 和 corpId 已被弃用且不再被运行时解析，
+    # 设置它们会导致 "must NOT have additional properties" 或类型校验错误。
+    if env.get('DINGTALK_CARD_STREAMING_MODE'):
+        channel['cardStreamingMode'] = env['DINGTALK_CARD_STREAMING_MODE']
+    if env.get('DINGTALK_ACK_REACTION'):
+        channel['ackReaction'] = env['DINGTALK_ACK_REACTION']
+    if env.get('DINGTALK_CARD_STREAM_INTERVAL'):
+        channel['cardStreamInterval'] = int(env['DINGTALK_CARD_STREAM_INTERVAL'])
     if env.get('DINGTALK_CARD_TEMPLATE_ID'):
         channel['cardTemplateId'] = env['DINGTALK_CARD_TEMPLATE_ID']
     if env.get('DINGTALK_CARD_TEMPLATE_KEY'):
@@ -1532,29 +1672,22 @@ def sync_dingtalk_channel(ctx, channel):
         channel['debug'] = parse_bool(env.get('DINGTALK_DEBUG'), False)
     if env.get('DINGTALK_JOURNAL_TTL_DAYS'):
         channel['journalTTLDays'] = int(env['DINGTALK_JOURNAL_TTL_DAYS'])
-    if env.get('DINGTALK_SHOW_THINKING'):
-        channel['showThinking'] = parse_bool(env.get('DINGTALK_SHOW_THINKING'), False)
-    if env.get('DINGTALK_THINKING_MESSAGE'):
-        channel['thinkingMessage'] = env['DINGTALK_THINKING_MESSAGE']
-    if env.get('DINGTALK_ASYNC_MODE'):
-        channel['asyncMode'] = parse_bool(env.get('DINGTALK_ASYNC_MODE'), False)
-    if env.get('DINGTALK_ASYNC_ACK_TEXT'):
-        channel['asyncAckText'] = env['DINGTALK_ASYNC_ACK_TEXT']
-
+    
     account = ensure_path(channel, ['accounts', 'default'])
     account.update({
         'clientId': env['DINGTALK_CLIENT_ID'],
         'clientSecret': env['DINGTALK_CLIENT_SECRET'],
-        'robotCode': env.get('DINGTALK_ROBOT_CODE') or env['DINGTALK_CLIENT_ID'],
         'dmPolicy': env.get('DINGTALK_DM_POLICY') or ctx.default_dm_policy,
         'groupPolicy': env.get('DINGTALK_GROUP_POLICY') or ctx.default_group_policy,
         'messageType': env.get('DINGTALK_MESSAGE_TYPE') or 'markdown',
         'allowFrom': parse_csv(env.get('DINGTALK_ALLOW_FROM')) or ctx.default_allow_from,
     })
-    if env.get('DINGTALK_CORP_ID'):
-        account['corpId'] = env['DINGTALK_CORP_ID']
-    if env.get('DINGTALK_AGENT_ID'):
-        account['agentId'] = env['DINGTALK_AGENT_ID']
+    if env.get('DINGTALK_CARD_STREAMING_MODE'):
+        account['cardStreamingMode'] = env['DINGTALK_CARD_STREAMING_MODE']
+    if env.get('DINGTALK_ACK_REACTION'):
+        account['ackReaction'] = env['DINGTALK_ACK_REACTION']
+    if env.get('DINGTALK_CARD_STREAM_INTERVAL'):
+        account['cardStreamInterval'] = int(env['DINGTALK_CARD_STREAM_INTERVAL'])
     if env.get('DINGTALK_CARD_TEMPLATE_ID'):
         account['cardTemplateId'] = env['DINGTALK_CARD_TEMPLATE_ID']
     if env.get('DINGTALK_CARD_TEMPLATE_KEY'):
@@ -1571,9 +1704,7 @@ def sync_qqbot_channel(ctx, channel):
         'enabled': True,
         'appId': env['QQBOT_APP_ID'],
         'clientSecret': env['QQBOT_CLIENT_SECRET'],
-        'dmPolicy': env.get('QQBOT_DM_POLICY') or ctx.default_dm_policy,
         'allowFrom': parse_csv(env.get('QQBOT_ALLOW_FROM')) or ctx.default_allow_from,
-        'groupPolicy': env.get('QQBOT_GROUP_POLICY') or ctx.default_group_policy,
     })
     ensure_path(channel, ['accounts', 'default']).update({
         'enabled': True,
@@ -1693,7 +1824,23 @@ def apply_channel_rules(ctx):
                 'dmPolicy': ctx.env.get('TELEGRAM_DM_POLICY') or ctx.default_dm_policy,
                 'allowFrom': parse_csv(ctx.env.get('TELEGRAM_ALLOW_FROM')) or ctx.default_allow_from,
                 'groupPolicy': ctx.env.get('TELEGRAM_GROUP_POLICY') or ctx.default_group_policy,
-                'streaming': 'partial',
+                'streaming': {
+                    'mode': 'partial',
+                    'chunkMode': 'length',
+                    'preview': {
+                        'chunk': {
+                            'minChars': 200,
+                            'maxChars': 800,
+                            'breakPreference': 'paragraph',
+                        },
+                    },
+                    'block': {
+                        'enabled': False,
+                        'coalesce': {
+                            'idleMs': 1000,
+                        },
+                    },
+                },
             }),
             'install': False,
         },
@@ -1898,8 +2045,8 @@ def sync_channels_and_plugins(ctx):
         print('ℹ️ 已关闭整体配置同步，跳过渠道与插件同步')
         return
 
-    if ctx.env.get('OPENCLAW_PLUGINS_ENABLED'):
-        ctx.plugins['enabled'] = ctx.env['OPENCLAW_PLUGINS_ENABLED'].lower() == 'true'
+    # 默认启用插件，除非显式禁用
+    ctx.plugins['enabled'] = parse_bool(ctx.env.get('OPENCLAW_PLUGINS_ENABLED', 'true'), True)
 
     apply_channel_rules(ctx)
     apply_wecom_legacy_v1_compat(ctx)
@@ -1908,6 +2055,9 @@ def sync_channels_and_plugins(ctx):
     normalize_feishu_config(ctx.channels)
     
     merge_dingtalk_accounts_from_env(ctx.channels, ctx.env)
+    # 环境同步后再次标准化钉钉结构，确保冗余字段被移除
+    normalize_dingtalk_config(ctx.channels)
+    
     merge_wecom_accounts_from_env(ctx.channels, ctx.env)
     merge_qqbot_bots_from_env(ctx.channels, ctx.env)
     migrate_qqbot_plugin_entry(ctx)
@@ -1996,6 +2146,7 @@ def sync():
         normalize_dingtalk_config(ctx.channels)
         normalize_wecom_config(ctx.channels)
         normalize_qqbot_config(ctx.channels)
+        normalize_telegram_config(ctx.channels)
 
         sync_models(ctx)
         sync_agent_and_tools(ctx)
@@ -2274,7 +2425,9 @@ install_agent_reach() {
         check_output="$(gosu node bash -c "
             export PATH=\$PATH:/home/node/.local/bin
             $pip_index_env
-            source ~/.agent-reach-venv/bin/activate
+            if [ -f ~/.agent-reach-venv/bin/activate ]; then
+                source ~/.agent-reach-venv/bin/activate
+            fi
             /home/node/.agent-reach-venv/bin/agent-reach check-update 2>&1 || true
         ")"
         echo "$check_output"
@@ -2288,7 +2441,9 @@ install_agent_reach() {
         gosu node bash -c "
             export PATH=\$PATH:/home/node/.local/bin
             $pip_index_env
-            source ~/.agent-reach-venv/bin/activate
+            if [ -f ~/.agent-reach-venv/bin/activate ]; then
+                source ~/.agent-reach-venv/bin/activate
+            fi
             pip install --upgrade pip $pip_mirror
             pip install --upgrade $github_url $pip_mirror
         "
@@ -2296,7 +2451,9 @@ install_agent_reach() {
         gosu node bash -c "
             export PATH=\$PATH:/home/node/.local/bin
             $pip_index_env
-            python3 -m venv ~/.agent-reach-venv
+            if [ ! -d ~/.agent-reach-venv ]; then
+                python3 -m venv ~/.agent-reach-venv
+            fi
             source ~/.agent-reach-venv/bin/activate
             pip install --upgrade pip $pip_mirror
             pip install $github_url $pip_mirror
@@ -2307,7 +2464,9 @@ install_agent_reach() {
     gosu node bash -c "
         export PATH=\$PATH:/home/node/.local/bin
         $pip_index_env
-        source ~/.agent-reach-venv/bin/activate
+        if [ -f ~/.agent-reach-venv/bin/activate ]; then
+            source ~/.agent-reach-venv/bin/activate
+        fi
 
         # 配置代理（如果提供）
         if [ -n \"\$AGENT_REACH_PROXY\" ]; then

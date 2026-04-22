@@ -1,6 +1,6 @@
 # 快速开始
 
-本文适合第一次部署 [`OpenClaw-Docker-CN-IM`](../README.md) 的用户，覆盖预构建镜像部署、自行构建镜像、升级、日志查看与进入容器等常用操作。
+本文适合第一次部署 [`OpenClaw-China-Docker`](../README.md) 的用户，覆盖预构建镜像部署、自行构建镜像、升级、日志查看与进入容器等常用操作。
 
 ## 部署方式概览
 
@@ -21,22 +21,29 @@
 可以直接下载：
 
 ```bash
-wget https://raw.githubusercontent.com/justlovemaki/OpenClaw-Docker-CN-IM/main/docker-compose.yml
-wget https://raw.githubusercontent.com/justlovemaki/OpenClaw-Docker-CN-IM/main/.env.example
+wget https://raw.githubusercontent.com/justlovemaki/OpenClaw-China-Docker/main/docker-compose.yml
+wget https://raw.githubusercontent.com/justlovemaki/OpenClaw-China-Docker/main/.env.example
 ```
 
 也可以直接克隆仓库，便于后续升级维护：
 
 ```bash
-git clone https://github.com/justlovemaki/OpenClaw-Docker-CN-IM.git
-cd OpenClaw-Docker-CN-IM
+git clone https://github.com/justlovemaki/OpenClaw-China-Docker.git
+cd OpenClaw-China-Docker
 ```
 
 ### 2. 初始化环境变量
 
-```bash
-cp .env.example .env
-```
+你可以根据需求选择完整版或精简版配置：
+
+- **完整版 (推荐)**: 包含所有可选配置及详细注释
+  ```bash
+  cp .env.example .env
+  ```
+- **精简版 (极简起步)**: 仅包含运行必需的核心参数
+  ```bash
+  cp .env.minimal .env
+  ```
 
 至少配置以下三个变量：
 
@@ -84,8 +91,8 @@ docker compose down
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/justlovemaki/OpenClaw-Docker-CN-IM.git
-cd OpenClaw-Docker-CN-IM
+git clone https://github.com/justlovemaki/OpenClaw-China-Docker.git
+cd OpenClaw-China-Docker
 ```
 
 ### 2. 构建镜像
@@ -139,8 +146,8 @@ docker compose up -d
 
 ```bash
 # 首次使用（如果还没有克隆仓库）
-git clone https://github.com/justlovemaki/OpenClaw-Docker-CN-IM.git
-cd OpenClaw-Docker-CN-IM
+git clone https://github.com/justlovemaki/OpenClaw-China-Docker.git
+cd OpenClaw-China-Docker
 
 # 后续升级时同步仓库
 git pull
@@ -233,7 +240,7 @@ su node
 
 ## 部署后的建议检查项
 
-- 确认端口 `18789` 与 `18790` 未被占用
+- 确认端口 `18789` 被占用
 - 确认 [`.env`](../.env.example) 中至少完成模型相关配置
 - 确认宿主机数据目录对容器可写
 - 如需接入 IM 平台，优先根据 [`.env.example`](../.env.example) 与 [`docs/configuration.md`](configuration.md) 补充对应环境变量
