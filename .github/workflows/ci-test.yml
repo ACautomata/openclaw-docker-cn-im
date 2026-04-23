@@ -39,6 +39,7 @@ jobs:
       - name: 校验 docker-compose.yml 语法
         env:
           OPENCLAW_DATA_DIR: /tmp/openclaw-data
+          OPENCLAW_GATEWAY_PORT: 18789
         run: docker compose config --quiet 2>&1
 
   python-config-tests:
