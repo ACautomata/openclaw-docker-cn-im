@@ -85,11 +85,10 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @soimy/dingtalk || true && \
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @tencent-connect/openclaw-qqbot@latest || true && \
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @sunnoy/wecom || true && \
-  cd /home/node/.openclaw/extensions && \
-  git clone --depth 1 https://github.com/win4r/lossless-claw-enhanced.git lossless-claw && \
-  cd lossless-claw && \
-  npm install --production && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install -l . || true && \
+  git clone --depth 1 https://github.com/win4r/lossless-claw-enhanced.git /tmp/lossless-claw-enhanced && \
+  cd /tmp/lossless-claw-enhanced && \
+  npm install && \
+  timeout 300 openclaw plugins install --dangerously-force-unsafe-install /tmp/lossless-claw-enhanced || true && \
   cd /home/node/.openclaw/extensions && \
   mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
   # 预执行安装命令（容器内需手动交互，此处仅作声明或环境准备）
