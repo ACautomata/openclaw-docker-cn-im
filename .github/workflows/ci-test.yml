@@ -37,6 +37,8 @@ jobs:
           fi
 
       - name: 校验 docker-compose.yml 语法
+        env:
+          OPENCLAW_DATA_DIR: /tmp/openclaw-data
         run: docker compose config --quiet 2>&1
 
   python-config-tests:
