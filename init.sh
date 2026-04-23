@@ -387,7 +387,7 @@ CHANNEL_INSTALLS = {
     'openclaw-qqbot': {'source': 'path', 'sourcePath': '/home/node/.openclaw/openclaw-qqbot', 'installPath': '/home/node/.openclaw/extensions/openclaw-qqbot'},
     'napcat': {'source': 'path', 'sourcePath': '/home/node/.openclaw/extensions/napcat', 'installPath': '/home/node/.openclaw/extensions/napcat'},
     'wecom': {'source': 'npm', 'spec': '@sunnoy/wecom', 'installPath': '/home/node/.openclaw/extensions/wecom'},
-    'lossless-claw': {'source': 'path', 'sourcePath': '/home/node/.openclaw/extensions/lossless-claw', 'installPath': '/home/node/.openclaw/extensions/lossless-claw'},
+    'lossless-claw': {'source': 'npm', 'spec': '@martian-engineering/lossless-claw', 'installPath': '/home/node/.openclaw/extensions/lossless-claw'},
 }
 
 

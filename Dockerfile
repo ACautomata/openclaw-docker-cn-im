@@ -42,7 +42,7 @@ RUN apt-get update && \
     git config --system url."https://github.com/".insteadOf ssh://git@github.com/ && \
     # 设置 npm 镜像并安装全局包
     npm config set registry https://registry.npmmirror.com && \
-    npm install -g openclaw@2026.4.21 opencode-ai@latest clawhub @larksuiteoapi/node-sdk playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
+    npm install -g openclaw@2026.4.22 opencode-ai@latest clawhub @larksuiteoapi/node-sdk playwright playwright-extra puppeteer-extra-plugin-stealth @steipete/bird && \
     # 安装 bun、uv 和 qmd
     curl -fsSL https://bun.sh/install | BUN_INSTALL=/usr/local bash && \
     curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh && \
@@ -85,10 +85,7 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @soimy/dingtalk || true && \
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @tencent-connect/openclaw-qqbot@latest || true && \
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @sunnoy/wecom || true && \
-  git clone --depth 1 https://github.com/win4r/lossless-claw-enhanced.git /tmp/lossless-claw-enhanced && \
-  cd /tmp/lossless-claw-enhanced && \
-  npm install && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install /tmp/lossless-claw-enhanced || true && \
+  timeout 300 openclaw plugins install @martian-engineering/lossless-claw || true && \
   cd /home/node/.openclaw/extensions && \
   mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
   # 预执行安装命令（容器内需手动交互，此处仅作声明或环境准备）
@@ -96,7 +93,7 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   # npx -y @larksuite/openclaw-lark-tools install && \
   find /home/node/.openclaw/extensions -name ".git" -type d -exec rm -rf {} + && \
   mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
-  printf '%s\n' '2026.4.21-suffix' > /home/node/.openclaw-seed/extensions/.seed-version && \
+  printf '%s\n' '2026.4.22' > /home/node/.openclaw-seed/extensions/.seed-version && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
   
 # 3. 最终配置
