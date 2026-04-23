@@ -59,7 +59,8 @@ RUN apt-get update && \
 
 # 2. 插件安装（作为 node 用户以避免后期权限修复带来的镜像膨胀）
 RUN mkdir -p /home/node/.openclaw/workspace /home/node/.openclaw/extensions && \
-    chown -R node:node /home/node
+    chown -R node:node /home/node && \
+    chown -R node:node /usr/local/lib/node_modules/openclaw/dist/extensions
 
 USER node
 ENV HOME=/home/node
@@ -96,7 +97,7 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   # npx -y @larksuite/openclaw-lark-tools install && \
   find /home/node/.openclaw/extensions -name ".git" -type d -exec rm -rf {} + && \
   mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
-  printf '%s\n' '2026.4.21-lcm' > /home/node/.openclaw-seed/extensions/.seed-version && \
+  printf '%s\n' '2026.4.21-suffix' > /home/node/.openclaw-seed/extensions/.seed-version && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
   
 # 3. 最终配置
