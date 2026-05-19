@@ -173,14 +173,14 @@ jobs:
             docker logs openclaw-ci 2>&1 || true
             exit 1
           fi
-          python3 -c "
+          python3 <<'PY'
           import json
           cfg = json.load(open('/tmp/openclaw-data/openclaw.json'))
           assert cfg['models']['providers']['default']['apiKey'] == '${API_KEY}', 'API key 应保留为环境变量引用'
           assert cfg['gateway']['auth']['token'] == '${OPENCLAW_GATEWAY_TOKEN}', 'Gateway token 应保留为环境变量引用'
           assert cfg['gateway']['port'] == 18789, '端口不匹配'
           print('配置验证通过')
-          "
+          PY
 
       - name: 输出容器日志 (失败时)
         if: failure()
