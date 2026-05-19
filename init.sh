@@ -382,6 +382,7 @@ QQBOT_RESERVED_FIELDS = {
 }
 
 CHANNEL_INSTALLS = {
+    'discord': {'source': 'npm', 'spec': '@openclaw/discord', 'installPath': '/home/node/.openclaw/extensions/discord'},
     'feishu': {'source': 'npm', 'spec': '@openclaw/feishu', 'installPath': '/home/node/.openclaw/extensions/feishu'},
     'dingtalk': {'source': 'npm', 'spec': 'https://github.com/soimy/clawdbot-channel-dingtalk.git', 'installPath': '/home/node/.openclaw/extensions/dingtalk'},
     'openclaw-qqbot': {'source': 'path', 'sourcePath': '/home/node/.openclaw/openclaw-qqbot', 'installPath': '/home/node/.openclaw/extensions/openclaw-qqbot'},
@@ -1872,6 +1873,7 @@ def sync_wecom_channel(ctx, channel):
 def apply_channel_rules(ctx):
     channel_labels = {
         'telegram': 'Telegram',
+        'discord': 'Discord',
         'feishu': '飞书',
         'dingtalk': '钉钉',
         'qqbot': 'QQ 机器人',
@@ -1907,6 +1909,22 @@ def apply_channel_rules(ctx):
                 },
             }),
             'install': False,
+        },
+        {
+            'channel': 'discord',
+            'required_envs': ['DISCORD_BOT_TOKEN'],
+            'sync': lambda channel: channel.update({
+                'enabled': True,
+                'token': {
+                    'source': 'env',
+                    'provider': 'default',
+                    'id': 'DISCORD_BOT_TOKEN',
+                },
+                'dmPolicy': ctx.env.get('DISCORD_DM_POLICY') or ctx.default_dm_policy,
+                'allowFrom': parse_csv(ctx.env.get('DISCORD_ALLOW_FROM')) or ctx.default_allow_from,
+                'groupPolicy': ctx.env.get('DISCORD_GROUP_POLICY') or ctx.default_group_policy,
+            }),
+            'install': True,
         },
         {
             'channel': 'feishu',
