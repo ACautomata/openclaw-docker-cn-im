@@ -382,6 +382,7 @@ QQBOT_RESERVED_FIELDS = {
 }
 
 CHANNEL_INSTALLS = {
+    'discord': {'source': 'npm', 'spec': '@openclaw/discord', 'installPath': '/home/node/.openclaw/extensions/discord'},
     'feishu': {'source': 'npm', 'spec': '@openclaw/feishu', 'installPath': '/home/node/.openclaw/extensions/feishu'},
     'dingtalk': {'source': 'npm', 'spec': 'https://github.com/soimy/clawdbot-channel-dingtalk.git', 'installPath': '/home/node/.openclaw/extensions/dingtalk'},
     'openclaw-qqbot': {'source': 'path', 'sourcePath': '/home/node/.openclaw/openclaw-qqbot', 'installPath': '/home/node/.openclaw/extensions/openclaw-qqbot'},
@@ -1447,7 +1448,7 @@ def sync_models(ctx):
         print('ℹ️ 已关闭模型配置同步，跳过模型同步')
         return
 
-    def sync_provider(provider_name, api_key, base_url, protocol, model_ids_raw, context_window, max_tokens):
+    def sync_provider(provider_name, api_key, api_key_env_name, base_url, protocol, model_ids_raw, context_window, max_tokens):
         providers = ensure_path(ctx.config, ['models', 'providers'])
         if not ((api_key and base_url) or model_ids_raw):
             if provider_name in providers:
@@ -1455,13 +1456,13 @@ def sync_models(ctx):
             return None
 
         provider = providers.setdefault(provider_name, {})
-        
+
         # API Key
         if api_key:
-            provider['apiKey'] = api_key
+            provider['apiKey'] = f'${{{api_key_env_name}}}'
         else:
             provider.pop('apiKey', None)
-            
+
         # Base URL
         if base_url:
             provider['baseUrl'] = base_url
@@ -1504,6 +1505,7 @@ def sync_models(ctx):
     primary_provider = sync_provider(
         'default',
         ctx.env.get('API_KEY'),
+        'API_KEY',
         ctx.env.get('BASE_URL'),
         ctx.env.get('API_PROTOCOL'),
         ctx.env.get('MODEL_ID') or 'gpt-4o',
@@ -1523,6 +1525,7 @@ def sync_models(ctx):
         synced_name = sync_provider(
             p_name,
             str(ctx.env.get(f'{prefix}_API_KEY') or '').strip(),
+            f'{prefix}_API_KEY',
             str(ctx.env.get(f'{prefix}_BASE_URL') or '').strip(),
             str(ctx.env.get(f'{prefix}_PROTOCOL') or '').strip(),
             str(ctx.env.get(f'{prefix}_MODEL_ID') or '').strip(),
@@ -1683,8 +1686,8 @@ def sync_feishu_channel(ctx, channel):
     account_id = (env.get('FEISHU_DEFAULT_ACCOUNT') or 'default').strip() or 'default'
     channel.update({
         'enabled': True,
-        'appId': env['FEISHU_APP_ID'],
-        'appSecret': env['FEISHU_APP_SECRET'],
+        'appId': '${FEISHU_APP_ID}',
+        'appSecret': '${FEISHU_APP_SECRET}',
         'dmPolicy': env.get('FEISHU_DM_POLICY') or ctx.default_dm_policy,
         'allowFrom': parse_csv(env.get('FEISHU_ALLOW_FROM')) or ctx.default_allow_from,
         'groupPolicy': env.get('FEISHU_GROUP_POLICY') or ctx.default_group_policy,
@@ -1699,8 +1702,8 @@ def sync_feishu_channel(ctx, channel):
 
     channel.setdefault('accounts', {})
     channel['accounts'][account_id] = {
-        'appId': env['FEISHU_APP_ID'],
-        'appSecret': env['FEISHU_APP_SECRET'],
+        'appId': '${FEISHU_APP_ID}',
+        'appSecret': '${FEISHU_APP_SECRET}',
         'name': env.get('FEISHU_NAME') or 'OpenClaw Bot',
     }
 
@@ -1870,6 +1873,7 @@ def sync_wecom_channel(ctx, channel):
 def apply_channel_rules(ctx):
     channel_labels = {
         'telegram': 'Telegram',
+        'discord': 'Discord',
         'feishu': '飞书',
         'dingtalk': '钉钉',
         'qqbot': 'QQ 机器人',
@@ -1905,6 +1909,22 @@ def apply_channel_rules(ctx):
                 },
             }),
             'install': False,
+        },
+        {
+            'channel': 'discord',
+            'required_envs': ['DISCORD_BOT_TOKEN'],
+            'sync': lambda channel: channel.update({
+                'enabled': True,
+                'token': {
+                    'source': 'env',
+                    'provider': 'default',
+                    'id': 'DISCORD_BOT_TOKEN',
+                },
+                'dmPolicy': ctx.env.get('DISCORD_DM_POLICY') or ctx.default_dm_policy,
+                'allowFrom': parse_csv(ctx.env.get('DISCORD_ALLOW_FROM')) or ctx.default_allow_from,
+                'groupPolicy': ctx.env.get('DISCORD_GROUP_POLICY') or ctx.default_group_policy,
+            }),
+            'install': True,
         },
         {
             'channel': 'feishu',
@@ -2153,7 +2173,7 @@ def sync_gateway(ctx):
         control_ui['allowedOrigins'] = parse_csv(ctx.env.get('OPENCLAW_GATEWAY_ALLOWED_ORIGINS'))
 
     auth = ensure_path(gateway, ['auth'])
-    auth['token'] = ctx.env['OPENCLAW_GATEWAY_TOKEN']
+    auth['token'] = '${OPENCLAW_GATEWAY_TOKEN}'
     auth['mode'] = ctx.env.get('OPENCLAW_GATEWAY_AUTH_MODE') or 'token'
     print('✅ Gateway 同步完成')
 
@@ -2535,6 +2555,13 @@ main() {
     install_agent_reach
     sync_config_with_env
     finalize_permissions
+    # When container runs as root (OPENCLAW_RUN_USER=0:0), the gateway process
+    # (started via gosu node) requires plugin directories owned by root for
+    # security. finalize_permissions chowns everything to node, so we restore
+    # root ownership for plugin paths after it completes.
+    if [ "$(id -u)" = "0" ]; then
+        chown -R 0:0 /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ 2>/dev/null || true
+    fi
     print_runtime_summary
     setup_runtime_env
     install_signal_traps
