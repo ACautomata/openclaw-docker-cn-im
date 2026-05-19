@@ -40,6 +40,10 @@ jobs:
         env:
           OPENCLAW_DATA_DIR: /tmp/openclaw-data
           OPENCLAW_GATEWAY_PORT: 18789
+          DISCORD_BOT_TOKEN: ""
+          DISCORD_DM_POLICY: ""
+          DISCORD_ALLOW_FROM: ""
+          DISCORD_GROUP_POLICY: ""
         run: docker compose config --quiet 2>&1
 
   python-config-tests:
@@ -126,7 +130,7 @@ jobs:
             -e API_PROTOCOL=openai-completions \
             -e OPENCLAW_GATEWAY_TOKEN=test-ci-token \
             -e OPENCLAW_GATEWAY_PORT=18789 \
-            -e OPENCLAW_GATEWAY_BIND=0.0.0.0 \
+            -e OPENCLAW_GATEWAY_BIND=lan \
             -e SYNC_OPENCLAW_CONFIG=true \
             -e AGENT_REACH_ENABLED=false \
             openclaw-test:ci
@@ -172,8 +176,8 @@ jobs:
           python3 -c "
           import json
           cfg = json.load(open('/tmp/openclaw-data/openclaw.json'))
-          assert cfg['models']['providers']['default']['apiKey'] == 'test-key', 'API key 不匹配'
-          assert cfg['gateway']['auth']['token'] == 'test-ci-token', 'Gateway token 不匹配'
+          assert cfg['models']['providers']['default']['apiKey'] == '${API_KEY}', 'API key 应保留为环境变量引用'
+          assert cfg['gateway']['auth']['token'] == '${OPENCLAW_GATEWAY_TOKEN}', 'Gateway token 应保留为环境变量引用'
           assert cfg['gateway']['port'] == 18789, '端口不匹配'
           print('配置验证通过')
           "

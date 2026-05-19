@@ -17,7 +17,7 @@ class TestMinimalConfig:
     def test_default_provider(self, config_dir):
         cfg = run_sync(config_dir, {})
         dp = cfg["models"]["providers"]["default"]
-        assert dp["apiKey"] == "test-key"
+        assert dp["apiKey"] == "${API_KEY}"
         assert dp["baseUrl"] == "https://api.example.com/v1"
         assert dp["api"] == "openai-completions"
         assert any(m["id"] == "gpt-4o" for m in dp["models"])
@@ -26,8 +26,8 @@ class TestMinimalConfig:
         cfg = run_sync(config_dir, {})
         gw = cfg["gateway"]
         assert gw["port"] == 18789
-        assert gw["bind"] == "0.0.0.0"
-        assert gw["auth"]["token"] == "test-ci-token"
+        assert gw["bind"] == "lan"
+        assert gw["auth"]["token"] == "${OPENCLAW_GATEWAY_TOKEN}"
 
     def test_no_channels_enabled(self, config_dir):
         cfg = run_sync(config_dir, {})
@@ -45,10 +45,10 @@ class TestFeishu:
         })
         ch = cfg["channels"]["feishu"]
         assert ch["enabled"] is True
-        assert ch["appId"] == "cli_test_123"
-        assert ch["appSecret"] == "test_secret_abc"
+        assert ch["appId"] == "${FEISHU_APP_ID}"
+        assert ch["appSecret"] == "${FEISHU_APP_SECRET}"
         assert "default" in ch["accounts"]
-        assert ch["accounts"]["default"]["appId"] == "cli_test_123"
+        assert ch["accounts"]["default"]["appId"] == "${FEISHU_APP_ID}"
         assert cfg["plugins"]["entries"]["feishu"]["enabled"] is True
 
     def test_multi_account(self, config_dir):
@@ -154,8 +154,8 @@ class TestMultiProvider:
         assert "default" in providers
         assert "model2" in providers
         assert "google" in providers
-        assert providers["model2"]["apiKey"] == "key2"
-        assert providers["google"]["apiKey"] == "key3"
+        assert providers["model2"]["apiKey"] == "${MODEL2_API_KEY}"
+        assert providers["google"]["apiKey"] == "${MODEL3_API_KEY}"
 
 
 class TestSyncControl:
@@ -206,6 +206,7 @@ class TestAllChannels:
             "WECOM_SECRET": "wc_s",
             "NAPCAT_REVERSE_WS_PORT": "3001",
             "TELEGRAM_BOT_TOKEN": "111:token",
+            "DISCORD_BOT_TOKEN": "discord-token",
         })
         channels = cfg["channels"]
         assert channels["feishu"]["enabled"] is True
@@ -214,3 +215,5 @@ class TestAllChannels:
         assert channels["wecom"]["enabled"] is True
         assert channels["napcat"]["enabled"] is True
         assert channels["telegram"]["botToken"] == "111:token"
+        assert channels["discord"]["enabled"] is True
+        assert channels["discord"]["token"]["id"] == "DISCORD_BOT_TOKEN"

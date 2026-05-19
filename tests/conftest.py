@@ -138,7 +138,7 @@ def run_sync(config_dir, env_overrides):
         "MAX_TOKENS": "4096",
         "OPENCLAW_GATEWAY_TOKEN": "test-ci-token",
         "OPENCLAW_GATEWAY_PORT": "18789",
-        "OPENCLAW_GATEWAY_BIND": "0.0.0.0",
+        "OPENCLAW_GATEWAY_BIND": "lan",
         "AGENT_REACH_ENABLED": "false",
     }
     base_env.update(env_overrides)

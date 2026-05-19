@@ -2163,7 +2163,7 @@ def sync_gateway(ctx):
 
     gateway = ensure_path(ctx.config, ['gateway'])
     gateway['port'] = int(ctx.env.get('OPENCLAW_GATEWAY_PORT') or 18789)
-    gateway['bind'] = ctx.env.get('OPENCLAW_GATEWAY_BIND') or '0.0.0.0'
+    gateway['bind'] = ctx.env.get('OPENCLAW_GATEWAY_BIND') or 'lan'
     gateway['mode'] = ctx.env.get('OPENCLAW_GATEWAY_MODE') or 'local'
 
     control_ui = ensure_path(gateway, ['controlUi'])
