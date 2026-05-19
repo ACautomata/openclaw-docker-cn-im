@@ -1447,7 +1447,7 @@ def sync_models(ctx):
         print('ℹ️ 已关闭模型配置同步，跳过模型同步')
         return
 
-    def sync_provider(provider_name, api_key, base_url, protocol, model_ids_raw, context_window, max_tokens):
+    def sync_provider(provider_name, api_key, api_key_env_name, base_url, protocol, model_ids_raw, context_window, max_tokens):
         providers = ensure_path(ctx.config, ['models', 'providers'])
         if not ((api_key and base_url) or model_ids_raw):
             if provider_name in providers:
@@ -1455,13 +1455,13 @@ def sync_models(ctx):
             return None
 
         provider = providers.setdefault(provider_name, {})
-        
+
         # API Key
         if api_key:
-            provider['apiKey'] = api_key
+            provider['apiKey'] = f'${{{api_key_env_name}}}'
         else:
             provider.pop('apiKey', None)
-            
+
         # Base URL
         if base_url:
             provider['baseUrl'] = base_url
@@ -1504,6 +1504,7 @@ def sync_models(ctx):
     primary_provider = sync_provider(
         'default',
         ctx.env.get('API_KEY'),
+        'API_KEY',
         ctx.env.get('BASE_URL'),
         ctx.env.get('API_PROTOCOL'),
         ctx.env.get('MODEL_ID') or 'gpt-4o',
@@ -1523,6 +1524,7 @@ def sync_models(ctx):
         synced_name = sync_provider(
             p_name,
             str(ctx.env.get(f'{prefix}_API_KEY') or '').strip(),
+            f'{prefix}_API_KEY',
             str(ctx.env.get(f'{prefix}_BASE_URL') or '').strip(),
             str(ctx.env.get(f'{prefix}_PROTOCOL') or '').strip(),
             str(ctx.env.get(f'{prefix}_MODEL_ID') or '').strip(),
@@ -1683,8 +1685,8 @@ def sync_feishu_channel(ctx, channel):
     account_id = (env.get('FEISHU_DEFAULT_ACCOUNT') or 'default').strip() or 'default'
     channel.update({
         'enabled': True,
-        'appId': env['FEISHU_APP_ID'],
-        'appSecret': env['FEISHU_APP_SECRET'],
+        'appId': '${FEISHU_APP_ID}',
+        'appSecret': '${FEISHU_APP_SECRET}',
         'dmPolicy': env.get('FEISHU_DM_POLICY') or ctx.default_dm_policy,
         'allowFrom': parse_csv(env.get('FEISHU_ALLOW_FROM')) or ctx.default_allow_from,
         'groupPolicy': env.get('FEISHU_GROUP_POLICY') or ctx.default_group_policy,
@@ -1699,8 +1701,8 @@ def sync_feishu_channel(ctx, channel):
 
     channel.setdefault('accounts', {})
     channel['accounts'][account_id] = {
-        'appId': env['FEISHU_APP_ID'],
-        'appSecret': env['FEISHU_APP_SECRET'],
+        'appId': '${FEISHU_APP_ID}',
+        'appSecret': '${FEISHU_APP_SECRET}',
         'name': env.get('FEISHU_NAME') or 'OpenClaw Bot',
     }
 
@@ -2153,7 +2155,7 @@ def sync_gateway(ctx):
         control_ui['allowedOrigins'] = parse_csv(ctx.env.get('OPENCLAW_GATEWAY_ALLOWED_ORIGINS'))
 
     auth = ensure_path(gateway, ['auth'])
-    auth['token'] = ctx.env['OPENCLAW_GATEWAY_TOKEN']
+    auth['token'] = '${OPENCLAW_GATEWAY_TOKEN}'
     auth['mode'] = ctx.env.get('OPENCLAW_GATEWAY_AUTH_MODE') or 'token'
     print('✅ Gateway 同步完成')
 
