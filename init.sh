@@ -2535,6 +2535,13 @@ main() {
     install_agent_reach
     sync_config_with_env
     finalize_permissions
+    # When container runs as root (OPENCLAW_RUN_USER=0:0), the gateway process
+    # (started via gosu node) requires plugin directories owned by root for
+    # security. finalize_permissions chowns everything to node, so we restore
+    # root ownership for plugin paths after it completes.
+    if [ "$(id -u)" = "0" ]; then
+        chown -R 0:0 /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ 2>/dev/null || true
+    fi
     print_runtime_summary
     setup_runtime_env
     install_signal_traps
