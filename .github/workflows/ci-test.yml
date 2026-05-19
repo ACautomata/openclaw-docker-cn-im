@@ -38,6 +38,7 @@ jobs:
 
       - name: 校验 docker-compose.yml 语法
         env:
+          OPENCLAW_IMAGE: openclaw-test:ci
           OPENCLAW_DATA_DIR: /tmp/openclaw-data
           OPENCLAW_GATEWAY_PORT: 18789
           DISCORD_BOT_TOKEN: ""
