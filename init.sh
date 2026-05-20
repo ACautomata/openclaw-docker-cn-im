@@ -1442,6 +1442,9 @@ def sync_lossless_claw(ctx):
 def sync_memory_wiki(ctx):
     wiki_env = (ctx.env.get('WIKI_ENABLED') or '').strip().lower()
     if wiki_env not in ('true', '1', 'yes', 'on'):
+        if 'memory-wiki' in ctx.entries:
+            ctx.entries['memory-wiki'] = {'enabled': False}
+            print('Wiki 已显式禁用')
         return
 
     vault_mode = (ctx.env.get('WIKI_VAULT_MODE') or 'bridge').strip().lower()
@@ -2171,6 +2174,7 @@ def sync_channels_and_plugins(ctx):
     apply_multi_account_plugin_state(ctx)
     apply_feishu_plugin_switch(ctx)
     sync_lossless_claw(ctx)
+    sync_memory_wiki(ctx)
     finalize_plugins(ctx)
     validate_feishu_multi_accounts(ctx.channels)
     validate_dingtalk_multi_accounts(ctx.channels)
@@ -2259,7 +2263,6 @@ def sync():
         sync_models(ctx)
         sync_agent_and_tools(ctx)
         sync_channels_and_plugins(ctx)
-        sync_memory_wiki(ctx)
         sync_gateway(ctx)
 
         ensure_path(ctx.config, ['meta'])['lastTouchedAt'] = utc_now_iso()
