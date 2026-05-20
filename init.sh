@@ -1460,6 +1460,34 @@ def sync_lossless_claw(ctx):
     ctx.install('lossless-claw')
 
 
+def sync_memory_wiki(ctx):
+    wiki_env = (ctx.env.get('WIKI_ENABLED') or '').strip().lower()
+    if wiki_env not in ('true', '1', 'yes', 'on'):
+        if 'memory-wiki' in ctx.entries:
+            ctx.entries['memory-wiki'] = {'enabled': False}
+            print('Wiki 已显式禁用')
+        return
+
+    vault_mode = (ctx.env.get('WIKI_VAULT_MODE') or 'bridge').strip().lower()
+    if vault_mode not in ('isolated', 'bridge', 'unsafe-local'):
+        vault_mode = 'bridge'
+
+    config = {'vaultMode': vault_mode}
+    if vault_mode == 'bridge':
+        config['bridge'] = {
+            'enabled': True,
+            'readMemoryArtifacts': True,
+            'indexDreamReports': True,
+            'indexDailyNotes': True,
+            'indexMemoryRoot': True,
+            'followMemoryEvents': True,
+        }
+        config['search'] = {'backend': 'shared', 'corpus': 'all'}
+
+    ctx.entries['memory-wiki'] = {'enabled': True, 'config': config}
+    print(f'✅ Wiki 已启用 (模式: {vault_mode})')
+
+
 def sync_models(ctx):
     if not is_openclaw_sync_enabled(ctx.env):
         print('ℹ️ 已关闭整体配置同步，跳过模型同步')
@@ -2167,6 +2195,7 @@ def sync_channels_and_plugins(ctx):
     apply_multi_account_plugin_state(ctx)
     apply_feishu_plugin_switch(ctx)
     sync_lossless_claw(ctx)
+    sync_memory_wiki(ctx)
     finalize_plugins(ctx)
     validate_feishu_multi_accounts(ctx.channels)
     validate_dingtalk_multi_accounts(ctx.channels)
@@ -2538,6 +2567,27 @@ install_signal_traps() {
     trap cleanup SIGTERM SIGINT SIGQUIT
 }
 
+init_wiki() {
+    local wiki_enabled="${WIKI_ENABLED:-false}"
+    wiki_enabled="$(echo "$wiki_enabled" | tr '[:upper:]' '[:lower:]' | xargs)"
+    if [ "$wiki_enabled" != "true" ] && [ "$wiki_enabled" != "1" ] && [ "$wiki_enabled" != "yes" ] && [ "$wiki_enabled" != "on" ]; then
+        return
+    fi
+
+    local vault_path="${OPENCLAW_HOME}/wiki/main"
+    if [ -d "$vault_path" ]; then
+        echo "Wiki vault 已存在，跳过初始化: $vault_path"
+        return
+    fi
+
+    log_section "初始化 Wiki Vault"
+    gosu node env HOME=/home/node openclaw wiki init 2>&1 || {
+        echo "⚠️ Wiki vault 初始化失败，将在首次使用时自动创建"
+        return
+    }
+    echo "✅ Wiki vault 初始化完成"
+}
+
 start_gateway() {
     log_section "启动 OpenClaw Gateway"
 
@@ -2585,6 +2635,7 @@ main() {
     fi
     print_runtime_summary
     setup_runtime_env
+    init_wiki
     install_signal_traps
     start_gateway
     wait_for_gateway
