@@ -1414,7 +1414,12 @@ def sync_lossless_claw(ctx):
             del slots['contextEngine']
         return
 
-    config = {}
+    config = {
+        'freshTailCount': 64,
+        'incrementalMaxDepth': 1,
+        'contextThreshold': 0.75,
+        'newSessionRetainDepth': 2,
+    }
     _lcm_env_num(ctx.env, 'LCM_CONTEXT_THRESHOLD', config, 'contextThreshold', float)
     _lcm_env_num(ctx.env, 'LCM_FRESH_TAIL_COUNT', config, 'freshTailCount', int)
     _lcm_env_num(ctx.env, 'LCM_INCREMENTAL_MAX_DEPTH', config, 'incrementalMaxDepth', int)
@@ -1428,6 +1433,22 @@ def sync_lossless_claw(ctx):
     _lcm_env_csv(ctx.env, 'LCM_STATELESS_SESSION_PATTERNS', config, 'statelessSessionPatterns')
     _lcm_env_bool(ctx.env, 'LCM_SKIP_STATELESS_SESSIONS', config, 'skipStatelessSessions')
     _lcm_env_num(ctx.env, 'LCM_LARGE_FILE_TOKEN_THRESHOLD', config, 'largeFileThresholdTokens', int)
+    _lcm_env_str(ctx.env, 'LCM_LARGE_FILE_SUMMARY_MODEL', config, 'largeFileSummaryModel')
+    _lcm_env_str(ctx.env, 'LCM_LARGE_FILE_SUMMARY_PROVIDER', config, 'largeFileSummaryProvider')
+    _lcm_env_num(ctx.env, 'LCM_NEW_SESSION_RETAIN_DEPTH', config, 'newSessionRetainDepth', int)
+    _lcm_env_num(ctx.env, 'LCM_LEAF_TARGET_TOKENS', config, 'leafTargetTokens', int)
+    _lcm_env_num(ctx.env, 'LCM_CONDENSED_TARGET_TOKENS', config, 'condensedTargetTokens', int)
+    _lcm_env_num(ctx.env, 'LCM_MAX_EXPAND_TOKENS', config, 'maxExpandTokens', int)
+    _lcm_env_num(ctx.env, 'LCM_LEAF_MIN_FANOUT', config, 'leafMinFanout', int)
+    _lcm_env_num(ctx.env, 'LCM_CONDENSED_MIN_FANOUT', config, 'condensedMinFanout', int)
+    _lcm_env_num(ctx.env, 'LCM_CONDENSED_MIN_FANOUT_HARD', config, 'condensedMinFanoutHard', int)
+    _lcm_env_num(ctx.env, 'LCM_DELEGATION_TIMEOUT_MS', config, 'delegationTimeoutMs', int)
+    _lcm_env_num(ctx.env, 'LCM_SUMMARY_TIMEOUT_MS', config, 'summaryTimeoutMs', int)
+    _lcm_env_bool(ctx.env, 'LCM_PRUNE_HEARTBEAT_OK', config, 'pruneHeartbeatOk')
+    _lcm_env_bool(ctx.env, 'LCM_TRANSCRIPT_GC_ENABLED', config, 'transcriptGcEnabled')
+    _lcm_env_str(ctx.env, 'LCM_PROACTIVE_THRESHOLD_COMPACTION_MODE', config, 'proactiveThresholdCompactionMode')
+    _cache_aware = ensure_path(config, ['cacheAwareCompaction'])
+    _lcm_env_num(ctx.env, 'LCM_CACHE_TTL_SECONDS', _cache_aware, 'cacheTTLSeconds', int)
 
     ctx.entries['lossless-claw'] = {
         'enabled': True,

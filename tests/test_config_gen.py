@@ -174,21 +174,123 @@ class TestSyncControl:
 
 
 class TestLCM:
-    def test_lcm_enabled(self, config_dir):
-        cfg = run_sync(config_dir, {
-            "LCM_ENABLED": "true",
-            "LCM_CONTEXT_THRESHOLD": "5000.0",
-            "LCM_FRESH_TAIL_COUNT": "10",
-        })
+    def test_lcm_enabled_with_defaults(self, config_dir):
+        cfg = run_sync(config_dir, {"LCM_ENABLED": "true"})
         assert cfg["plugins"]["entries"]["lossless-claw"]["enabled"] is True
-        lcm_config = cfg["plugins"]["entries"]["lossless-claw"].get("config", {})
-        assert lcm_config["contextThreshold"] == 5000.0
-        assert lcm_config["freshTailCount"] == 10
         assert cfg["plugins"]["slots"]["contextEngine"] == "lossless-claw"
 
     def test_lcm_disabled(self, config_dir):
         cfg = run_sync(config_dir, {"LCM_ENABLED": "false"})
         assert cfg["plugins"]["entries"]["lossless-claw"]["enabled"] is False
+        assert "contextEngine" not in cfg["plugins"].get("slots", {})
+
+    def test_lcm_numeric_params(self, config_dir):
+        cfg = run_sync(config_dir, {
+            "LCM_ENABLED": "true",
+            "LCM_CONTEXT_THRESHOLD": "0.85",
+            "LCM_FRESH_TAIL_COUNT": "128",
+            "LCM_INCREMENTAL_MAX_DEPTH": "2",
+            "LCM_LEAF_CHUNK_TOKENS": "40000",
+            "LCM_NEW_SESSION_RETAIN_DEPTH": "3",
+            "LCM_LEAF_TARGET_TOKENS": "1500",
+            "LCM_CONDENSED_TARGET_TOKENS": "2500",
+            "LCM_MAX_EXPAND_TOKENS": "8000",
+            "LCM_LEAF_MIN_FANOUT": "12",
+            "LCM_CONDENSED_MIN_FANOUT": "6",
+            "LCM_CONDENSED_MIN_FANOUT_HARD": "3",
+            "LCM_LARGE_FILE_TOKEN_THRESHOLD": "50000",
+            "LCM_DELEGATION_TIMEOUT_MS": "180000",
+            "LCM_SUMMARY_TIMEOUT_MS": "90000",
+            "LCM_CACHE_TTL_SECONDS": "600",
+        })
+        c = cfg["plugins"]["entries"]["lossless-claw"]["config"]
+        assert c["contextThreshold"] == 0.85
+        assert c["freshTailCount"] == 128
+        assert c["incrementalMaxDepth"] == 2
+        assert c["leafChunkTokens"] == 40000
+        assert c["newSessionRetainDepth"] == 3
+        assert c["leafTargetTokens"] == 1500
+        assert c["condensedTargetTokens"] == 2500
+        assert c["maxExpandTokens"] == 8000
+        assert c["leafMinFanout"] == 12
+        assert c["condensedMinFanout"] == 6
+        assert c["condensedMinFanoutHard"] == 3
+        assert c["largeFileThresholdTokens"] == 50000
+        assert c["delegationTimeoutMs"] == 180000
+        assert c["summaryTimeoutMs"] == 90000
+        assert c["cacheAwareCompaction"]["cacheTTLSeconds"] == 600
+
+    def test_lcm_string_params(self, config_dir):
+        cfg = run_sync(config_dir, {
+            "LCM_ENABLED": "true",
+            "LCM_SUMMARY_MODEL": "openai/gpt-4o-mini",
+            "LCM_SUMMARY_PROVIDER": "openai",
+            "LCM_SUMMARY_BASE_URL": "https://api.custom.com/v1",
+            "LCM_EXPANSION_MODEL": "anthropic/claude-haiku-4-5",
+            "LCM_EXPANSION_PROVIDER": "anthropic",
+            "LCM_DATABASE_PATH": "/data/lcm.db",
+            "LCM_LARGE_FILE_SUMMARY_MODEL": "deepseek/deepseek-chat",
+            "LCM_LARGE_FILE_SUMMARY_PROVIDER": "deepseek",
+        })
+        c = cfg["plugins"]["entries"]["lossless-claw"]["config"]
+        assert c["summaryModel"] == "openai/gpt-4o-mini"
+        assert c["summaryProvider"] == "openai"
+        assert "summaryBaseUrl" not in c  # LCM reads LCM_SUMMARY_BASE_URL directly from env, not plugin config
+        assert c["expansionModel"] == "anthropic/claude-haiku-4-5"
+        assert c["expansionProvider"] == "anthropic"
+        assert c["dbPath"] == "/data/lcm.db"
+        assert c["largeFileSummaryModel"] == "deepseek/deepseek-chat"
+        assert c["largeFileSummaryProvider"] == "deepseek"
+
+    def test_lcm_bool_params(self, config_dir):
+        cfg = run_sync(config_dir, {
+            "LCM_ENABLED": "true",
+            "LCM_SKIP_STATELESS_SESSIONS": "true",
+            "LCM_PRUNE_HEARTBEAT_OK": "true",
+            "LCM_TRANSCRIPT_GC_ENABLED": "true",
+        })
+        c = cfg["plugins"]["entries"]["lossless-claw"]["config"]
+        assert c["skipStatelessSessions"] is True
+        assert c["pruneHeartbeatOk"] is True
+        assert c["transcriptGcEnabled"] is True
+
+    def test_lcm_csv_params(self, config_dir):
+        cfg = run_sync(config_dir, {
+            "LCM_ENABLED": "true",
+            "LCM_IGNORE_SESSION_PATTERNS": "agent:*:cron:**,agent:main:subagent:**",
+            "LCM_STATELESS_SESSION_PATTERNS": "agent:*:subagent:**",
+        })
+        c = cfg["plugins"]["entries"]["lossless-claw"]["config"]
+        assert c["ignoreSessionPatterns"] == ["agent:*:cron:**", "agent:main:subagent:**"]
+        assert c["statelessSessionPatterns"] == ["agent:*:subagent:**"]
+
+    def test_lcm_proactive_compaction_mode(self, config_dir):
+        cfg = run_sync(config_dir, {
+            "LCM_ENABLED": "true",
+            "LCM_PROACTIVE_THRESHOLD_COMPACTION_MODE": "inline",
+        })
+        c = cfg["plugins"]["entries"]["lossless-claw"]["config"]
+        assert c["proactiveThresholdCompactionMode"] == "inline"
+
+    def test_lcm_empty_env_has_recommended_defaults(self, config_dir):
+        cfg = run_sync(config_dir, {"LCM_ENABLED": "true"})
+        lcm_entry = cfg["plugins"]["entries"]["lossless-claw"]
+        assert lcm_entry["enabled"] is True
+        c = lcm_entry["config"]
+        assert c["freshTailCount"] == 64
+        assert c["incrementalMaxDepth"] == 1
+        assert c["contextThreshold"] == 0.75
+        assert c["newSessionRetainDepth"] == 2
+
+    def test_lcm_invalid_number_keeps_default(self, config_dir):
+        cfg = run_sync(config_dir, {
+            "LCM_ENABLED": "true",
+            "LCM_FRESH_TAIL_COUNT": "not-a-number",
+        })
+        lcm_entry = cfg["plugins"]["entries"]["lossless-claw"]
+        assert lcm_entry["enabled"] is True
+        c = lcm_entry["config"]
+        assert c["freshTailCount"] == 64
 
 
 class TestAllChannels:
