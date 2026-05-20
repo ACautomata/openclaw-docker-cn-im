@@ -1442,13 +1442,13 @@ def sync_lossless_claw(ctx):
     _lcm_env_num(ctx.env, 'LCM_LEAF_MIN_FANOUT', config, 'leafMinFanout', int)
     _lcm_env_num(ctx.env, 'LCM_CONDENSED_MIN_FANOUT', config, 'condensedMinFanout', int)
     _lcm_env_num(ctx.env, 'LCM_CONDENSED_MIN_FANOUT_HARD', config, 'condensedMinFanoutHard', int)
-    _lcm_env_str(ctx.env, 'LCM_SUMMARY_BASE_URL', config, 'summaryBaseUrl')
     _lcm_env_num(ctx.env, 'LCM_DELEGATION_TIMEOUT_MS', config, 'delegationTimeoutMs', int)
     _lcm_env_num(ctx.env, 'LCM_SUMMARY_TIMEOUT_MS', config, 'summaryTimeoutMs', int)
     _lcm_env_bool(ctx.env, 'LCM_PRUNE_HEARTBEAT_OK', config, 'pruneHeartbeatOk')
     _lcm_env_bool(ctx.env, 'LCM_TRANSCRIPT_GC_ENABLED', config, 'transcriptGcEnabled')
     _lcm_env_str(ctx.env, 'LCM_PROACTIVE_THRESHOLD_COMPACTION_MODE', config, 'proactiveThresholdCompactionMode')
-    _lcm_env_num(ctx.env, 'LCM_CACHE_TTL_SECONDS', config, 'cacheTtlSeconds', int)
+    _cache_aware = ensure_path(config, ['cacheAwareCompaction'])
+    _lcm_env_num(ctx.env, 'LCM_CACHE_TTL_SECONDS', _cache_aware, 'cacheTTLSeconds', int)
 
     ctx.entries['lossless-claw'] = {
         'enabled': True,

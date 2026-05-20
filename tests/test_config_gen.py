@@ -218,7 +218,7 @@ class TestLCM:
         assert c["largeFileThresholdTokens"] == 50000
         assert c["delegationTimeoutMs"] == 180000
         assert c["summaryTimeoutMs"] == 90000
-        assert c["cacheTtlSeconds"] == 600
+        assert c["cacheAwareCompaction"]["cacheTTLSeconds"] == 600
 
     def test_lcm_string_params(self, config_dir):
         cfg = run_sync(config_dir, {
@@ -235,7 +235,7 @@ class TestLCM:
         c = cfg["plugins"]["entries"]["lossless-claw"]["config"]
         assert c["summaryModel"] == "openai/gpt-4o-mini"
         assert c["summaryProvider"] == "openai"
-        assert c["summaryBaseUrl"] == "https://api.custom.com/v1"
+        assert "summaryBaseUrl" not in c  # LCM reads LCM_SUMMARY_BASE_URL directly from env, not plugin config
         assert c["expansionModel"] == "anthropic/claude-haiku-4-5"
         assert c["expansionProvider"] == "anthropic"
         assert c["dbPath"] == "/data/lcm.db"

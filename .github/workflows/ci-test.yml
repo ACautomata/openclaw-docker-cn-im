@@ -31,8 +31,8 @@ jobs:
       - name: 校验 version.txt 格式
         run: |
           v=$(tr -d '[:space:]' < version.txt)
-          if [[ ! "$v" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::version.txt 格式应为 YYYY.M.N，当前值: $v"
+          if [[ ! "$v" =~ ^[0-9]{4}\.[0-9]+\.[0-9]+(-[a-zA-Z0-9._-]+)?$ ]]; then
+            echo "::error::version.txt 格式应为 YYYY.M.N 或 YYYY.M.N-suffix，当前值: $v"
             exit 1
           fi
 
