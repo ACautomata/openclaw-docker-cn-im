@@ -2449,6 +2449,7 @@ EOF
 
 install_agent_reach() {
     if [ "${AGENT_REACH_ENABLED:-false}" != "true" ]; then
+        echo "ℹ️ Agent Reach 未启用 (AGENT_REACH_ENABLED=${AGENT_REACH_ENABLED:-未设置})"
         return
     fi
 
@@ -2478,21 +2479,23 @@ install_agent_reach() {
 
         if echo "$check_output" | grep -q '已是最新版本'; then
             echo "Agent Reach 已是最新版本，跳过安装步骤"
-            return
-        fi
-
-        echo "Agent Reach 检测到可更新版本，开始自动更新..."
-        gosu node bash -c "
-            export PATH=\$PATH:/home/node/.local/bin
-            $pip_index_env
-            if [ -f ~/.agent-reach-venv/bin/activate ]; then
-                source ~/.agent-reach-venv/bin/activate
+        else
+            echo "Agent Reach 检测到可更新版本，开始自动更新..."
+            if ! gosu node bash -c "
+                export PATH=\$PATH:/home/node/.local/bin
+                $pip_index_env
+                if [ -f ~/.agent-reach-venv/bin/activate ]; then
+                    source ~/.agent-reach-venv/bin/activate
+                fi
+                pip install --upgrade pip $pip_mirror
+                pip install --upgrade $github_url $pip_mirror
+            "; then
+                echo "⚠️ Agent Reach 更新失败，将使用现有版本继续"
             fi
-            pip install --upgrade pip $pip_mirror
-            pip install --upgrade $github_url $pip_mirror
-        "
+        fi
     else
-        gosu node bash -c "
+        echo "Agent Reach 首次安装，开始下载..."
+        if ! gosu node bash -c "
             export PATH=\$PATH:/home/node/.local/bin
             $pip_index_env
             if [ ! -d ~/.agent-reach-venv ]; then
@@ -2501,10 +2504,16 @@ install_agent_reach() {
             source ~/.agent-reach-venv/bin/activate
             pip install --upgrade pip $pip_mirror
             pip install $github_url $pip_mirror
-            agent-reach install --env=auto 
-        "
+            agent-reach install --env=auto
+        "; then
+            echo "⚠️ Agent Reach 安装失败，请检查网络连接或尝试设置 AGENT_REACH_USE_CN_MIRROR=true"
+            echo "   错误详情: pip install 可能因网络问题失败，或 agent-reach install --env=auto 遇到依赖问题"
+            return
+        fi
+        echo "✅ Agent Reach 安装完成"
     fi
 
+    # 配置代理和各渠道凭据
     gosu node bash -c "
         export PATH=\$PATH:/home/node/.local/bin
         $pip_index_env
@@ -2514,29 +2523,26 @@ install_agent_reach() {
 
         # 配置代理（如果提供）
         if [ -n \"\$AGENT_REACH_PROXY\" ]; then
-            agent-reach configure proxy \"\$AGENT_REACH_PROXY\"
+            agent-reach configure proxy \"\$AGENT_REACH_PROXY\" || true
         fi
 
         # 配置 Twitter Cookies
         if [ -n \"\$AGENT_REACH_TWITTER_COOKIES\" ]; then
-            agent-reach configure twitter-cookies \"\$AGENT_REACH_TWITTER_COOKIES\"
+            agent-reach configure twitter-cookies \"\$AGENT_REACH_TWITTER_COOKIES\" || true
         fi
 
         # 配置 Groq Key
         if [ -n \"\$AGENT_REACH_GROQ_KEY\" ]; then
-            agent-reach configure groq-key \"\$AGENT_REACH_GROQ_KEY\"
+            agent-reach configure groq-key \"\$AGENT_REACH_GROQ_KEY\" || true
         fi
-        
+
         # 配置小红书 Cookies
         if [ -n \"\$AGENT_REACH_XHS_COOKIES\" ]; then
-            agent-reach configure xhs-cookies \"\$AGENT_REACH_XHS_COOKIES\"
+            agent-reach configure xhs-cookies \"\$AGENT_REACH_XHS_COOKIES\" || true
         fi
-    "
-    
-    # 建立软链接到 /usr/local/bin 以便全局访问（如果需要）
-    # 但我们已经在 setup_runtime_env 中处理了 PATH
+    " || true
 
-    # 检查工作空间父目录下的 skills 目录中是否存在 agent-reach，若存在则同步到工作空间（仅删除目标 SKILL.md 并覆盖）
+    # 同步 Agent Reach skills 到工作空间
     local workspace_parent
     workspace_parent="$(dirname "$OPENCLAW_WORKSPACE")"
     if [ -d "$workspace_parent/skills/agent-reach" ]; then
@@ -2550,6 +2556,14 @@ install_agent_reach() {
         if is_root; then
             chown -R node:node "$dst" || true
         fi
+        echo "✅ Agent Reach skills 已同步到工作空间"
+    fi
+
+    # 验证安装结果
+    if gosu node test -f /home/node/.agent-reach-venv/bin/agent-reach; then
+        echo "✅ Agent Reach CLI 已就绪: /home/node/.agent-reach-venv/bin/agent-reach"
+    else
+        echo "⚠️ Agent Reach CLI 未找到，安装可能未成功"
     fi
 }
 
