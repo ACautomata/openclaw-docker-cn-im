@@ -80,14 +80,14 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   git clone --depth 1 -b v4.17.25 https://github.com/Daiyimo/openclaw-napcat.git napcat && \
   cd napcat && \
   npm install --production && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install -l . && \
+  openclaw plugins install --dangerously-force-unsafe-install -l . && \
   cd /home/node/.openclaw/extensions && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install @soimy/dingtalk && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install @tencent-connect/openclaw-qqbot@latest && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install @sunnoy/wecom && \
-  timeout 300 openclaw plugins install @martian-engineering/lossless-claw && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install @openclaw/discord && \
-  timeout 300 openclaw plugins install --dangerously-force-unsafe-install @openclaw/feishu && \
+  openclaw plugins install --dangerously-force-unsafe-install @soimy/dingtalk && \
+  openclaw plugins install --dangerously-force-unsafe-install @tencent-connect/openclaw-qqbot@latest && \
+  openclaw plugins install --dangerously-force-unsafe-install @sunnoy/wecom && \
+  openclaw plugins install @martian-engineering/lossless-claw && \
+  openclaw plugins install --dangerously-force-unsafe-install @openclaw/discord && \
+  openclaw plugins install --dangerously-force-unsafe-install @openclaw/feishu && \
   cd /home/node/.openclaw/extensions && \
   mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
   # 预执行安装命令（容器内需手动交互，此处仅作声明或环境准备）
