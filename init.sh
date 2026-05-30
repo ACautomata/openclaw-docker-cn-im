@@ -1399,7 +1399,6 @@ class SyncContext:
 
 def set_qqbot_plugin_entries(ctx, enabled, install=False):
     ctx.entries['openclaw-qqbot'] = {'enabled': enabled}
-    ctx.entries['qqbot'] = {'enabled': enabled}
     if enabled and install:
         ctx.install('openclaw-qqbot')
 
@@ -2164,12 +2163,29 @@ def apply_feishu_plugin_switch(ctx):
     has_credentials = bool(ctx.env.get('FEISHU_APP_ID') and ctx.env.get('FEISHU_APP_SECRET')) or bool(feishu_accounts)
     official_plugin_id = 'openclaw-lark'
     legacy_plugin_id = 'feishu-openclaw-plugin'
+
+    # 检查 openclaw-lark 插件是否实际安装（有 install 记录或目录存在）
+    openclaw_home = os.environ.get('OPENCLAW_HOME', '/home/node/.openclaw')
+    lark_installed = (official_plugin_id in ctx.installs or
+                      os.path.isdir(os.path.join(openclaw_home, 'extensions', official_plugin_id)))
+
     if legacy_plugin_id in ctx.entries and official_plugin_id not in ctx.entries:
         legacy_entry = ctx.entries.get(legacy_plugin_id)
         if isinstance(legacy_entry, dict):
             ctx.entries[official_plugin_id] = deepcopy(legacy_entry)
         del ctx.entries[legacy_plugin_id]
         print('✅ 已将飞书官方插件 ID 从 feishu-openclaw-plugin 迁移为 openclaw-lark')
+
+    # 插件未安装时，不创建配置条目（避免 openclaw 启动警告）
+    if not lark_installed:
+        ctx.entries.pop(official_plugin_id, None)
+        ctx.entries['feishu'] = {'enabled': has_credentials}
+        if has_credentials:
+            print('ℹ️ 飞书官方插件 (openclaw-lark) 未安装，默认启用旧版飞书渠道')
+        else:
+            print('ℹ️ 飞书官方插件未安装且无飞书凭证，已禁用飞书渠道')
+        return
+
     if ctx.feishu_plugin_explicit:
         ctx.entries[official_plugin_id] = {'enabled': ctx.feishu_plugin_enabled}
         ctx.entries['feishu'] = {'enabled': not ctx.feishu_plugin_enabled}
@@ -2272,10 +2288,10 @@ def normalize_install_paths(ctx, openclaw_home=None):
                 install_info['installPath'] = new_path
                 corrected.append(f'{plugin_id}: {expected_dir} → {matched_dir}')
             else:
-                # 未找到匹配目录，禁用该插件条目
-                if plugin_id in ctx.entries:
-                    ctx.entries[plugin_id] = {'enabled': False}
-                print(f'🚫 插件 {plugin_id} 目录 {expected_dir} 不存在，已禁用')
+                # 未找到匹配目录，移除该插件的配置和安装记录（避免 openclaw 启动警告）
+                ctx.entries.pop(plugin_id, None)
+                ctx.installs.pop(plugin_id, None)
+                print(f'🚫 插件 {plugin_id} 目录 {expected_dir} 不存在，已移除配置')
 
     if corrected:
         print(f'✅ 已校正以下插件 installPath: {", ".join(corrected)}')
