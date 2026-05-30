@@ -282,15 +282,12 @@ class TestLCM:
         assert c["contextThreshold"] == 0.75
         assert c["newSessionRetainDepth"] == 2
 
-    def test_lcm_invalid_number_keeps_default(self, config_dir):
-        cfg = run_sync(config_dir, {
-            "LCM_ENABLED": "true",
-            "LCM_FRESH_TAIL_COUNT": "not-a-number",
-        })
-        lcm_entry = cfg["plugins"]["entries"]["lossless-claw"]
-        assert lcm_entry["enabled"] is True
-        c = lcm_entry["config"]
-        assert c["freshTailCount"] == 64
+    def test_lcm_invalid_number_raises(self, config_dir):
+        with pytest.raises(SystemExit):
+            run_sync(config_dir, {
+                "LCM_ENABLED": "true",
+                "LCM_FRESH_TAIL_COUNT": "not-a-number",
+            })
 
 
 class TestAllChannels:
