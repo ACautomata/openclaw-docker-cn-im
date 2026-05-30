@@ -1,0 +1,1554 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - link "Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#start-of-content"
+    - banner [ref=e6]:
+      - heading "Navigation Menu" [level=2] [ref=e7]
+      - generic [ref=e8]:
+        - link "Homepage" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+        - generic [ref=e13]:
+          - navigation "Global" [ref=e16]:
+            - list [ref=e17]:
+              - listitem [ref=e18]:
+                - button "Platform" [ref=e20] [cursor=pointer]:
+                  - text: Platform
+                  - img [ref=e21]
+              - listitem [ref=e23]:
+                - button "Solutions" [ref=e25] [cursor=pointer]:
+                  - text: Solutions
+                  - img [ref=e26]
+              - listitem [ref=e28]:
+                - button "Resources" [ref=e30] [cursor=pointer]:
+                  - text: Resources
+                  - img [ref=e31]
+              - listitem [ref=e33]:
+                - button "Open Source" [ref=e35] [cursor=pointer]:
+                  - text: Open Source
+                  - img [ref=e36]
+              - listitem [ref=e38]:
+                - button "Enterprise" [ref=e40] [cursor=pointer]:
+                  - text: Enterprise
+                  - img [ref=e41]
+              - listitem [ref=e43]:
+                - link "Pricing" [ref=e44] [cursor=pointer]:
+                  - /url: https://github.com/pricing
+                  - generic [ref=e45]: Pricing
+          - generic [ref=e46]:
+            - button "Search or jump to…" [ref=e49] [cursor=pointer]:
+              - img [ref=e51]
+            - link "Sign in" [ref=e54] [cursor=pointer]:
+              - /url: /login?return_to=https%3A%2F%2Fgithub.com%2FMartian-Engineering%2Flossless-claw
+            - link "Sign up" [ref=e55] [cursor=pointer]:
+              - /url: /signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E&source=header-repo&source_repo=Martian-Engineering%2Flossless-claw
+            - button "Appearance settings" [disabled] [ref=e58]:
+              - img
+  - main [ref=e62]:
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e66]:
+          - img [ref=e67]
+          - link "Martian-Engineering" [ref=e70] [cursor=pointer]:
+            - /url: /Martian-Engineering
+          - generic [ref=e71]: /
+          - strong [ref=e72]:
+            - link "lossless-claw" [ref=e73] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw
+          - generic [ref=e74]: Public
+        - generic [ref=e75]:
+          - list:
+            - listitem [ref=e76]:
+              - link "You must be signed in to change notification settings" [ref=e77] [cursor=pointer]:
+                - /url: /login?return_to=%2FMartian-Engineering%2Flossless-claw
+                - img [ref=e78]
+                - text: Notifications
+            - listitem [ref=e80]:
+              - link "Fork 402" [ref=e81] [cursor=pointer]:
+                - /url: /login?return_to=%2FMartian-Engineering%2Flossless-claw
+                - img [ref=e82]
+                - text: Fork
+                - generic "402" [ref=e84]
+            - listitem [ref=e85]:
+              - link "You must be signed in to star a repository" [ref=e87] [cursor=pointer]:
+                - /url: /login?return_to=%2FMartian-Engineering%2Flossless-claw
+                - img [ref=e88]
+                - text: Star
+                - generic "4753 users starred this repository" [ref=e90]: 4.8k
+      - navigation "Repository" [ref=e91]:
+        - list [ref=e92]:
+          - listitem [ref=e93]:
+            - link "Code" [ref=e94] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw
+              - img [ref=e95]
+              - generic [ref=e97]: Code
+          - listitem [ref=e98]:
+            - link "Issues 145" [ref=e99] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/issues
+              - img [ref=e100]
+              - generic [ref=e103]: Issues
+              - generic "145" [ref=e104]
+          - listitem [ref=e105]:
+            - link "Pull requests 55" [ref=e106] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/pulls
+              - img [ref=e107]
+              - generic [ref=e109]: Pull requests
+              - generic "55" [ref=e110]
+          - listitem [ref=e111]:
+            - link "Actions" [ref=e112] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/actions
+              - img [ref=e113]
+              - generic [ref=e115]: Actions
+          - listitem [ref=e116]:
+            - link "Projects" [ref=e117] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/projects
+              - img [ref=e118]
+              - generic [ref=e120]: Projects
+          - listitem [ref=e121]:
+            - link "Security and quality" [ref=e122] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/security
+              - img [ref=e123]
+              - generic [ref=e125]: Security and quality
+          - listitem [ref=e126]:
+            - link "Insights" [ref=e127] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/pulse
+              - img [ref=e128]
+              - generic [ref=e130]: Insights
+    - generic [ref=e143]:
+      - heading "Martian-Engineering/lossless-claw" [level=1] [ref=e145]
+      - generic [ref=e146]:
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - button "main branch" [ref=e153] [cursor=pointer]:
+                - generic [ref=e154]:
+                  - generic [ref=e156]:
+                    - img [ref=e158]
+                    - generic [ref=e161]: main
+                  - generic:
+                    - img
+              - generic [ref=e162]:
+                - link "Branches" [ref=e163] [cursor=pointer]:
+                  - /url: /Martian-Engineering/lossless-claw/branches
+                  - generic [ref=e164]:
+                    - generic:
+                      - img
+                    - generic [ref=e165]: Branches
+                - link "Tags" [ref=e166] [cursor=pointer]:
+                  - /url: /Martian-Engineering/lossless-claw/tags
+                  - generic [ref=e167]:
+                    - generic:
+                      - img
+                    - generic [ref=e168]: Tags
+            - generic [ref=e169]:
+              - generic [ref=e173]:
+                - img [ref=e175]
+                - combobox "Go to file" [ref=e177]
+              - button "Code" [ref=e178] [cursor=pointer]:
+                - generic [ref=e179]:
+                  - generic:
+                    - img
+                  - generic [ref=e180]: Code
+                  - generic:
+                    - img
+          - generic [ref=e181]:
+            - generic [ref=e182]:
+              - heading "Folders and files" [level=2] [ref=e183]
+              - table "Folders and files" [ref=e184]:
+                - rowgroup:
+                  - row "Name Last commit message Last commit date":
+                    - columnheader "Name"
+                    - columnheader "Last commit message":
+                      - generic "Last commit message"
+                    - columnheader "Last commit date":
+                      - generic "Last commit date"
+                - rowgroup [ref=e185]:
+                  - row "Latest commit History 366 Commits" [ref=e186]:
+                    - cell "Latest commit History 366 Commits" [ref=e187]:
+                      - generic [ref=e188]:
+                        - heading "Latest commit" [level=2] [ref=e189]
+                        - generic [ref=e192]:
+                          - heading "History" [level=2] [ref=e193]
+                          - link "366 Commits" [ref=e194] [cursor=pointer]:
+                            - /url: /Martian-Engineering/lossless-claw/commits/main/
+                            - generic [ref=e195]:
+                              - generic:
+                                - img
+                              - generic [ref=e196]: 366 Commits
+                  - row ".changeset, (Directory)" [ref=e197]:
+                    - cell ".changeset, (Directory)" [ref=e198]:
+                      - generic [ref=e199]:
+                        - img [ref=e200]
+                        - link ".changeset, (Directory)" [ref=e205] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/.changeset
+                          - text: .changeset
+                    - cell [ref=e206]
+                    - cell [ref=e208]
+                  - row ".github, (Directory)" [ref=e211]:
+                    - cell ".github, (Directory)" [ref=e212]:
+                      - generic [ref=e213]:
+                        - img [ref=e214]
+                        - link ".github, (Directory)" [ref=e219] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/.github
+                          - text: .github
+                    - cell [ref=e220]
+                    - cell [ref=e222]
+                  - row ".local, (Directory)" [ref=e225]:
+                    - cell ".local, (Directory)" [ref=e226]:
+                      - generic [ref=e227]:
+                        - img [ref=e228]
+                        - link ".local, (Directory)" [ref=e233] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/.local
+                          - text: .local
+                    - cell [ref=e234]
+                    - cell [ref=e236]
+                  - row "architecture, (Directory)" [ref=e239]:
+                    - cell "architecture, (Directory)" [ref=e240]:
+                      - generic [ref=e241]:
+                        - img [ref=e242]
+                        - link "architecture, (Directory)" [ref=e247] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/architecture
+                          - text: architecture
+                    - cell [ref=e248]
+                    - cell [ref=e250]
+                  - row "audit/stub-tier-bench, (Directory)" [ref=e253]:
+                    - cell "audit/stub-tier-bench, (Directory)" [ref=e254]:
+                      - generic [ref=e255]:
+                        - img [ref=e256]
+                        - link "audit/stub-tier-bench, (Directory)" [ref=e261] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/audit/stub-tier-bench
+                          - text: audit/stub-tier-bench
+                    - cell [ref=e262]
+                    - cell [ref=e264]
+                  - row "docs, (Directory)" [ref=e267]:
+                    - cell "docs, (Directory)" [ref=e268]:
+                      - generic [ref=e269]:
+                        - img [ref=e270]
+                        - link "docs, (Directory)" [ref=e275] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/docs
+                          - text: docs
+                    - cell [ref=e276]
+                    - cell [ref=e278]
+                  - row "scripts, (Directory)" [ref=e281]:
+                    - cell "scripts, (Directory)" [ref=e282]:
+                      - generic [ref=e283]:
+                        - img [ref=e284]
+                        - link "scripts, (Directory)" [ref=e289] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/scripts
+                          - text: scripts
+                    - cell [ref=e290]
+                    - cell [ref=e292]
+                  - row "skills/lossless-claw, (Directory)" [ref=e295]:
+                    - cell "skills/lossless-claw, (Directory)" [ref=e296]:
+                      - generic [ref=e297]:
+                        - img [ref=e298]
+                        - link "skills/lossless-claw, (Directory)" [ref=e303] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/skills/lossless-claw
+                          - text: skills/lossless-claw
+                    - cell [ref=e304]
+                    - cell [ref=e306]
+                  - row "specs, (Directory)" [ref=e309]:
+                    - cell "specs, (Directory)" [ref=e310]:
+                      - generic [ref=e311]:
+                        - img [ref=e312]
+                        - link "specs, (Directory)" [ref=e317] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/specs
+                          - text: specs
+                    - cell [ref=e318]
+                    - cell [ref=e320]
+                  - row "src, (Directory)" [ref=e323]:
+                    - cell "src, (Directory)" [ref=e324]:
+                      - generic [ref=e325]:
+                        - img [ref=e326]
+                        - link "src, (Directory)" [ref=e331] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/src
+                          - text: src
+                    - cell [ref=e332]
+                    - cell [ref=e334]
+                  - row "test, (Directory)" [ref=e337]:
+                    - cell "test, (Directory)" [ref=e338]:
+                      - generic [ref=e339]:
+                        - img [ref=e340]
+                        - link "test, (Directory)" [ref=e345] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/test
+                          - text: test
+                    - cell [ref=e346]
+                    - cell [ref=e348]
+                  - row "tui, (Directory)" [ref=e351]:
+                    - cell "tui, (Directory)" [ref=e352]:
+                      - generic [ref=e353]:
+                        - img [ref=e354]
+                        - link "tui, (Directory)" [ref=e359] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/tree/main/tui
+                          - text: tui
+                    - cell [ref=e360]
+                    - cell [ref=e362]
+                  - row ".gitignore, (File)" [ref=e365]:
+                    - cell ".gitignore, (File)" [ref=e366]:
+                      - generic [ref=e367]:
+                        - img [ref=e368]
+                        - link ".gitignore, (File)" [ref=e373] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/.gitignore
+                          - text: .gitignore
+                    - cell [ref=e374]
+                    - cell [ref=e376]
+                  - row ".goreleaser.yml, (File)" [ref=e379]:
+                    - cell ".goreleaser.yml, (File)" [ref=e380]:
+                      - generic [ref=e381]:
+                        - img [ref=e382]
+                        - link ".goreleaser.yml, (File)" [ref=e387] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/.goreleaser.yml
+                          - text: .goreleaser.yml
+                    - cell [ref=e388]
+                    - cell [ref=e390]
+                  - row "AGENTS.md, (File)" [ref=e393]:
+                    - cell "AGENTS.md, (File)" [ref=e394]:
+                      - generic [ref=e395]:
+                        - img [ref=e396]
+                        - link "AGENTS.md, (File)" [ref=e401] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/AGENTS.md
+                          - text: AGENTS.md
+                    - cell [ref=e402]
+                    - cell [ref=e404]
+                  - row "CHANGELOG.md, (File)" [ref=e407]:
+                    - cell "CHANGELOG.md, (File)" [ref=e408]:
+                      - generic [ref=e409]:
+                        - img [ref=e410]
+                        - link "CHANGELOG.md, (File)" [ref=e415] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/CHANGELOG.md
+                          - text: CHANGELOG.md
+                    - cell [ref=e416]
+                    - cell [ref=e418]
+                  - row "Dockerfile, (File)" [ref=e421]:
+                    - cell "Dockerfile, (File)" [ref=e422]:
+                      - generic [ref=e423]:
+                        - img [ref=e424]
+                        - link "Dockerfile, (File)" [ref=e429] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/Dockerfile
+                          - text: Dockerfile
+                    - cell [ref=e430]
+                    - cell [ref=e432]
+                  - row "LICENSE, (File)" [ref=e435]:
+                    - cell "LICENSE, (File)" [ref=e436]:
+                      - generic [ref=e437]:
+                        - img [ref=e438]
+                        - link "LICENSE, (File)" [ref=e443] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/LICENSE
+                          - text: LICENSE
+                    - cell [ref=e444]
+                    - cell [ref=e446]
+                  - row "README.md, (File)" [ref=e449]:
+                    - cell "README.md, (File)" [ref=e450]:
+                      - generic [ref=e451]:
+                        - img [ref=e452]
+                        - link "README.md, (File)" [ref=e457] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/README.md
+                          - text: README.md
+                    - cell [ref=e458]
+                    - cell [ref=e460]
+                  - row "README_zh.md, (File)" [ref=e463]:
+                    - cell "README_zh.md, (File)" [ref=e464]:
+                      - generic [ref=e465]:
+                        - img [ref=e466]
+                        - link "README_zh.md, (File)" [ref=e471] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/README_zh.md
+                          - text: README_zh.md
+                    - cell [ref=e472]
+                    - cell [ref=e474]
+                  - row "RELEASING.md, (File)" [ref=e477]:
+                    - cell "RELEASING.md, (File)" [ref=e478]:
+                      - generic [ref=e479]:
+                        - img [ref=e480]
+                        - link "RELEASING.md, (File)" [ref=e485] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/RELEASING.md
+                          - text: RELEASING.md
+                    - cell [ref=e486]
+                    - cell [ref=e488]
+                  - row "doctor-contract-api.d.ts, (File)" [ref=e491]:
+                    - cell "doctor-contract-api.d.ts, (File)" [ref=e492]:
+                      - generic [ref=e493]:
+                        - img [ref=e494]
+                        - link "doctor-contract-api.d.ts, (File)" [ref=e499] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/doctor-contract-api.d.ts
+                          - text: doctor-contract-api.d.ts
+                    - cell [ref=e500]
+                    - cell [ref=e502]
+                  - row "doctor-contract-api.js, (File)" [ref=e505]:
+                    - cell "doctor-contract-api.js, (File)" [ref=e506]:
+                      - generic [ref=e507]:
+                        - img [ref=e508]
+                        - link "doctor-contract-api.js, (File)" [ref=e513] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/doctor-contract-api.js
+                          - text: doctor-contract-api.js
+                    - cell [ref=e514]
+                    - cell [ref=e516]
+                  - row "index.ts, (File)" [ref=e519]:
+                    - cell "index.ts, (File)" [ref=e520]:
+                      - generic [ref=e521]:
+                        - img [ref=e522]
+                        - link "index.ts, (File)" [ref=e527] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/index.ts
+                          - text: index.ts
+                    - cell [ref=e528]
+                    - cell [ref=e530]
+                  - row "openclaw.plugin.json, (File)" [ref=e533]:
+                    - cell "openclaw.plugin.json, (File)" [ref=e534]:
+                      - generic [ref=e535]:
+                        - img [ref=e536]
+                        - link "openclaw.plugin.json, (File)" [ref=e541] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/openclaw.plugin.json
+                          - text: openclaw.plugin.json
+                    - cell [ref=e542]
+                    - cell [ref=e544]
+                  - row "package-lock.json, (File)" [ref=e547]:
+                    - cell "package-lock.json, (File)" [ref=e548]:
+                      - generic [ref=e549]:
+                        - img [ref=e550]
+                        - link "package-lock.json, (File)" [ref=e555] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/package-lock.json
+                          - text: package-lock.json
+                    - cell [ref=e556]
+                    - cell [ref=e558]
+                  - row "package.json, (File)" [ref=e561]:
+                    - cell "package.json, (File)" [ref=e562]:
+                      - generic [ref=e563]:
+                        - img [ref=e564]
+                        - link "package.json, (File)" [ref=e569] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/package.json
+                          - text: package.json
+                    - cell [ref=e570]
+                    - cell [ref=e572]
+                  - row "tsconfig.json, (File)" [ref=e575]:
+                    - cell "tsconfig.json, (File)" [ref=e576]:
+                      - generic [ref=e577]:
+                        - img [ref=e578]
+                        - link "tsconfig.json, (File)" [ref=e583] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/tsconfig.json
+                          - text: tsconfig.json
+                    - cell [ref=e584]
+                    - cell [ref=e586]
+                  - row "vitest.config.ts, (File)" [ref=e589]:
+                    - cell "vitest.config.ts, (File)" [ref=e590]:
+                      - generic [ref=e591]:
+                        - img [ref=e592]
+                        - link "vitest.config.ts, (File)" [ref=e597] [cursor=pointer]:
+                          - /url: /Martian-Engineering/lossless-claw/blob/main/vitest.config.ts
+                          - text: vitest.config.ts
+                    - cell [ref=e598]
+                    - cell [ref=e600]
+            - generic [ref=e604]:
+              - generic [ref=e605]:
+                - heading "Repository files navigation" [level=2] [ref=e606]
+                - navigation "Repository files" [ref=e607]:
+                  - list [ref=e608]:
+                    - listitem [ref=e609]:
+                      - link "README" [ref=e610] [cursor=pointer]:
+                        - /url: "#"
+                        - img [ref=e612]
+                        - generic [ref=e614]: README
+                    - listitem [ref=e615]:
+                      - link "MIT license" [ref=e616] [cursor=pointer]:
+                        - /url: "#"
+                        - img [ref=e618]
+                        - generic [ref=e620]: MIT license
+                - button "Outline" [ref=e621] [cursor=pointer]:
+                  - img [ref=e622]
+              - article [ref=e625]:
+                - generic [ref=e626]:
+                  - heading "lossless-claw" [level=1] [ref=e627]
+                  - 'link "Permalink: lossless-claw" [ref=e628] [cursor=pointer]':
+                    - /url: "#lossless-claw"
+                    - img [ref=e629]
+                - paragraph [ref=e631]:
+                  - text: Lossless Context Management plugin for
+                  - link "OpenClaw" [ref=e632] [cursor=pointer]:
+                    - /url: https://github.com/openclaw/openclaw
+                  - text: ", based on the"
+                  - link "LCM paper" [ref=e633] [cursor=pointer]:
+                    - /url: https://papers.voltropy.com/LCM
+                  - text: from
+                  - link "Voltropy" [ref=e634] [cursor=pointer]:
+                    - /url: https://x.com/Voltropy
+                  - text: . Replaces OpenClaw's built-in sliding-window compaction with a DAG-based summarization system that preserves every message while keeping active context within model token limits.
+                - generic [ref=e635]:
+                  - heading "Table of contents" [level=2] [ref=e636]
+                  - 'link "Permalink: Table of contents" [ref=e637] [cursor=pointer]':
+                    - /url: "#table-of-contents"
+                    - img [ref=e638]
+                - list [ref=e640]:
+                  - listitem [ref=e641]:
+                    - link "What it does" [ref=e642] [cursor=pointer]:
+                      - /url: "#what-it-does"
+                  - listitem [ref=e643]:
+                    - link "Quick start" [ref=e644] [cursor=pointer]:
+                      - /url: "#quick-start"
+                  - listitem [ref=e645]:
+                    - link "Configuration" [ref=e646] [cursor=pointer]:
+                      - /url: "#configuration"
+                  - listitem [ref=e647]:
+                    - link "Commands And Skill" [ref=e648] [cursor=pointer]:
+                      - /url: "#commands-and-skill"
+                  - listitem [ref=e649]:
+                    - link "Documentation" [ref=e650] [cursor=pointer]:
+                      - /url: "#documentation"
+                  - listitem [ref=e651]:
+                    - link "Development" [ref=e652] [cursor=pointer]:
+                      - /url: "#development"
+                  - listitem [ref=e653]:
+                    - link "License" [ref=e654] [cursor=pointer]:
+                      - /url: "#license"
+                - generic [ref=e655]:
+                  - heading "What it does" [level=2] [ref=e656]
+                  - 'link "Permalink: What it does" [ref=e657] [cursor=pointer]':
+                    - /url: "#what-it-does"
+                    - img [ref=e658]
+                - paragraph [ref=e660]:
+                  - text: "Two ways to learn: read the below, or"
+                  - link "check out this super cool animated visualization" [ref=e661] [cursor=pointer]:
+                    - /url: https://losslesscontext.ai
+                  - text: .
+                - paragraph [ref=e662]: "When a conversation grows beyond the model's context window, OpenClaw (just like all of the other agents) normally truncates older messages. LCM instead:"
+                - list [ref=e663]:
+                  - listitem [ref=e664]:
+                    - strong [ref=e665]: Persists every message
+                    - text: in a SQLite database, organized by conversation
+                  - listitem [ref=e666]:
+                    - strong [ref=e667]: Summarizes chunks
+                    - text: of older messages into summaries using your configured LLM
+                  - listitem [ref=e668]:
+                    - strong [ref=e669]: Condenses summaries
+                    - text: into higher-level nodes as they accumulate, forming a DAG (directed acyclic graph)
+                  - listitem [ref=e670]:
+                    - strong [ref=e671]: Assembles context
+                    - text: each turn by combining summaries + recent raw messages
+                  - listitem [ref=e672]:
+                    - strong [ref=e673]: Provides tools
+                    - text: (
+                    - code [ref=e674]: lcm_grep
+                    - text: ","
+                    - code [ref=e675]: lcm_describe
+                    - text: ","
+                    - code [ref=e676]: lcm_expand
+                    - text: ) so agents can search and recall details from compacted history
+                - paragraph [ref=e677]: Nothing is lost. Raw messages stay in the database. Summaries link back to their source messages. Agents can drill into any summary to recover the original detail.
+                - paragraph [ref=e678]:
+                  - strong [ref=e679]: It feels like talking to an agent that never forgets. Because it doesn't. In normal operation, you'll never need to think about compaction again.
+                - generic [ref=e680]:
+                  - heading "Commands And Skill" [level=2] [ref=e681]
+                  - 'link "Permalink: Commands And Skill" [ref=e682] [cursor=pointer]':
+                    - /url: "#commands-and-skill"
+                    - img [ref=e683]
+                - paragraph [ref=e685]:
+                  - text: The plugin now ships a bundled
+                  - code [ref=e686]: lossless-claw
+                  - text: "skill plus a small plugin command surface for supported OpenClaw chat/native command providers:"
+                - list [ref=e687]:
+                  - listitem [ref=e688]:
+                    - code [ref=e689]: /lcm
+                    - text: shows version, enablement/selection state, DB path and size, summary counts, and summary-health status
+                  - listitem [ref=e690]:
+                    - code [ref=e691]: /lcm backup
+                    - text: creates a timestamped backup of the current LCM SQLite database
+                  - listitem [ref=e692]:
+                    - code [ref=e693]: /lcm rotate
+                    - text: rewrites the active session transcript into a compact tail-preserving form without changing the live OpenClaw session identity or current LCM conversation
+                  - listitem [ref=e694]:
+                    - code [ref=e695]: /lcm doctor
+                    - text: scans for broken or truncated summaries
+                  - listitem [ref=e696]:
+                    - code [ref=e697]: /lcm doctor clean
+                    - text: shows read-only high-confidence junk diagnostics for archived subagents, cron sessions, and NULL-key orphaned subagent runs
+                  - listitem [ref=e698]:
+                    - code [ref=e699]: /lcm status
+                    - text: shows plugin, conversation, and maintenance state including deferred compaction debt
+                  - listitem [ref=e700]:
+                    - code [ref=e701]: /lossless
+                    - text: is an alias for
+                    - code [ref=e702]: /lcm
+                    - text: on supported native command surfaces
+                - paragraph [ref=e703]: "These are plugin slash/native commands, not root shell CLI subcommands. Supported examples:"
+                - list [ref=e704]:
+                  - listitem [ref=e705]:
+                    - code [ref=e706]: /lcm
+                  - listitem [ref=e707]:
+                    - code [ref=e708]: /lcm backup
+                  - listitem [ref=e709]:
+                    - code [ref=e710]: /lcm rotate
+                  - listitem [ref=e711]:
+                    - code [ref=e712]: /lcm doctor
+                  - listitem [ref=e713]:
+                    - code [ref=e714]: /lcm doctor clean
+                  - listitem [ref=e715]:
+                    - code [ref=e716]: /lossless
+                - paragraph [ref=e717]: "Not currently supported as root CLI commands:"
+                - list [ref=e718]:
+                  - listitem [ref=e719]:
+                    - code [ref=e720]: openclaw lcm
+                  - listitem [ref=e721]:
+                    - code [ref=e722]: openclaw lossless
+                  - listitem [ref=e723]:
+                    - code [ref=e724]: openclaw /lcm
+                - paragraph [ref=e725]:
+                  - text: The bundled skill focuses on configuration, diagnostics, architecture, and recall-tool usage. Its reference set lives under
+                  - code [ref=e726]: skills/lossless-claw/references/
+                  - text: .
+                - generic [ref=e727]:
+                  - heading "Quick start" [level=2] [ref=e728]
+                  - 'link "Permalink: Quick start" [ref=e729] [cursor=pointer]':
+                    - /url: "#quick-start"
+                    - img [ref=e730]
+                - generic [ref=e732]:
+                  - heading "Prerequisites" [level=3] [ref=e733]
+                  - 'link "Permalink: Prerequisites" [ref=e734] [cursor=pointer]':
+                    - /url: "#prerequisites"
+                    - img [ref=e735]
+                - list [ref=e737]:
+                  - listitem [ref=e738]: OpenClaw with plugin context engine support
+                  - listitem [ref=e739]: Node.js 22+
+                  - listitem [ref=e740]: An LLM provider configured in OpenClaw (used for summarization)
+                - blockquote [ref=e741]:
+                  - paragraph [ref=e742]:
+                    - strong [ref=e743]: "Compatibility:"
+                    - code [ref=e744]: lossless-claw@0.10.0
+                    - text: and newer require OpenClaw
+                    - code [ref=e745]: 2026.5.12
+                    - text: or newer. These releases call OpenClaw's
+                    - code [ref=e746]: api.runtime.llm.complete
+                    - text: capability for summarization, which is unavailable in older OpenClaw builds. If you cannot upgrade OpenClaw yet, stay on
+                    - code [ref=e747]: lossless-claw@0.9.4
+                    - text: and remove
+                    - code [ref=e748]: 0.10.x
+                    - text: "-only config such as"
+                    - code [ref=e749]: sweepMaxDepth
+                    - text: .
+                - generic [ref=e750]:
+                  - heading "Install the plugin" [level=3] [ref=e751]
+                  - 'link "Permalink: Install the plugin" [ref=e752] [cursor=pointer]':
+                    - /url: "#install-the-plugin"
+                    - img [ref=e753]
+                - paragraph [ref=e755]: "Use OpenClaw's plugin installer (recommended):"
+                - generic [ref=e756]:
+                  - generic [ref=e757]: openclaw plugins install @martian-engineering/lossless-claw
+                  - button "Copy code to clipboard" [ref=e759] [cursor=pointer]:
+                    - img [ref=e760]
+                - paragraph [ref=e763]: "If you're running from a local OpenClaw checkout, use:"
+                - generic [ref=e764]:
+                  - generic [ref=e765]: pnpm openclaw plugins install @martian-engineering/lossless-claw
+                  - button "Copy code to clipboard" [ref=e767] [cursor=pointer]:
+                    - img [ref=e768]
+                - paragraph [ref=e771]: "For local plugin development, build your working copy first, then link it instead of copying files:"
+                - generic [ref=e772]:
+                  - generic [ref=e773]:
+                    - text: cd /path/to/lossless-claw pnpm build openclaw plugins install --link /path/to/lossless-claw
+                    - generic [ref=e774]: "# or from a local OpenClaw checkout:"
+                    - generic [ref=e775]: "# pnpm openclaw plugins install --link /path/to/lossless-claw"
+                  - button "Copy code to clipboard" [ref=e777] [cursor=pointer]:
+                    - img [ref=e778]
+                - paragraph [ref=e781]:
+                  - text: Re-run
+                  - code [ref=e782]: pnpm build
+                  - text: after local source changes so the linked plugin's
+                  - code [ref=e783]: dist/
+                  - text: output stays current.
+                - paragraph [ref=e784]:
+                  - text: The install command records the plugin, enables it, and applies compatible slot selection (including
+                  - code [ref=e785]: contextEngine
+                  - text: when applicable).
+                - blockquote [ref=e786]:
+                  - paragraph [ref=e787]:
+                    - strong [ref=e788]: "Note:"
+                    - text: If your OpenClaw config uses
+                    - code [ref=e789]: plugins.allow
+                    - text: ", allowlist the plugin id"
+                    - code [ref=e790]: lossless-claw
+                    - text: plus any other active plugins you rely on. Do not add command tokens or aliases like
+                    - code [ref=e791]: lossless
+                    - text: or
+                    - code [ref=e792]: /lcm
+                    - text: to
+                    - code [ref=e793]: plugins.allow
+                    - text: ; that setting only accepts plugin ids. In some setups, narrowing the allowlist can prevent plugin-backed integrations from loading, even if
+                    - code [ref=e794]: lossless-claw
+                    - text: itself is installed correctly. Restart the gateway after plugin config changes.
+                - generic [ref=e795]:
+                  - heading "Configure OpenClaw" [level=3] [ref=e796]
+                  - 'link "Permalink: Configure OpenClaw" [ref=e797] [cursor=pointer]':
+                    - /url: "#configure-openclaw"
+                    - img [ref=e798]
+                - paragraph [ref=e800]:
+                  - text: In most cases, no manual JSON edits are needed after
+                  - code [ref=e801]: openclaw plugins install
+                  - text: .
+                - paragraph [ref=e802]: "If you need to set it manually, ensure the context engine slot points at lossless-claw:"
+                - generic [ref=e803]:
+                  - generic [ref=e804]:
+                    - text: "{ \"plugins\": { \"slots\": { \"contextEngine\":"
+                    - generic [ref=e805]: "\"lossless-claw\""
+                    - text: "} } }"
+                  - button "Copy code to clipboard" [ref=e807] [cursor=pointer]:
+                    - img [ref=e808]
+                - paragraph [ref=e811]: Restart OpenClaw after configuration changes.
+                - generic [ref=e812]:
+                  - heading "Configuration" [level=2] [ref=e813]
+                  - 'link "Permalink: Configuration" [ref=e814] [cursor=pointer]':
+                    - /url: "#configuration"
+                    - img [ref=e815]
+                - paragraph [ref=e817]: LCM is configured through a combination of plugin config and environment variables. Environment variables take precedence for backward compatibility.
+                - generic [ref=e818]:
+                  - heading "Plugin config" [level=3] [ref=e819]
+                  - 'link "Permalink: Plugin config" [ref=e820] [cursor=pointer]':
+                    - /url: "#plugin-config"
+                    - img [ref=e821]
+                - paragraph [ref=e823]:
+                  - text: Add a
+                  - code [ref=e824]: lossless-claw
+                  - text: entry under
+                  - code [ref=e825]: plugins.entries
+                  - text: "in your OpenClaw config:"
+                - generic [ref=e826]:
+                  - generic [ref=e827]:
+                    - text: "{ \"plugins\": { \"entries\": { \"lossless-claw\": { \"enabled\": true, \"llm\": { \"allowModelOverride\": true, \"allowedModels\": ["
+                    - generic [ref=e828]: "\"openai/gpt-5.4-mini\""
+                    - text: "] }, \"config\": { \"freshTailCount\": 64, \"leafChunkTokens\": 80000, \"newSessionRetainDepth\": 2, \"contextThreshold\": 0.75, \"incrementalMaxDepth\": 1, \"cacheAwareCompaction\": { \"enabled\": true, \"cacheTTLSeconds\": 300 }, \"ignoreSessionPatterns\": ["
+                    - generic [ref=e829]: "\"agent:*:cron:**\""
+                    - text: "], \"transcriptGcEnabled\": false, \"proactiveThresholdCompactionMode\":"
+                    - generic [ref=e830]: "\"deferred\""
+                    - text: ", \"summaryModel\":"
+                    - generic [ref=e831]: "\"openai/gpt-5.4-mini\""
+                    - text: ", \"expansionModel\":"
+                    - generic [ref=e832]: "\"openai/gpt-5.4-mini\""
+                    - text: ", \"delegationTimeoutMs\": 300000, \"summaryTimeoutMs\": 60000 } } } } }"
+                  - button "Copy code to clipboard" [ref=e834] [cursor=pointer]:
+                    - img [ref=e835]
+                - paragraph [ref=e838]:
+                  - code [ref=e839]: leafChunkTokens
+                  - text: controls how many source tokens can accumulate in a leaf compaction chunk before summarization is triggered. The default is
+                  - code [ref=e840]: "20000"
+                  - text: ", but quota-limited summary providers may benefit from a larger value to reduce compaction frequency."
+                  - code [ref=e841]: summaryModel
+                  - text: and
+                  - code [ref=e842]: summaryProvider
+                  - text: let you request a cheaper or faster compaction model through OpenClaw's
+                  - code [ref=e843]: api.runtime.llm.complete
+                  - text: capability; OpenClaw still owns provider dispatch and auth. Explicit summary model requests require
+                  - code [ref=e844]: llm.allowModelOverride
+                  - text: and matching
+                  - code [ref=e845]: llm.allowedModels
+                  - text: policy entries for
+                  - code [ref=e846]: lossless-claw
+                  - text: .
+                  - code [ref=e847]: expansionModel
+                  - text: does the same for
+                  - code [ref=e848]: lcm_expand_query
+                  - text: sub-agent calls (drilling into summaries to recover detail).
+                  - code [ref=e849]: delegationTimeoutMs
+                  - text: controls how long
+                  - code [ref=e850]: lcm_expand_query
+                  - text: waits for that delegated sub-agent to finish before returning a timeout error; it defaults to
+                  - code [ref=e851]: "120000"
+                  - text: (120s).
+                  - code [ref=e852]: summaryTimeoutMs
+                  - text: controls the per-call timeout for model-backed LCM summarization; it defaults to
+                  - code [ref=e853]: "60000"
+                  - text: (60s). When unset, the model settings still fall back to OpenClaw's configured default model/provider. See
+                  - link "Expansion model override requirements" [ref=e854] [cursor=pointer]:
+                    - /url: "#expansion-model-override-requirements"
+                  - text: for the required
+                  - code [ref=e855]: subagent
+                  - text: trust policy when using
+                  - code [ref=e856]: expansionModel
+                  - text: .
+                - generic [ref=e857]:
+                  - heading "Environment variables" [level=3] [ref=e858]
+                  - 'link "Permalink: Environment variables" [ref=e859] [cursor=pointer]':
+                    - /url: "#environment-variables"
+                    - img [ref=e860]
+                - table [ref=e863]:
+                  - rowgroup [ref=e864]:
+                    - row "Variable Default Description" [ref=e865]:
+                      - columnheader "Variable" [ref=e866]
+                      - columnheader "Default" [ref=e867]
+                      - columnheader "Description" [ref=e868]
+                  - rowgroup [ref=e869]:
+                    - row "LCM_ENABLED true Enable/disable the plugin" [ref=e870]:
+                      - cell "LCM_ENABLED" [ref=e871]:
+                        - code [ref=e872]: LCM_ENABLED
+                      - cell "true" [ref=e873]:
+                        - code [ref=e874]: "true"
+                      - cell "Enable/disable the plugin" [ref=e875]
+                    - row "LCM_DATABASE_PATH ~/.openclaw/lcm.db Path to the SQLite database" [ref=e876]:
+                      - cell "LCM_DATABASE_PATH" [ref=e877]:
+                        - code [ref=e878]: LCM_DATABASE_PATH
+                      - cell "~/.openclaw/lcm.db" [ref=e879]:
+                        - code [ref=e880]: ~/.openclaw/lcm.db
+                      - cell "Path to the SQLite database" [ref=e881]
+                    - row "LCM_IGNORE_SESSION_PATTERNS \"\" Comma-separated glob patterns for session keys to exclude from LCM storage" [ref=e882]:
+                      - cell "LCM_IGNORE_SESSION_PATTERNS" [ref=e883]:
+                        - code [ref=e884]: LCM_IGNORE_SESSION_PATTERNS
+                      - cell "\"\"" [ref=e885]:
+                        - code [ref=e886]: "\"\""
+                      - cell "Comma-separated glob patterns for session keys to exclude from LCM storage" [ref=e887]
+                    - row "LCM_STATELESS_SESSION_PATTERNS \"\" Comma-separated glob patterns for session keys that may read from LCM but never write to it" [ref=e888]:
+                      - cell "LCM_STATELESS_SESSION_PATTERNS" [ref=e889]:
+                        - code [ref=e890]: LCM_STATELESS_SESSION_PATTERNS
+                      - cell "\"\"" [ref=e891]:
+                        - code [ref=e892]: "\"\""
+                      - cell "Comma-separated glob patterns for session keys that may read from LCM but never write to it" [ref=e893]
+                    - row "LCM_SKIP_STATELESS_SESSIONS true Enable stateless-session write skipping for matching session keys" [ref=e894]:
+                      - cell "LCM_SKIP_STATELESS_SESSIONS" [ref=e895]:
+                        - code [ref=e896]: LCM_SKIP_STATELESS_SESSIONS
+                      - cell "true" [ref=e897]:
+                        - code [ref=e898]: "true"
+                      - cell "Enable stateless-session write skipping for matching session keys" [ref=e899]
+                    - row "LCM_CONTEXT_THRESHOLD 0.75 Fraction of context window that triggers compaction (0.0–1.0)" [ref=e900]:
+                      - cell "LCM_CONTEXT_THRESHOLD" [ref=e901]:
+                        - code [ref=e902]: LCM_CONTEXT_THRESHOLD
+                      - cell "0.75" [ref=e903]:
+                        - code [ref=e904]: "0.75"
+                      - cell "Fraction of context window that triggers compaction (0.0–1.0)" [ref=e905]
+                    - row "LCM_FRESH_TAIL_COUNT 64 Number of recent messages protected from compaction" [ref=e906]:
+                      - cell "LCM_FRESH_TAIL_COUNT" [ref=e907]:
+                        - code [ref=e908]: LCM_FRESH_TAIL_COUNT
+                      - cell "64" [ref=e909]:
+                        - code [ref=e910]: "64"
+                      - cell "Number of recent messages protected from compaction" [ref=e911]
+                    - row "LCM_NEW_SESSION_RETAIN_DEPTH 2 Context retained after /new (-1 keeps all context, 2 keeps d2+)" [ref=e912]:
+                      - cell "LCM_NEW_SESSION_RETAIN_DEPTH" [ref=e913]:
+                        - code [ref=e914]: LCM_NEW_SESSION_RETAIN_DEPTH
+                      - cell "2" [ref=e915]:
+                        - code [ref=e916]: "2"
+                      - cell "Context retained after /new (-1 keeps all context, 2 keeps d2+)" [ref=e917]:
+                        - text: Context retained after
+                        - code [ref=e918]: /new
+                        - text: (
+                        - code [ref=e919]: "-1"
+                        - text: keeps all context,
+                        - code [ref=e920]: "2"
+                        - text: keeps d2+)
+                    - row "LCM_LEAF_MIN_FANOUT 8 Minimum raw messages per leaf summary" [ref=e921]:
+                      - cell "LCM_LEAF_MIN_FANOUT" [ref=e922]:
+                        - code [ref=e923]: LCM_LEAF_MIN_FANOUT
+                      - cell "8" [ref=e924]:
+                        - code [ref=e925]: "8"
+                      - cell "Minimum raw messages per leaf summary" [ref=e926]
+                    - row "LCM_CONDENSED_MIN_FANOUT 4 Minimum summaries per condensed node" [ref=e927]:
+                      - cell "LCM_CONDENSED_MIN_FANOUT" [ref=e928]:
+                        - code [ref=e929]: LCM_CONDENSED_MIN_FANOUT
+                      - cell "4" [ref=e930]:
+                        - code [ref=e931]: "4"
+                      - cell "Minimum summaries per condensed node" [ref=e932]
+                    - row "LCM_CONDENSED_MIN_FANOUT_HARD 2 Relaxed fanout for forced compaction sweeps" [ref=e933]:
+                      - cell "LCM_CONDENSED_MIN_FANOUT_HARD" [ref=e934]:
+                        - code [ref=e935]: LCM_CONDENSED_MIN_FANOUT_HARD
+                      - cell "2" [ref=e936]:
+                        - code [ref=e937]: "2"
+                      - cell "Relaxed fanout for forced compaction sweeps" [ref=e938]
+                    - row "LCM_INCREMENTAL_MAX_DEPTH 1 How deep incremental compaction goes (0 = leaf only, 1 = one condensed pass, -1 = unlimited)" [ref=e939]:
+                      - cell "LCM_INCREMENTAL_MAX_DEPTH" [ref=e940]:
+                        - code [ref=e941]: LCM_INCREMENTAL_MAX_DEPTH
+                      - cell "1" [ref=e942]:
+                        - code [ref=e943]: "1"
+                      - cell "How deep incremental compaction goes (0 = leaf only, 1 = one condensed pass, -1 = unlimited)" [ref=e944]
+                    - row "LCM_LEAF_CHUNK_TOKENS 20000 Max source tokens per leaf compaction chunk" [ref=e945]:
+                      - cell "LCM_LEAF_CHUNK_TOKENS" [ref=e946]:
+                        - code [ref=e947]: LCM_LEAF_CHUNK_TOKENS
+                      - cell "20000" [ref=e948]:
+                        - code [ref=e949]: "20000"
+                      - cell "Max source tokens per leaf compaction chunk" [ref=e950]
+                    - row "LCM_LEAF_TARGET_TOKENS 1200 Target token count for leaf summaries" [ref=e951]:
+                      - cell "LCM_LEAF_TARGET_TOKENS" [ref=e952]:
+                        - code [ref=e953]: LCM_LEAF_TARGET_TOKENS
+                      - cell "1200" [ref=e954]:
+                        - code [ref=e955]: "1200"
+                      - cell "Target token count for leaf summaries" [ref=e956]
+                    - row "LCM_CONDENSED_TARGET_TOKENS 2000 Target token count for condensed summaries" [ref=e957]:
+                      - cell "LCM_CONDENSED_TARGET_TOKENS" [ref=e958]:
+                        - code [ref=e959]: LCM_CONDENSED_TARGET_TOKENS
+                      - cell "2000" [ref=e960]:
+                        - code [ref=e961]: "2000"
+                      - cell "Target token count for condensed summaries" [ref=e962]
+                    - row "LCM_MAX_EXPAND_TOKENS 4000 Token cap for sub-agent expansion queries" [ref=e963]:
+                      - cell "LCM_MAX_EXPAND_TOKENS" [ref=e964]:
+                        - code [ref=e965]: LCM_MAX_EXPAND_TOKENS
+                      - cell "4000" [ref=e966]:
+                        - code [ref=e967]: "4000"
+                      - cell "Token cap for sub-agent expansion queries" [ref=e968]
+                    - row "LCM_LARGE_FILE_TOKEN_THRESHOLD 25000 File blocks above this size are intercepted and stored separately" [ref=e969]:
+                      - cell "LCM_LARGE_FILE_TOKEN_THRESHOLD" [ref=e970]:
+                        - code [ref=e971]: LCM_LARGE_FILE_TOKEN_THRESHOLD
+                      - cell "25000" [ref=e972]:
+                        - code [ref=e973]: "25000"
+                      - cell "File blocks above this size are intercepted and stored separately" [ref=e974]
+                    - row "LCM_LARGE_FILE_SUMMARY_PROVIDER \"\" Provider override for large-file summarization" [ref=e975]:
+                      - cell "LCM_LARGE_FILE_SUMMARY_PROVIDER" [ref=e976]:
+                        - code [ref=e977]: LCM_LARGE_FILE_SUMMARY_PROVIDER
+                      - cell "\"\"" [ref=e978]:
+                        - code [ref=e979]: "\"\""
+                      - cell "Provider override for large-file summarization" [ref=e980]
+                    - row "LCM_LARGE_FILE_SUMMARY_MODEL \"\" Model override for large-file summarization" [ref=e981]:
+                      - cell "LCM_LARGE_FILE_SUMMARY_MODEL" [ref=e982]:
+                        - code [ref=e983]: LCM_LARGE_FILE_SUMMARY_MODEL
+                      - cell "\"\"" [ref=e984]:
+                        - code [ref=e985]: "\"\""
+                      - cell "Model override for large-file summarization" [ref=e986]
+                    - row "LCM_SUMMARY_MODEL \"\" Model override for compaction summarization; falls back to OpenClaw's default model when unset" [ref=e987]:
+                      - cell "LCM_SUMMARY_MODEL" [ref=e988]:
+                        - code [ref=e989]: LCM_SUMMARY_MODEL
+                      - cell "\"\"" [ref=e990]:
+                        - code [ref=e991]: "\"\""
+                      - cell "Model override for compaction summarization; falls back to OpenClaw's default model when unset" [ref=e992]
+                    - row "LCM_SUMMARY_PROVIDER \"\" Provider override for compaction summarization; falls back to OPENCLAW_PROVIDER or the provider embedded in the model ref" [ref=e993]:
+                      - cell "LCM_SUMMARY_PROVIDER" [ref=e994]:
+                        - code [ref=e995]: LCM_SUMMARY_PROVIDER
+                      - cell "\"\"" [ref=e996]:
+                        - code [ref=e997]: "\"\""
+                      - cell "Provider override for compaction summarization; falls back to OPENCLAW_PROVIDER or the provider embedded in the model ref" [ref=e998]:
+                        - text: Provider override for compaction summarization; falls back to
+                        - code [ref=e999]: OPENCLAW_PROVIDER
+                        - text: or the provider embedded in the model ref
+                    - row "LCM_SUMMARY_BASE_URL (from OpenClaw / provider default) Base URL override for summarization API calls" [ref=e1000]:
+                      - cell "LCM_SUMMARY_BASE_URL" [ref=e1001]:
+                        - code [ref=e1002]: LCM_SUMMARY_BASE_URL
+                      - cell "(from OpenClaw / provider default)" [ref=e1003]:
+                        - emphasis [ref=e1004]: (from OpenClaw / provider default)
+                      - cell "Base URL override for summarization API calls" [ref=e1005]
+                    - row "LCM_EXPANSION_MODEL (from OpenClaw) Model override for lcm_expand_query sub-agent (e.g. openai/gpt-5.4-mini)" [ref=e1006]:
+                      - cell "LCM_EXPANSION_MODEL" [ref=e1007]:
+                        - code [ref=e1008]: LCM_EXPANSION_MODEL
+                      - cell "(from OpenClaw)" [ref=e1009]:
+                        - emphasis [ref=e1010]: (from OpenClaw)
+                      - cell "Model override for lcm_expand_query sub-agent (e.g. openai/gpt-5.4-mini)" [ref=e1011]:
+                        - text: Model override for
+                        - code [ref=e1012]: lcm_expand_query
+                        - text: sub-agent (e.g.
+                        - code [ref=e1013]: openai/gpt-5.4-mini
+                        - text: )
+                    - row "LCM_EXPANSION_PROVIDER (from OpenClaw) Provider override for lcm_expand_query sub-agent" [ref=e1014]:
+                      - cell "LCM_EXPANSION_PROVIDER" [ref=e1015]:
+                        - code [ref=e1016]: LCM_EXPANSION_PROVIDER
+                      - cell "(from OpenClaw)" [ref=e1017]:
+                        - emphasis [ref=e1018]: (from OpenClaw)
+                      - cell "Provider override for lcm_expand_query sub-agent" [ref=e1019]:
+                        - text: Provider override for
+                        - code [ref=e1020]: lcm_expand_query
+                        - text: sub-agent
+                    - row "LCM_DELEGATION_TIMEOUT_MS 120000 Max time to wait for delegated lcm_expand_query sub-agent completion" [ref=e1021]:
+                      - cell "LCM_DELEGATION_TIMEOUT_MS" [ref=e1022]:
+                        - code [ref=e1023]: LCM_DELEGATION_TIMEOUT_MS
+                      - cell "120000" [ref=e1024]:
+                        - code [ref=e1025]: "120000"
+                      - cell "Max time to wait for delegated lcm_expand_query sub-agent completion" [ref=e1026]:
+                        - text: Max time to wait for delegated
+                        - code [ref=e1027]: lcm_expand_query
+                        - text: sub-agent completion
+                    - row "LCM_SUMMARY_TIMEOUT_MS 60000 Max time to wait for a single model-backed LCM summarizer call" [ref=e1028]:
+                      - cell "LCM_SUMMARY_TIMEOUT_MS" [ref=e1029]:
+                        - code [ref=e1030]: LCM_SUMMARY_TIMEOUT_MS
+                      - cell "60000" [ref=e1031]:
+                        - code [ref=e1032]: "60000"
+                      - cell "Max time to wait for a single model-backed LCM summarizer call" [ref=e1033]
+                    - row "LCM_PRUNE_HEARTBEAT_OK false Retroactively delete HEARTBEAT_OK turn cycles from LCM storage" [ref=e1034]:
+                      - cell "LCM_PRUNE_HEARTBEAT_OK" [ref=e1035]:
+                        - code [ref=e1036]: LCM_PRUNE_HEARTBEAT_OK
+                      - cell "false" [ref=e1037]:
+                        - code [ref=e1038]: "false"
+                      - cell "Retroactively delete HEARTBEAT_OK turn cycles from LCM storage" [ref=e1039]:
+                        - text: Retroactively delete
+                        - code [ref=e1040]: HEARTBEAT_OK
+                        - text: turn cycles from LCM storage
+                    - row "LCM_TRANSCRIPT_GC_ENABLED false Enable transcript rewrite GC during maintain()" [ref=e1041]:
+                      - cell "LCM_TRANSCRIPT_GC_ENABLED" [ref=e1042]:
+                        - code [ref=e1043]: LCM_TRANSCRIPT_GC_ENABLED
+                      - cell "false" [ref=e1044]:
+                        - code [ref=e1045]: "false"
+                      - cell "Enable transcript rewrite GC during maintain()" [ref=e1046]:
+                        - text: Enable transcript rewrite GC during
+                        - code [ref=e1047]: maintain()
+                    - row "LCM_PROACTIVE_THRESHOLD_COMPACTION_MODE deferred Choose whether proactive threshold compaction is deferred into maintenance debt or kept inline for legacy behavior" [ref=e1048]:
+                      - cell "LCM_PROACTIVE_THRESHOLD_COMPACTION_MODE" [ref=e1049]:
+                        - code [ref=e1050]: LCM_PROACTIVE_THRESHOLD_COMPACTION_MODE
+                      - cell "deferred" [ref=e1051]:
+                        - code [ref=e1052]: deferred
+                      - cell "Choose whether proactive threshold compaction is deferred into maintenance debt or kept inline for legacy behavior" [ref=e1053]
+                    - row "LCM_CACHE_TTL_SECONDS 300 Cache TTL used by cache-aware deferred compaction when provider/runtime telemetry does not supply a more specific retention window" [ref=e1054]:
+                      - cell "LCM_CACHE_TTL_SECONDS" [ref=e1055]:
+                        - code [ref=e1056]: LCM_CACHE_TTL_SECONDS
+                      - cell "300" [ref=e1057]:
+                        - code [ref=e1058]: "300"
+                      - cell "Cache TTL used by cache-aware deferred compaction when provider/runtime telemetry does not supply a more specific retention window" [ref=e1059]
+                - paragraph [ref=e1060]:
+                  - text: Transcript GC rewrites are disabled by default. Set
+                  - code [ref=e1061]: transcriptGcEnabled
+                  - text: or
+                  - code [ref=e1062]: LCM_TRANSCRIPT_GC_ENABLED
+                  - text: to turn them on explicitly. Deferred proactive compaction is also the default. Set
+                  - code [ref=e1063]: proactiveThresholdCompactionMode
+                  - text: or
+                  - code [ref=e1064]: LCM_PROACTIVE_THRESHOLD_COMPACTION_MODE
+                  - text: to
+                  - code [ref=e1065]: inline
+                  - text: only if you need legacy foreground compaction behavior. In deferred mode, lossless-claw records one coalesced prompt-mutating debt item after the turn, leaves background
+                  - code [ref=e1066]: maintain()
+                  - text: to process only non-prompt-mutating work while Anthropic cache is still hot, and then consumes that debt pre-assembly once the cache is cold or the prompt is approaching overflow.
+                - generic [ref=e1067]:
+                  - heading "Expansion model override requirements" [level=3] [ref=e1068]
+                  - 'link "Permalink: Expansion model override requirements" [ref=e1069] [cursor=pointer]':
+                    - /url: "#expansion-model-override-requirements"
+                    - img [ref=e1070]
+                - paragraph [ref=e1072]:
+                  - text: If you want
+                  - code [ref=e1073]: lcm_expand_query
+                  - text: to run on a dedicated model via
+                  - code [ref=e1074]: expansionModel
+                  - text: or
+                  - code [ref=e1075]: LCM_EXPANSION_MODEL
+                  - text: ", OpenClaw must explicitly trust the plugin to request sub-agent model overrides."
+                - paragraph [ref=e1076]:
+                  - text: For most setups,
+                  - code [ref=e1077]: openai/gpt-5.4-mini
+                  - text: is a better starting point than Anthropic Haiku because it is cheap, fast, and does not depend on Anthropic quota remaining.
+                - paragraph [ref=e1078]:
+                  - text: Add a
+                  - code [ref=e1079]: subagent
+                  - text: policy under
+                  - code [ref=e1080]: plugins.entries.lossless-claw
+                  - text: and allowlist the canonical
+                  - code [ref=e1081]: provider/model
+                  - text: "target you want the plugin to use:"
+                - generic [ref=e1082]:
+                  - generic [ref=e1083]:
+                    - text: "{ \"models\": { \"openai/gpt-4.1-mini\": {} }, \"plugins\": { \"entries\": { \"lossless-claw\": { \"enabled\": true, \"subagent\": { \"allowModelOverride\": true, \"allowedModels\": ["
+                    - generic [ref=e1084]: "\"openai/gpt-4.1-mini\""
+                    - text: "] }, \"config\": { \"expansionModel\":"
+                    - generic [ref=e1085]: "\"openai/gpt-4.1-mini\""
+                    - text: "} } } } }"
+                  - button "Copy code to clipboard" [ref=e1087] [cursor=pointer]:
+                    - img [ref=e1088]
+                - list [ref=e1091]:
+                  - listitem [ref=e1092]:
+                    - code [ref=e1093]: subagent.allowModelOverride
+                    - text: is required for OpenClaw to honor plugin-requested per-run
+                    - code [ref=e1094]: provider
+                    - text: /
+                    - code [ref=e1095]: model
+                    - text: overrides.
+                  - listitem [ref=e1096]:
+                    - code [ref=e1097]: subagent.allowedModels
+                    - text: is optional but recommended. Use
+                    - code [ref=e1098]: "\"*\""
+                    - text: only if you intentionally want to trust any target model.
+                  - listitem [ref=e1099]:
+                    - text: The chosen expansion target must also be available in OpenClaw's normal model catalog. If it is not already configured elsewhere, add it under the top-level
+                    - code [ref=e1100]: models
+                    - text: map as shown above.
+                  - listitem [ref=e1101]:
+                    - text: If you prefer splitting provider and model, set
+                    - code [ref=e1102]: config.expansionProvider
+                    - text: and use a bare
+                    - code [ref=e1103]: config.expansionModel
+                    - text: .
+                  - listitem [ref=e1104]:
+                    - code [ref=e1105]: openclaw doctor --fix
+                    - text: can add the required
+                    - code [ref=e1106]: subagent
+                    - text: policy for a configured
+                    - code [ref=e1107]: expansionModel
+                    - text: . If a host still rejects a stale or unavailable override,
+                    - code [ref=e1108]: lcm_expand_query
+                    - text: retries once without the override so recall does not fail hard.
+                - paragraph [ref=e1109]: "Plugin config equivalents:"
+                - list [ref=e1110]:
+                  - listitem [ref=e1111]:
+                    - code [ref=e1112]: ignoreSessionPatterns
+                  - listitem [ref=e1113]:
+                    - code [ref=e1114]: statelessSessionPatterns
+                  - listitem [ref=e1115]:
+                    - code [ref=e1116]: skipStatelessSessions
+                  - listitem [ref=e1117]:
+                    - code [ref=e1118]: transcriptGcEnabled
+                  - listitem [ref=e1119]:
+                    - code [ref=e1120]: newSessionRetainDepth
+                  - listitem [ref=e1121]:
+                    - code [ref=e1122]: summaryModel
+                  - listitem [ref=e1123]:
+                    - code [ref=e1124]: summaryProvider
+                  - listitem [ref=e1125]:
+                    - code [ref=e1126]: delegationTimeoutMs
+                  - listitem [ref=e1127]:
+                    - code [ref=e1128]: summaryTimeoutMs
+                - paragraph [ref=e1129]: Environment variables still win over plugin config when both are set.
+                - generic [ref=e1130]:
+                  - heading "Summary model priority" [level=3] [ref=e1131]
+                  - 'link "Permalink: Summary model priority" [ref=e1132] [cursor=pointer]':
+                    - /url: "#summary-model-priority"
+                    - img [ref=e1133]
+                - paragraph [ref=e1135]: "For compaction summarization, lossless-claw resolves the model in this order:"
+                - list [ref=e1136]:
+                  - listitem [ref=e1137]:
+                    - code [ref=e1138]: LCM_SUMMARY_MODEL
+                    - text: /
+                    - code [ref=e1139]: LCM_SUMMARY_PROVIDER
+                  - listitem [ref=e1140]:
+                    - text: Plugin config
+                    - code [ref=e1141]: summaryModel
+                    - text: /
+                    - code [ref=e1142]: summaryProvider
+                  - listitem [ref=e1143]: OpenClaw's default compaction model/provider
+                  - listitem [ref=e1144]: Runtime/session model/provider hints from OpenClaw
+                - paragraph [ref=e1145]:
+                  - text: If
+                  - code [ref=e1146]: summaryModel
+                  - text: already includes a provider prefix such as
+                  - code [ref=e1147]: anthropic/claude-sonnet-4-20250514
+                  - text: ","
+                  - code [ref=e1148]: summaryProvider
+                  - text: is ignored for that choice. Otherwise, the provider falls back to the matching override, then
+                  - code [ref=e1149]: OPENCLAW_PROVIDER
+                  - text: ", then the provider inferred by the caller."
+                - paragraph [ref=e1150]:
+                  - text: Summary calls are dispatched through OpenClaw's runtime LLM layer, so auth profiles, OAuth refresh, API keys, base URLs, and provider-specific request preparation remain host-owned. Run
+                  - code [ref=e1151]: openclaw doctor --fix
+                  - text: after adding explicit summary model overrides if you want OpenClaw to add the matching
+                  - code [ref=e1152]: plugins.entries.lossless-claw.llm
+                  - text: policy.
+                - generic [ref=e1153]:
+                  - heading "Recommended starting configuration" [level=3] [ref=e1154]
+                  - 'link "Permalink: Recommended starting configuration" [ref=e1155] [cursor=pointer]':
+                    - /url: "#recommended-starting-configuration"
+                    - img [ref=e1156]
+                - generic [ref=e1158]:
+                  - code [ref=e1160]: LCM_FRESH_TAIL_COUNT=64 LCM_LEAF_CHUNK_TOKENS=20000 LCM_INCREMENTAL_MAX_DEPTH=1 LCM_CONTEXT_THRESHOLD=0.75 LCM_SUMMARY_MODEL=openai/gpt-5.4-mini LCM_EXPANSION_MODEL=openai/gpt-5.4-mini
+                  - button "Copy code to clipboard" [ref=e1162] [cursor=pointer]:
+                    - img [ref=e1163]
+                - list [ref=e1166]:
+                  - listitem [ref=e1167]:
+                    - strong [ref=e1168]: freshTailCount=64
+                    - text: protects the last 64 messages from compaction, giving the model more recent context for continuity.
+                  - listitem [ref=e1169]:
+                    - strong [ref=e1170]: leafChunkTokens=20000
+                    - text: limits how large each leaf compaction chunk can grow before LCM summarizes it. Increase this when your summary provider is quota-limited and frequent leaf compactions are exhausting that quota.
+                  - listitem [ref=e1171]:
+                    - strong [ref=e1172]: incrementalMaxDepth=1
+                    - text: runs one condensed pass after each leaf compaction by default. Set to
+                    - code [ref=e1173]: "0"
+                    - text: for leaf-only behavior, a larger positive integer for a deeper cap, or
+                    - code [ref=e1174]: "-1"
+                    - text: for unlimited cascading.
+                  - listitem [ref=e1175]:
+                    - strong [ref=e1176]: contextThreshold=0.75
+                    - text: triggers compaction when context reaches 75% of the model's window, leaving headroom for the model's response.
+                - generic [ref=e1177]:
+                  - heading "Session exclusion patterns" [level=3] [ref=e1178]
+                  - 'link "Permalink: Session exclusion patterns" [ref=e1179] [cursor=pointer]':
+                    - /url: "#session-exclusion-patterns"
+                    - img [ref=e1180]
+                - generic [ref=e1182]:
+                  - heading "Session reset semantics" [level=3] [ref=e1183]
+                  - 'link "Permalink: Session reset semantics" [ref=e1184] [cursor=pointer]':
+                    - /url: "#session-reset-semantics"
+                    - img [ref=e1185]
+                - paragraph [ref=e1187]: "Lossless-claw distinguishes OpenClaw's two session-reset commands:"
+                - list [ref=e1188]:
+                  - listitem [ref=e1189]:
+                    - code [ref=e1190]: /new
+                    - text: keeps the active conversation row and all stored summaries, but prunes
+                    - code [ref=e1191]: context_items
+                    - text: so the next turn rebuilds context from retained summaries instead of the fresh tail.
+                  - listitem [ref=e1192]:
+                    - code [ref=e1193]: /reset
+                    - text: archives the active conversation row and creates a new active row for the same stable
+                    - code [ref=e1194]: sessionKey
+                    - text: ", giving the next turn a clean LCM conversation while preserving prior history."
+                - paragraph [ref=e1195]: "For large sessions, neither command is a perfect “keep my live agent context, but stop writing into this giant active LCM row” tool:"
+                - list [ref=e1196]:
+                  - listitem [ref=e1197]:
+                    - code [ref=e1198]: /new
+                    - text: keeps writing into the same active LCM conversation row.
+                  - listitem [ref=e1199]:
+                    - code [ref=e1200]: /reset
+                    - text: changes OpenClaw session flow, which is heavier than users often want when their real problem is just LCM row size.
+                - paragraph [ref=e1201]:
+                  - code [ref=e1202]: /lcm rotate
+                  - text: fills that gap. It replaces one rolling
+                  - code [ref=e1203]: rotate-latest
+                  - text: SQLite backup, rewrites the current session transcript down to the preserved live tail plus current session settings, and refreshes the bootstrap frontier on the same active LCM conversation so dropped transcript history is not replayed. Existing summaries, context items, and conversation identity stay in place; only the transcript backing is compacted. If you want additional timestamped snapshots instead, run
+                  - code [ref=e1204]: /lcm backup
+                  - text: .
+                - paragraph [ref=e1205]:
+                  - code [ref=e1206]: newSessionRetainDepth
+                  - text: (or
+                  - code [ref=e1207]: LCM_NEW_SESSION_RETAIN_DEPTH
+                  - text: ) controls how much summary structure survives
+                  - code [ref=e1208]: /new
+                  - text: ":"
+                - list [ref=e1209]:
+                  - listitem [ref=e1210]:
+                    - code [ref=e1211]: "-1"
+                    - text: ": keep all existing context items"
+                  - listitem [ref=e1212]:
+                    - code [ref=e1213]: "0"
+                    - text: ": keep all summaries, drop only fresh-tail messages"
+                  - listitem [ref=e1214]:
+                    - code [ref=e1215]: "1"
+                    - text: ": keep d1+ summaries"
+                  - listitem [ref=e1216]:
+                    - code [ref=e1217]: "2"
+                    - text: ": keep d2+ summaries; recommended default"
+                  - listitem [ref=e1218]:
+                    - code [ref=e1219]: 3+
+                    - text: ": keep only deeper, more abstract summaries"
+                - paragraph [ref=e1220]:
+                  - text: Lossless-claw applies
+                  - code [ref=e1221]: /new
+                  - text: pruning through
+                  - code [ref=e1222]: before_reset
+                  - text: and uses
+                  - code [ref=e1223]: session_end
+                  - text: to catch transcript rollovers such as
+                  - code [ref=e1224]: /reset
+                  - text: ", idle or daily session rotation, compaction session replacement, and deletions. User-facing confirmation text after"
+                  - code [ref=e1225]: /new
+                  - text: or
+                  - code [ref=e1226]: /reset
+                  - text: must still be emitted by OpenClaw's command handlers.
+                - paragraph [ref=e1227]:
+                  - text: Use
+                  - code [ref=e1228]: ignoreSessionPatterns
+                  - text: or
+                  - code [ref=e1229]: LCM_IGNORE_SESSION_PATTERNS
+                  - text: to keep low-value sessions completely out of LCM. Matching sessions do not create conversations, do not store messages, and do not participate in compaction or delegated expansion grants.
+                - paragraph [ref=e1230]: "Pattern rules:"
+                - list [ref=e1231]:
+                  - listitem [ref=e1232]:
+                    - code [ref=e1233]: "*"
+                    - text: matches any characters except
+                    - code [ref=e1234]: ":"
+                  - listitem [ref=e1235]:
+                    - code [ref=e1236]: "**"
+                    - text: matches anything, including
+                    - code [ref=e1237]: ":"
+                  - listitem [ref=e1238]: Patterns match the full session key
+                - paragraph [ref=e1239]: "Examples:"
+                - list [ref=e1240]:
+                  - listitem [ref=e1241]:
+                    - code [ref=e1242]: agent:*:cron:**
+                    - text: excludes cron sessions for any agent, including isolated run sessions like
+                    - code [ref=e1243]: agent:main:cron:daily-digest:run:run-123
+                  - listitem [ref=e1244]:
+                    - code [ref=e1245]: agent:main:subagent:**
+                    - text: excludes all main-agent subagent sessions
+                  - listitem [ref=e1246]:
+                    - code [ref=e1247]: agent:ops:**
+                    - text: excludes every session under the
+                    - code [ref=e1248]: ops
+                    - text: agent id
+                - paragraph [ref=e1249]: "Environment variable example:"
+                - generic [ref=e1250]:
+                  - generic [ref=e1251]: LCM_IGNORE_SESSION_PATTERNS=agent:*:cron:**,agent:main:subagent:**
+                  - button "Copy code to clipboard" [ref=e1253] [cursor=pointer]:
+                    - img [ref=e1254]
+                - paragraph [ref=e1257]: "Plugin config example:"
+                - generic [ref=e1258]:
+                  - generic [ref=e1259]:
+                    - text: "{ \"plugins\": { \"entries\": { \"lossless-claw\": { \"config\": { \"ignoreSessionPatterns\": ["
+                    - generic [ref=e1260]: "\"agent:*:cron:**\""
+                    - text: ","
+                    - generic [ref=e1261]: "\"agent:main:subagent:**\""
+                    - text: "] } } } } }"
+                  - button "Copy code to clipboard" [ref=e1263] [cursor=pointer]:
+                    - img [ref=e1264]
+                - generic [ref=e1267]:
+                  - heading "Stateless session patterns" [level=3] [ref=e1268]
+                  - 'link "Permalink: Stateless session patterns" [ref=e1269] [cursor=pointer]':
+                    - /url: "#stateless-session-patterns"
+                    - img [ref=e1270]
+                - paragraph [ref=e1272]:
+                  - text: Use
+                  - code [ref=e1273]: statelessSessionPatterns
+                  - text: or
+                  - code [ref=e1274]: LCM_STATELESS_SESSION_PATTERNS
+                  - text: for sessions that should still be able to read from existing LCM context, but should never create or mutate LCM state themselves. This is useful for delegated or temporary sub-agent sessions that should benefit from retained context without polluting the database.
+                - paragraph [ref=e1275]:
+                  - text: When
+                  - code [ref=e1276]: skipStatelessSessions
+                  - text: or
+                  - code [ref=e1277]: LCM_SKIP_STATELESS_SESSIONS
+                  - text: "is enabled, matching sessions:"
+                - list [ref=e1278]:
+                  - listitem [ref=e1279]: skip bootstrap imports
+                  - listitem [ref=e1280]: skip message persistence during ingest and after-turn hooks
+                  - listitem [ref=e1281]: skip compaction writes and delegated expansion grant writes
+                  - listitem [ref=e1282]: can still assemble context from already-persisted conversations when a matching conversation exists
+                - paragraph [ref=e1283]:
+                  - text: Pattern rules are the same as
+                  - code [ref=e1284]: ignoreSessionPatterns
+                  - text: ", and matching is done against the full session key."
+                - paragraph [ref=e1285]: "Environment variable example:"
+                - generic [ref=e1286]:
+                  - generic [ref=e1287]: LCM_STATELESS_SESSION_PATTERNS=agent:*:subagent:**,agent:ops:subagent:** LCM_SKIP_STATELESS_SESSIONS=true
+                  - button "Copy code to clipboard" [ref=e1289] [cursor=pointer]:
+                    - img [ref=e1290]
+                - paragraph [ref=e1293]: "Plugin config example:"
+                - generic [ref=e1294]:
+                  - generic [ref=e1295]:
+                    - text: "{ \"plugins\": { \"entries\": { \"lossless-claw\": { \"config\": { \"statelessSessionPatterns\": ["
+                    - generic [ref=e1296]: "\"agent:*:subagent:**\""
+                    - text: ","
+                    - generic [ref=e1297]: "\"agent:ops:subagent:**\""
+                    - text: "], \"skipStatelessSessions\": true } } } } }"
+                  - button "Copy code to clipboard" [ref=e1299] [cursor=pointer]:
+                    - img [ref=e1300]
+                - generic [ref=e1303]:
+                  - heading "OpenClaw session reset settings" [level=3] [ref=e1304]
+                  - 'link "Permalink: OpenClaw session reset settings" [ref=e1305] [cursor=pointer]':
+                    - /url: "#openclaw-session-reset-settings"
+                    - img [ref=e1306]
+                - paragraph [ref=e1308]:
+                  - text: LCM preserves history through compaction, but it does
+                  - strong [ref=e1309]: not
+                  - text: change OpenClaw's core session reset policy. If sessions are resetting sooner than you want, increase OpenClaw's
+                  - code [ref=e1310]: session.reset.idleMinutes
+                  - text: or use a channel/type-specific override.
+                - generic [ref=e1311]:
+                  - generic [ref=e1312]:
+                    - text: "{ \"session\": { \"reset\": { \"mode\":"
+                    - generic [ref=e1313]: "\"idle\""
+                    - text: ", \"idleMinutes\": 10080 } } }"
+                  - button "Copy code to clipboard" [ref=e1315] [cursor=pointer]:
+                    - img [ref=e1316]
+                - list [ref=e1319]:
+                  - listitem [ref=e1320]:
+                    - code [ref=e1321]: "session.reset.mode: \"idle\""
+                    - text: keeps a session alive until the idle window expires.
+                  - listitem [ref=e1322]:
+                    - code [ref=e1323]: session.reset.idleMinutes
+                    - text: is the actual reset interval in minutes.
+                  - listitem [ref=e1324]:
+                    - text: OpenClaw does
+                    - strong [ref=e1325]: not
+                    - text: currently enforce a maximum
+                    - code [ref=e1326]: idleMinutes
+                    - text: ; in source it is validated only as a positive integer.
+                  - listitem [ref=e1327]:
+                    - text: If you also use daily reset mode,
+                    - code [ref=e1328]: idleMinutes
+                    - text: acts as a secondary guard and the session resets when
+                    - strong [ref=e1329]: either
+                    - text: the daily boundary or the idle window is reached first.
+                  - listitem [ref=e1330]:
+                    - text: Legacy
+                    - code [ref=e1331]: session.idleMinutes
+                    - text: still works, but OpenClaw prefers
+                    - code [ref=e1332]: session.reset.idleMinutes
+                    - text: .
+                - paragraph [ref=e1333]: "Useful values:"
+                - list [ref=e1334]:
+                  - listitem [ref=e1335]:
+                    - code [ref=e1336]: "1440"
+                    - text: = 1 day
+                  - listitem [ref=e1337]:
+                    - code [ref=e1338]: "10080"
+                    - text: = 7 days
+                  - listitem [ref=e1339]:
+                    - code [ref=e1340]: "43200"
+                    - text: = 30 days
+                  - listitem [ref=e1341]:
+                    - code [ref=e1342]: "525600"
+                    - text: = 365 days
+                - paragraph [ref=e1343]: "For most long-lived LCM setups, a good starting point is:"
+                - generic [ref=e1344]:
+                  - generic [ref=e1345]:
+                    - text: "{ \"session\": { \"reset\": { \"mode\":"
+                    - generic [ref=e1346]: "\"idle\""
+                    - text: ", \"idleMinutes\": 10080 } } }"
+                  - button "Copy code to clipboard" [ref=e1348] [cursor=pointer]:
+                    - img [ref=e1349]
+                - generic [ref=e1352]:
+                  - heading "Documentation" [level=2] [ref=e1353]
+                  - 'link "Permalink: Documentation" [ref=e1354] [cursor=pointer]':
+                    - /url: "#documentation"
+                    - img [ref=e1355]
+                - list [ref=e1357]:
+                  - listitem [ref=e1358]:
+                    - link "Configuration guide" [ref=e1359] [cursor=pointer]:
+                      - /url: /Martian-Engineering/lossless-claw/blob/main/docs/configuration.md
+                  - listitem [ref=e1360]:
+                    - link "Architecture" [ref=e1361] [cursor=pointer]:
+                      - /url: /Martian-Engineering/lossless-claw/blob/main/docs/architecture.md
+                  - listitem [ref=e1362]:
+                    - link "Agent tools" [ref=e1363] [cursor=pointer]:
+                      - /url: /Martian-Engineering/lossless-claw/blob/main/docs/agent-tools.md
+                  - listitem [ref=e1364]:
+                    - link "TUI Reference" [ref=e1365] [cursor=pointer]:
+                      - /url: /Martian-Engineering/lossless-claw/blob/main/docs/tui.md
+                  - listitem [ref=e1366]:
+                    - link "lcm-tui" [ref=e1367] [cursor=pointer]:
+                      - /url: /Martian-Engineering/lossless-claw/blob/main/tui/README.md
+                  - listitem [ref=e1368]:
+                    - 'link "Optional: enable FTS5 for fast full-text search" [ref=e1369] [cursor=pointer]':
+                      - /url: /Martian-Engineering/lossless-claw/blob/main/docs/fts5.md
+                - generic [ref=e1370]:
+                  - heading "Development" [level=2] [ref=e1371]
+                  - 'link "Permalink: Development" [ref=e1372] [cursor=pointer]':
+                    - /url: "#development"
+                    - img [ref=e1373]
+                - generic [ref=e1375]:
+                  - generic [ref=e1376]:
+                    - generic [ref=e1377]: "# Build (bundles TypeScript to dist/index.js)"
+                    - text: pnpm build
+                    - generic [ref=e1378]: "# Run tests"
+                    - text: npx vitest
+                    - generic [ref=e1379]: "# Type check"
+                    - text: npx tsc --noEmit
+                    - generic [ref=e1380]: "# Run a specific test file"
+                    - text: npx vitest test/engine.test.ts
+                  - button "Copy code to clipboard" [ref=e1382] [cursor=pointer]:
+                    - img [ref=e1383]
+                - generic [ref=e1386]:
+                  - heading "Project structure" [level=3] [ref=e1387]
+                  - 'link "Permalink: Project structure" [ref=e1388] [cursor=pointer]':
+                    - /url: "#project-structure"
+                    - img [ref=e1389]
+                - generic [ref=e1391]:
+                  - code [ref=e1393]: "index.ts # Plugin entry point and registration src/ engine.ts # LcmContextEngine — implements ContextEngine interface assembler.ts # Context assembly (summaries + messages → model context) compaction.ts # CompactionEngine — leaf passes, condensation, sweeps summarize.ts # Depth-aware prompt generation and LLM summarization retrieval.ts # RetrievalEngine — grep, describe, expand operations expansion.ts # DAG expansion logic for lcm_expand_query expansion-auth.ts # Delegation grants for sub-agent expansion expansion-policy.ts # Depth/token policy for expansion large-files.ts # File interception, storage, and exploration summaries integrity.ts # DAG integrity checks and repair utilities transcript-repair.ts # Tool-use/result pairing sanitization types.ts # Core type definitions (dependency injection contracts) openclaw-bridge.ts # Bridge utilities db/ config.ts # LcmConfig resolution from env vars connection.ts # SQLite connection management migration.ts # Schema migrations store/ conversation-store.ts # Message persistence and retrieval summary-store.ts # Summary DAG persistence and context item management fts5-sanitize.ts # FTS5 query sanitization tools/ lcm-grep-tool.ts # lcm_grep tool implementation lcm-describe-tool.ts # lcm_describe tool implementation lcm-expand-tool.ts # lcm_expand tool (sub-agent only) lcm-expand-query-tool.ts # lcm_expand_query tool (main agent wrapper) lcm-conversation-scope.ts # Conversation scoping utilities common.ts # Shared tool utilities test/ # Vitest test suite specs/ # Design specifications openclaw.plugin.json # Plugin manifest with config schema and UI hints tui/ # Interactive terminal UI (Go) main.go # Entry point and bubbletea app data.go # Data loading and SQLite queries dissolve.go # Summary dissolution repair.go # Corrupted summary repair rewrite.go # Summary re-summarization transplant.go # Cross-conversation DAG copy prompts/ # Depth-aware prompt templates .goreleaser.yml # GoReleaser config for TUI binary releases"
+                  - button "Copy code to clipboard" [ref=e1395] [cursor=pointer]:
+                    - img [ref=e1396]
+                - generic [ref=e1399]:
+                  - heading "License" [level=2] [ref=e1400]
+                  - 'link "Permalink: License" [ref=e1401] [cursor=pointer]':
+                    - /url: "#license"
+                    - img [ref=e1402]
+                - paragraph [ref=e1404]: MIT
+        - generic [ref=e1408]:
+          - generic [ref=e1411]:
+            - heading "About" [level=2] [ref=e1412]
+            - paragraph [ref=e1413]: Lossless Claw — LCM (Lossless Context Management) plugin for OpenClaw
+            - heading "Resources" [level=3] [ref=e1414]
+            - link "Readme" [ref=e1416] [cursor=pointer]:
+              - /url: "#readme-ov-file"
+              - img [ref=e1417]
+              - text: Readme
+            - heading "License" [level=3] [ref=e1419]
+            - link "MIT license" [ref=e1421] [cursor=pointer]:
+              - /url: "#MIT-1-ov-file"
+              - img [ref=e1422]
+              - text: MIT license
+            - link "Activity" [ref=e1425] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/activity
+              - img [ref=e1426]
+              - text: Activity
+            - link "Custom properties" [ref=e1429] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/custom-properties
+              - img [ref=e1430]
+              - text: Custom properties
+            - heading "Stars" [level=3] [ref=e1432]
+            - link "4.8k stars" [ref=e1434] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/stargazers
+              - img [ref=e1435]
+              - strong [ref=e1437]: 4.8k
+              - text: stars
+            - heading "Watchers" [level=3] [ref=e1438]
+            - link "23 watching" [ref=e1440] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/watchers
+              - img [ref=e1441]
+              - strong [ref=e1443]: "23"
+              - text: watching
+            - heading "Forks" [level=3] [ref=e1444]
+            - link "402 forks" [ref=e1446] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/forks
+              - img [ref=e1447]
+              - strong [ref=e1449]: "402"
+              - text: forks
+            - link "Report repository" [ref=e1451] [cursor=pointer]:
+              - /url: /contact/report-content?content_url=https%3A%2F%2Fgithub.com%2FMartian-Engineering%2Flossless-claw&report=Martian-Engineering+%28user%29
+          - generic [ref=e1453]:
+            - heading "Releases 22" [level=2] [ref=e1454]:
+              - link "Releases 22" [ref=e1455] [cursor=pointer]:
+                - /url: /Martian-Engineering/lossless-claw/releases
+                - text: Releases
+                - generic "22" [ref=e1456]
+            - link "v0.11.1 Latest May 18, 2026yesterday" [ref=e1457] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/releases/tag/v0.11.1
+              - img [ref=e1458]
+              - generic [ref=e1460]:
+                - generic [ref=e1461]:
+                  - generic [ref=e1462]: v0.11.1
+                  - 'generic "Label: Latest" [ref=e1463]': Latest
+                - generic [ref=e1464]: May 18, 2026yesterday
+            - link "+ 21 releases" [ref=e1466] [cursor=pointer]:
+              - /url: /Martian-Engineering/lossless-claw/releases
+          - generic "Loading latest packages" [ref=e1469]:
+            - heading "Packages" [level=2] [ref=e1470]:
+              - link "Packages" [ref=e1471] [cursor=pointer]:
+                - /url: /orgs/Martian-Engineering/packages?repo_name=lossless-claw
+          - generic "Loading contributors" [ref=e1483]:
+            - generic:
+              - heading "Contributors" [level=2] [ref=e1484]:
+                - link "Contributors" [ref=e1485] [cursor=pointer]:
+                  - /url: /Martian-Engineering/lossless-claw/graphs/contributors
+              - list [ref=e1486]:
+                - listitem [ref=e1487]
+                - listitem [ref=e1489]
+                - listitem [ref=e1491]
+          - generic [ref=e1494]:
+            - heading "Languages" [level=2] [ref=e1495]
+            - list [ref=e1502]:
+              - listitem [ref=e1503]:
+                - link "TypeScript 81.9%" [ref=e1504] [cursor=pointer]:
+                  - /url: /Martian-Engineering/lossless-claw/search?l=typescript
+                  - img [ref=e1505]
+                  - generic [ref=e1507]: TypeScript
+                  - generic [ref=e1508]: 81.9%
+              - listitem [ref=e1509]:
+                - link "Go 15.6%" [ref=e1510] [cursor=pointer]:
+                  - /url: /Martian-Engineering/lossless-claw/search?l=go
+                  - img [ref=e1511]
+                  - generic [ref=e1513]: Go
+                  - generic [ref=e1514]: 15.6%
+              - listitem [ref=e1515]:
+                - link "JavaScript 2.3%" [ref=e1516] [cursor=pointer]:
+                  - /url: /Martian-Engineering/lossless-claw/search?l=javascript
+                  - img [ref=e1517]
+                  - generic [ref=e1519]: JavaScript
+                  - generic [ref=e1520]: 2.3%
+              - listitem [ref=e1521]:
+                - generic [ref=e1522]:
+                  - img [ref=e1523]
+                  - generic [ref=e1525]: Other
+                  - generic [ref=e1526]: 0.2%
+  - contentinfo [ref=e1528]:
+    - heading "Footer" [level=2] [ref=e1529]
+    - generic [ref=e1530]:
+      - generic [ref=e1531]:
+        - link "GitHub Homepage" [ref=e1532] [cursor=pointer]:
+          - /url: https://github.com
+          - img [ref=e1533]
+        - generic [ref=e1535]: © 2026 GitHub, Inc.
+      - navigation "Footer" [ref=e1536]:
+        - heading "Footer navigation" [level=3] [ref=e1537]
+        - list "Footer navigation" [ref=e1538]:
+          - listitem [ref=e1539]:
+            - link "Terms" [ref=e1540] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service
+          - listitem [ref=e1541]:
+            - link "Privacy" [ref=e1542] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement
+          - listitem [ref=e1543]:
+            - link "Security" [ref=e1544] [cursor=pointer]:
+              - /url: https://github.com/security
+          - listitem [ref=e1545]:
+            - link "Status" [ref=e1546] [cursor=pointer]:
+              - /url: https://www.githubstatus.com/
+          - listitem [ref=e1547]:
+            - link "Community" [ref=e1548] [cursor=pointer]:
+              - /url: https://github.community/
+          - listitem [ref=e1549]:
+            - link "Docs" [ref=e1550] [cursor=pointer]:
+              - /url: https://docs.github.com/
+          - listitem [ref=e1551]:
+            - link "Contact" [ref=e1552] [cursor=pointer]:
+              - /url: https://support.github.com?tags=dotcom-footer
+          - listitem [ref=e1553]:
+            - button "Manage cookies" [ref=e1555] [cursor=pointer]
+          - listitem [ref=e1556]:
+            - button "Do not share my personal information" [ref=e1558] [cursor=pointer]
