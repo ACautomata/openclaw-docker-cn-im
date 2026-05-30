@@ -83,6 +83,22 @@ ensure_config_persistence() {
     fi
 }
 
+# 共享 seed 同步辅助函数：将 seed_dir 内容复制到 target_dir，修复权限，删除 seed
+_sync_seed_dir() {
+    local seed_dir="$1" target_dir="$2" label="$3"
+    mkdir -p "$target_dir"
+    # 仅删除 seed 中存在的同名项，以保留用户自行添加的其他内容
+    find "$seed_dir" -mindepth 1 -maxdepth 1 ! -name '.seed-version' | while IFS= read -r seed_item; do
+        rm -rf "$target_dir/$(basename "$seed_item")"
+    done
+    cp -a "$seed_dir"/. "$target_dir"/
+    if is_root; then
+        chown -R node:node "$target_dir"
+    fi
+    rm -rf "$seed_dir"
+    echo "🧹 已清空${label}seed 目录: $seed_dir"
+}
+
 sync_seed_extensions() {
     local seed_dir="/home/node/.openclaw-seed/extensions"
     local target_dir="$OPENCLAW_HOME/extensions"
@@ -112,8 +128,6 @@ sync_seed_extensions() {
         return
     fi
 
-    mkdir -p "$target_dir"
-
     case "$normalized_mode" in
         missing)
             echo "=== 同步内置插件（仅补充缺失项） ==="
@@ -127,14 +141,14 @@ sync_seed_extensions() {
                 cp -a "$seed_item" "$target_item"
                 echo "➕ 已补充插件/文件: $item_name"
             done
+            rm -rf "$seed_dir"
+            echo "🧹 已清空插件 seed 目录: $seed_dir"
+            echo "✅ 内置插件同步完成，模式: missing"
             ;;
         overwrite)
             echo "=== 同步内置插件（强制覆盖） ==="
-            # 仅删除 seed 中存在的同名项，以保留用户自行添加的其他插件
-            find "$seed_dir" -mindepth 1 -maxdepth 1 ! -name '.seed-version' | while IFS= read -r seed_item; do
-                rm -rf "$target_dir/$(basename "$seed_item")"
-            done
-            cp -a "$seed_dir"/. "$target_dir"/
+            _sync_seed_dir "$seed_dir" "$target_dir" "插件"
+            echo "✅ 内置插件同步完成，模式: overwrite"
             ;;
         seed-version|versioned|"")
             local seed_version current_version
@@ -163,25 +177,42 @@ sync_seed_extensions() {
             else
                 echo "镜像内置 seed 版本: 未标记，执行覆盖同步"
             fi
-            # 仅删除 seed 中存在的同名项，以保留用户自行添加的其他插件
-            find "$seed_dir" -mindepth 1 -maxdepth 1 ! -name '.seed-version' | while IFS= read -r seed_item; do
-                rm -rf "$target_dir/$(basename "$seed_item")"
-            done
-            cp -a "$seed_dir"/. "$target_dir"/
+            _sync_seed_dir "$seed_dir" "$target_dir" "插件"
+            echo "✅ 内置插件同步完成，模式: seed-version"
             ;;
         *)
             echo "⚠️ 未识别的 SYNC_EXTENSIONS_MODE=$sync_mode，支持 missing / overwrite / seed-version，已跳过插件同步"
             return
             ;;
     esac
+}
 
-    if is_root; then
-        chown -R node:node "$target_dir"
+sync_seed_npm() {
+    local seed_dir="/home/node/.openclaw-seed/npm"
+    local target_dir="$OPENCLAW_HOME/npm"
+    local global_sync="${SYNC_OPENCLAW_CONFIG:-true}"
+    local sync_on_start="${SYNC_EXTENSIONS_ON_START:-true}"
+
+    global_sync="$(echo "$global_sync" | tr '[:upper:]' '[:lower:]' | xargs)"
+    if [ "$global_sync" = "false" ] || [ "$global_sync" = "0" ] || [ "$global_sync" = "no" ]; then
+        echo "ℹ️ 已关闭整体配置同步，跳过 npm 插件同步"
+        return
     fi
 
-    rm -rf "$seed_dir"
-    echo "🧹 已清空插件 seed 目录: $seed_dir"
-    echo "✅ 内置插件同步完成，模式: ${normalized_mode:-seed-version}"
+    sync_on_start="$(echo "$sync_on_start" | tr '[:upper:]' '[:lower:]' | xargs)"
+    if [ "$sync_on_start" = "false" ] || [ "$sync_on_start" = "0" ] || [ "$sync_on_start" = "no" ]; then
+        echo "ℹ️ 已关闭启动时插件同步，跳过 npm 插件同步"
+        return
+    fi
+
+    if [ ! -d "$seed_dir" ]; then
+        echo "ℹ️ 未找到 npm seed 目录，跳过同步: $seed_dir"
+        return
+    fi
+
+    echo "=== 同步内置 npm 插件 ==="
+    _sync_seed_dir "$seed_dir" "$target_dir" "npm 插件"
+    echo "✅ 内置 npm 插件同步完成"
 }
 
 is_root() {
@@ -2692,6 +2723,7 @@ main() {
     ensure_config_persistence
     fix_permissions_if_needed
     sync_seed_extensions
+    sync_seed_npm
     install_agent_reach
     sync_config_with_env
     finalize_permissions
@@ -2707,11 +2739,11 @@ main() {
             find /home/node/.openclaw/extensions/ -type f -perm /111 -exec chmod 755 {} +
             find /home/node/.openclaw/extensions/ -type f ! -perm /111 -exec chmod 644 {} +
         fi
-        if [ -d /home/node/.openclaw/npm/ ]; then
-            find /home/node/.openclaw/npm/ -mindepth 1 -exec chown 0:0 {} +
-            find /home/node/.openclaw/npm/ -type d -exec chmod 755 {} +
-            find /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} +
-            find /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} +
+        if [ -d "$OPENCLAW_HOME/npm/" ]; then
+            find "$OPENCLAW_HOME/npm/" -mindepth 1 -exec chown 0:0 {} +
+            find "$OPENCLAW_HOME/npm/" -type d -exec chmod 755 {} +
+            find "$OPENCLAW_HOME/npm/" -type f -perm /111 -exec chmod 755 {} +
+            find "$OPENCLAW_HOME/npm/" -type f ! -perm /111 -exec chmod 644 {} +
         fi
     fi
     print_runtime_summary
