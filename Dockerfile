@@ -96,7 +96,7 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   find /home/node/.openclaw/extensions -name ".git" -type d -exec rm -rf {} + && \
   mv /home/node/.openclaw/extensions /home/node/.openclaw-seed/ && \
   if [ -d /home/node/.openclaw/npm ]; then mv /home/node/.openclaw/npm /home/node/.openclaw-seed/; fi && \
-  printf '%s\n' '2026.5.27-5' > /home/node/.openclaw-seed/extensions/.seed-version && \
+  printf '%s\n' '2026.5.27-6' > /home/node/.openclaw-seed/extensions/.seed-version && \
   rm -rf /tmp/* /home/node/.npm /home/node/.cache
   
 # 3. 最终配置
