@@ -2158,8 +2158,67 @@ def apply_feishu_plugin_switch(ctx):
         print('ℹ️ 未检测到飞书凭证且飞书官方插件开关未配置，已同时禁用官方插件和旧版飞书渠道')
 
 
+def normalize_install_paths(ctx):
+    """校正 plugins.installs 的 installPath，匹配实际 extensions 目录中的子目录名。
+
+    npm 包安装后的目录名可能与 CHANNEL_INSTALLS 中预定义的不一致，
+    例如 @openclaw/feishu 可能安装为 openclaw-feishu 而非 feishu。
+    此函数遍历实际 extensions 目录，据此校正 installPath。
+    """
+    extensions_dir = '/home/node/.openclaw/extensions'
+    if not os.path.isdir(extensions_dir):
+        print('ℹ️ extensions 目录不存在，跳过 installPath 校正')
+        return
+
+    actual_dirs = set()
+    for item in os.listdir(extensions_dir):
+        item_path = os.path.join(extensions_dir, item)
+        if os.path.isdir(item_path):
+            actual_dirs.add(item)
+
+    if not actual_dirs:
+        print('ℹ️ extensions 目录为空，跳过 installPath 校正')
+        return
+
+    corrected = []
+    for plugin_id, install_info in list(ctx.installs.items()):
+        install_path = install_info.get('installPath', '')
+        expected_dir = os.path.basename(install_path)
+
+        if expected_dir not in actual_dirs:
+            # 模糊匹配：优先完全包含插件 ID 的目录名
+            matched_dir = None
+            for actual_dir in actual_dirs:
+                # 完全匹配优先
+                if actual_dir == plugin_id:
+                    matched_dir = actual_dir
+                    break
+                # 插件 ID 包含目录名 或 反之
+                if plugin_id in actual_dir or actual_dir in plugin_id:
+                    matched_dir = actual_dir
+                    break
+
+            if matched_dir:
+                new_path = os.path.join(os.path.dirname(install_path), matched_dir)
+                install_info['installPath'] = new_path
+                corrected.append(f'{plugin_id}: {expected_dir} → {matched_dir}')
+            else:
+                # 未找到匹配目录，禁用该插件条目
+                if plugin_id in ctx.entries:
+                    ctx.entries[plugin_id] = {'enabled': False}
+                print(f'🚫 插件 {plugin_id} 目录 {expected_dir} 不存在，已禁用')
+
+    if corrected:
+        print(f'✅ 已校正以下插件 installPath: {", ".join(corrected)}')
+
+    # 过滤 plugins.allow，移除不存在的插件
+    installed_ids = set(ctx.installs.keys())
+    old_allow = ctx.plugins.get('allow') or []
+    ctx.plugins['allow'] = [name for name in old_allow if name in installed_ids]
+
+
 def finalize_plugins(ctx):
-    
+    normalize_install_paths(ctx)
     ctx.plugins['allow'] = [name for name, entry in ctx.entries.items() if entry.get('enabled')]
     print('📦 已配置插件集合: ' + ', '.join(ctx.plugins['allow']))
 
@@ -2639,12 +2698,19 @@ main() {
     # security. finalize_permissions chowns everything to node, so we restore
     # root ownership for plugin paths after it completes.
     if [ "$(id -u)" = "0" ]; then
-        chown -R 0:0 /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/
-        # Ensure node user (gateway runs as) can still read plugin directories
-        # npm install may create directories with restrictive 700 permissions
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type d -exec chmod 755 {} +
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} +
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} +
+        # Fix plugin directory permissions (npm/ may not exist)
+        if [ -d /home/node/.openclaw/extensions/ ]; then
+            find /home/node/.openclaw/extensions/ -mindepth 1 -exec chown 0:0 {} +
+            find /home/node/.openclaw/extensions/ -type d -exec chmod 755 {} +
+            find /home/node/.openclaw/extensions/ -type f -perm /111 -exec chmod 755 {} +
+            find /home/node/.openclaw/extensions/ -type f ! -perm /111 -exec chmod 644 {} +
+        fi
+        if [ -d /home/node/.openclaw/npm/ ]; then
+            find /home/node/.openclaw/npm/ -mindepth 1 -exec chown 0:0 {} +
+            find /home/node/.openclaw/npm/ -type d -exec chmod 755 {} +
+            find /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} +
+            find /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} +
+        fi
     fi
     print_runtime_summary
     setup_runtime_env
