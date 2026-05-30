@@ -2460,7 +2460,7 @@ install_agent_reach() {
     local pip_index_env=""
 
     if [ "${AGENT_REACH_USE_CN_MIRROR:-false}" = "true" ]; then
-        github_url="https://gh.llkk.cc/https://github.com/Panniantong/agent-reach/archive/main.zip"
+        github_url="https://gh-proxy.com/https://github.com/Panniantong/agent-reach/archive/main.zip"
         pip_mirror="-i https://pypi.tuna.tsinghua.edu.cn/simple"
         pip_index_env="export PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple"
     fi
