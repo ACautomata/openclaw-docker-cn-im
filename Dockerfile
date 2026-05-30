@@ -86,6 +86,8 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @tencent-connect/openclaw-qqbot@latest || true && \
   timeout 300 openclaw plugins install --dangerously-force-unsafe-install @sunnoy/wecom || true && \
   timeout 300 openclaw plugins install @martian-engineering/lossless-claw || true && \
+  timeout 300 openclaw plugins install --dangerously-force-unsafe-install @openclaw/discord || true && \
+  timeout 300 openclaw plugins install --dangerously-force-unsafe-install @openclaw/feishu || true && \
   cd /home/node/.openclaw/extensions && \
   mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
   # 预执行安装命令（容器内需手动交互，此处仅作声明或环境准备）
