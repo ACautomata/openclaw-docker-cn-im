@@ -2550,6 +2550,7 @@ install_agent_reach() {
     else
         echo "Agent Reach 首次安装，开始下载..."
         if ! gosu node bash -c "
+            set -e
             export PATH=\$PATH:/home/node/.local/bin
             $pip_index_env
             if [ ! -d ~/.agent-reach-venv ]; then
@@ -2568,6 +2569,7 @@ install_agent_reach() {
 
     # 配置代理和各渠道凭据
     gosu node bash -c "
+        set -e
         export PATH=\$PATH:/home/node/.local/bin
         $pip_index_env
         if [ -f ~/.agent-reach-venv/bin/activate ]; then
