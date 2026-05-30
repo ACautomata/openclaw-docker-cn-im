@@ -78,8 +78,8 @@ ensure_config_persistence() {
 
     # 4. 权限修复
     if is_root; then
-        chown -R node:node "$persistent_config_dir" || true
-        chown -h node:node "$container_config_dir" || true
+        chown -R node:node "$persistent_config_dir"
+        chown -h node:node "$container_config_dir"
     fi
 }
 
@@ -176,7 +176,7 @@ sync_seed_extensions() {
     esac
 
     if is_root; then
-        chown -R node:node "$target_dir" || true
+        chown -R node:node "$target_dir"
     fi
 
     rm -rf "$seed_dir"
@@ -202,12 +202,12 @@ fix_permissions_if_needed() {
 
     if [ "$current_owner" != "${NODE_UID}:${NODE_GID}" ]; then
         echo "检测到宿主机挂载目录所有者与容器运行用户不一致，尝试自动修复..."
-        chown -R node:node "$OPENCLAW_HOME" || true
+        chown -R node:node "$OPENCLAW_HOME"
     fi
 
     if [ -S /var/run/docker.sock ]; then
         echo "检测到 Docker Socket，正在尝试修复权限以支持沙箱..."
-        chmod 666 /var/run/docker.sock || true
+        chmod 666 /var/run/docker.sock
     fi
 
     if ! gosu node test -w "$OPENCLAW_HOME"; then
@@ -317,7 +317,7 @@ sync_config_with_env() {
     ensure_base_config
 
     echo "正在根据当前环境变量同步配置状态..."
-    CONFIG_FILE="$config_file" python3 - <<'PYCODE'
+    CONFIG_FILE="$config_file" python3 - <<'PYCODE' || true
 import json
 import os
 import re
@@ -1387,8 +1387,8 @@ def _lcm_env_num(env, key, cfg, cfg_key, cast):
     if v:
         try:
             cfg[cfg_key] = cast(v)
-        except (ValueError, TypeError):
-            pass
+        except (ValueError, TypeError) as ex:
+            raise ValueError(f'{key} 值 "{v}" 无法转换为 {cast.__name__}: {ex}')
 
 def _lcm_env_csv(env, key, cfg, cfg_key):
     v = (env.get(key) or '').strip()
@@ -1661,17 +1661,10 @@ def sync_agent_and_tools(ctx):
                 qmd_path = 'qmd'
                 subprocess.run([qmd_path, '--version'], capture_output=True, check=True)
                 qmd_path = subprocess.check_output(['which', 'qmd']).decode().strip()
-            except Exception:
-                print('⚠️ 警告: qmd 命令执行失败，向量内存功能可能受限')
-                qmd_path = None
+            except Exception as ex2:
+                raise ValueError(f'qmd 命令执行失败，无法使用向量内存后端: {ex2}')
 
-        if qmd_path:
-            memory_cfg['command'] = qmd_path
-        else:
-            # 如果 qmd 不可用，禁用内存后端或切换回默认
-            if memory.get('backend') == 'qmd':
-                print('⚠️ 自动禁用 qmd 内存后端（命令不可用或架构不兼容）')
-                memory['backend'] = 'off'
+        memory_cfg['command'] = qmd_path
     else:
         memory_cfg.setdefault('command', '/usr/local/bin/qmd')
     # 参考官方文档模式: off | non-main | all
@@ -2165,8 +2158,67 @@ def apply_feishu_plugin_switch(ctx):
         print('ℹ️ 未检测到飞书凭证且飞书官方插件开关未配置，已同时禁用官方插件和旧版飞书渠道')
 
 
+def normalize_install_paths(ctx):
+    """校正 plugins.installs 的 installPath，匹配实际 extensions 目录中的子目录名。
+
+    npm 包安装后的目录名可能与 CHANNEL_INSTALLS 中预定义的不一致，
+    例如 @openclaw/feishu 可能安装为 openclaw-feishu 而非 feishu。
+    此函数遍历实际 extensions 目录，据此校正 installPath。
+    """
+    extensions_dir = '/home/node/.openclaw/extensions'
+    if not os.path.isdir(extensions_dir):
+        print('ℹ️ extensions 目录不存在，跳过 installPath 校正')
+        return
+
+    actual_dirs = set()
+    for item in os.listdir(extensions_dir):
+        item_path = os.path.join(extensions_dir, item)
+        if os.path.isdir(item_path):
+            actual_dirs.add(item)
+
+    if not actual_dirs:
+        print('ℹ️ extensions 目录为空，跳过 installPath 校正')
+        return
+
+    corrected = []
+    for plugin_id, install_info in list(ctx.installs.items()):
+        install_path = install_info.get('installPath', '')
+        expected_dir = os.path.basename(install_path)
+
+        if expected_dir not in actual_dirs:
+            # 模糊匹配：优先完全包含插件 ID 的目录名
+            matched_dir = None
+            for actual_dir in actual_dirs:
+                # 完全匹配优先
+                if actual_dir == plugin_id:
+                    matched_dir = actual_dir
+                    break
+                # 插件 ID 包含目录名 或 反之
+                if plugin_id in actual_dir or actual_dir in plugin_id:
+                    matched_dir = actual_dir
+                    break
+
+            if matched_dir:
+                new_path = os.path.join(os.path.dirname(install_path), matched_dir)
+                install_info['installPath'] = new_path
+                corrected.append(f'{plugin_id}: {expected_dir} → {matched_dir}')
+            else:
+                # 未找到匹配目录，禁用该插件条目
+                if plugin_id in ctx.entries:
+                    ctx.entries[plugin_id] = {'enabled': False}
+                print(f'🚫 插件 {plugin_id} 目录 {expected_dir} 不存在，已禁用')
+
+    if corrected:
+        print(f'✅ 已校正以下插件 installPath: {", ".join(corrected)}')
+
+    # 过滤 plugins.allow，移除不存在的插件
+    installed_ids = set(ctx.installs.keys())
+    old_allow = ctx.plugins.get('allow') or []
+    ctx.plugins['allow'] = [name for name in old_allow if name in installed_ids]
+
+
 def finalize_plugins(ctx):
-    
+    normalize_install_paths(ctx)
     ctx.plugins['allow'] = [name for name, entry in ctx.entries.items() if entry.get('enabled')]
     print('📦 已配置插件集合: ' + ', '.join(ctx.plugins['allow']))
 
@@ -2482,6 +2534,7 @@ install_agent_reach() {
         else
             echo "Agent Reach 检测到可更新版本，开始自动更新..."
             if ! gosu node bash -c "
+                set -e
                 export PATH=\$PATH:/home/node/.local/bin
                 $pip_index_env
                 if [ -f ~/.agent-reach-venv/bin/activate ]; then
@@ -2490,12 +2543,14 @@ install_agent_reach() {
                 pip install --upgrade pip $pip_mirror
                 pip install --upgrade $github_url $pip_mirror
             "; then
-                echo "⚠️ Agent Reach 更新失败，将使用现有版本继续"
+                echo "❌ Agent Reach 更新失败"
+                exit 1
             fi
         fi
     else
         echo "Agent Reach 首次安装，开始下载..."
         if ! gosu node bash -c "
+            set -e
             export PATH=\$PATH:/home/node/.local/bin
             $pip_index_env
             if [ ! -d ~/.agent-reach-venv ]; then
@@ -2506,15 +2561,15 @@ install_agent_reach() {
             pip install $github_url $pip_mirror
             agent-reach install --env=auto
         "; then
-            echo "⚠️ Agent Reach 安装失败，请检查网络连接或尝试设置 AGENT_REACH_USE_CN_MIRROR=true"
-            echo "   错误详情: pip install 可能因网络问题失败，或 agent-reach install --env=auto 遇到依赖问题"
-            return
+            echo "❌ Agent Reach 安装失败，请检查网络连接或尝试设置 AGENT_REACH_USE_CN_MIRROR=true"
+            exit 1
         fi
         echo "✅ Agent Reach 安装完成"
     fi
 
     # 配置代理和各渠道凭据
     gosu node bash -c "
+        set -e
         export PATH=\$PATH:/home/node/.local/bin
         $pip_index_env
         if [ -f ~/.agent-reach-venv/bin/activate ]; then
@@ -2523,24 +2578,24 @@ install_agent_reach() {
 
         # 配置代理（如果提供）
         if [ -n \"\$AGENT_REACH_PROXY\" ]; then
-            agent-reach configure proxy \"\$AGENT_REACH_PROXY\" || true
+            agent-reach configure proxy \"\$AGENT_REACH_PROXY\"
         fi
 
         # 配置 Twitter Cookies
         if [ -n \"\$AGENT_REACH_TWITTER_COOKIES\" ]; then
-            agent-reach configure twitter-cookies \"\$AGENT_REACH_TWITTER_COOKIES\" || true
+            agent-reach configure twitter-cookies \"\$AGENT_REACH_TWITTER_COOKIES\"
         fi
 
         # 配置 Groq Key
         if [ -n \"\$AGENT_REACH_GROQ_KEY\" ]; then
-            agent-reach configure groq-key \"\$AGENT_REACH_GROQ_KEY\" || true
+            agent-reach configure groq-key \"\$AGENT_REACH_GROQ_KEY\"
         fi
 
         # 配置小红书 Cookies
         if [ -n \"\$AGENT_REACH_XHS_COOKIES\" ]; then
-            agent-reach configure xhs-cookies \"\$AGENT_REACH_XHS_COOKIES\" || true
+            agent-reach configure xhs-cookies \"\$AGENT_REACH_XHS_COOKIES\"
         fi
-    " || true
+    "
 
     # 同步 Agent Reach skills 到工作空间
     local workspace_parent
@@ -2551,10 +2606,10 @@ install_agent_reach() {
         echo "检测到 $src，正在将其同步到工作空间: $dst"
         mkdir -p "$dst"
         rm -f "$dst/SKILL.md"
-        cp -af "$src/." "$dst/" || true
+        cp -af "$src/." "$dst/"
         rm -rf "$src"
         if is_root; then
-            chown -R node:node "$dst" || true
+            chown -R node:node "$dst"
         fi
         echo "✅ Agent Reach skills 已同步到工作空间"
     fi
@@ -2595,9 +2650,9 @@ init_wiki() {
     fi
 
     log_section "初始化 Wiki Vault"
-    gosu node env HOME=/home/node openclaw wiki init 2>&1 || {
-        echo "⚠️ Wiki vault 初始化失败，将在首次使用时自动创建"
-        return
+    gosu node env HOME=/home/node openclaw wiki init || {
+        echo "❌ Wiki vault 初始化失败"
+        exit 1
     }
     echo "✅ Wiki vault 初始化完成"
 }
@@ -2627,7 +2682,7 @@ wait_for_gateway() {
 
 finalize_permissions() {
     if is_root; then
-        chown -R node:node "$OPENCLAW_HOME" || true
+        chown -R node:node "$OPENCLAW_HOME"
     fi
 }
 
@@ -2645,12 +2700,19 @@ main() {
     # security. finalize_permissions chowns everything to node, so we restore
     # root ownership for plugin paths after it completes.
     if [ "$(id -u)" = "0" ]; then
-        chown -R 0:0 /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ 2>/dev/null || true
-        # Ensure node user (gateway runs as) can still read plugin directories
-        # npm install may create directories with restrictive 700 permissions
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type d -exec chmod 755 {} + 2>/dev/null || true
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} + 2>/dev/null || true
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} + 2>/dev/null || true
+        # Fix plugin directory permissions (npm/ may not exist)
+        if [ -d /home/node/.openclaw/extensions/ ]; then
+            find /home/node/.openclaw/extensions/ -mindepth 1 -exec chown 0:0 {} +
+            find /home/node/.openclaw/extensions/ -type d -exec chmod 755 {} +
+            find /home/node/.openclaw/extensions/ -type f -perm /111 -exec chmod 755 {} +
+            find /home/node/.openclaw/extensions/ -type f ! -perm /111 -exec chmod 644 {} +
+        fi
+        if [ -d /home/node/.openclaw/npm/ ]; then
+            find /home/node/.openclaw/npm/ -mindepth 1 -exec chown 0:0 {} +
+            find /home/node/.openclaw/npm/ -type d -exec chmod 755 {} +
+            find /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} +
+            find /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} +
+        fi
     fi
     print_runtime_summary
     setup_runtime_env
