@@ -1,5 +1,3 @@
-version: '3.8'
-
 x-openclaw-common-env: &openclaw-common-env
   TZ: Asia/Shanghai
   HOME: /home/node
