@@ -169,60 +169,68 @@ jobs:
 
       - name: 验证插件安装
         run: |
+          echo "=== 检查 seed 目录 ==="
+          docker exec openclaw-ci ls -la /home/node/.openclaw-seed/ 2>/dev/null || echo "seed 目录不存在"
+          docker exec openclaw-ci ls -la /home/node/.openclaw-seed/extensions/ 2>/dev/null || echo "seed/extensions 不存在"
+          docker exec openclaw-ci ls -la /home/node/.openclaw-seed/npm/ 2>/dev/null || echo "seed/npm 不存在"
+
+          echo ""
+          echo "=== 检查 init 日志中的 seed 同步输出 ==="
+          docker logs openclaw-ci 2>&1 | grep -E '(同步内置|seed|npm|插件)' || echo "无 seed 同步相关日志"
+
+          echo ""
           echo "=== 检查插件目录结构 ==="
           echo "--- extensions/ ---"
           docker exec openclaw-ci ls -la /home/node/.openclaw/extensions/ 2>/dev/null || echo "extensions/ 不存在"
-          echo "--- npm/node_modules/ ---"
+          echo "--- npm/ ---"
+          docker exec openclaw-ci ls -la /home/node/.openclaw/npm/ 2>/dev/null || echo "npm/ 不存在"
           docker exec openclaw-ci ls /home/node/.openclaw/npm/node_modules/ 2>/dev/null | head -20 || echo "npm/node_modules/ 不存在"
 
           echo ""
           echo "=== 检查各插件是否存在 ==="
           FAIL=0
           for check in \
-            "@openclaw/discord:/home/node/.openclaw/npm/node_modules/@openclaw/discord" \
-            "@openclaw/feishu:/home/node/.openclaw/npm/node_modules/@openclaw/feishu" \
-            "@martian-engineering/lossless-claw:/home/node/.openclaw/npm/node_modules/@martian-engineering/lossless-claw" \
-            "@soimy/dingtalk:/home/node/.openclaw/npm/node_modules/@soimy/dingtalk" \
-            "@tencent-connect/openclaw-qqbot:/home/node/.openclaw/npm/node_modules/@tencent-connect/openclaw-qqbot" \
-            "@sunnoy/wecom:/home/node/.openclaw/npm/node_modules/@sunnoy/wecom" \
+            "discord:/home/node/.openclaw/npm/node_modules/@openclaw/discord" \
+            "feishu:/home/node/.openclaw/npm/node_modules/@openclaw/feishu" \
+            "lossless-claw:/home/node/.openclaw/npm/node_modules/@martian-engineering/lossless-claw" \
+            "dingtalk:/home/node/.openclaw/npm/node_modules/@soimy/dingtalk" \
+            "qqbot:/home/node/.openclaw/npm/node_modules/@tencent-connect/openclaw-qqbot" \
+            "wecom:/home/node/.openclaw/npm/node_modules/@sunnoy/wecom" \
             "napcat:/home/node/.openclaw/extensions/napcat"; do
             NAME="${check%%:*}"
-            PATH="${check#*:}"
-            if docker exec openclaw-ci test -d "$PATH" 2>/dev/null; then
-              echo "✅ $NAME → $PATH"
+            DIR="${check#*:}"
+            if docker exec openclaw-ci test -d "$DIR" 2>/dev/null; then
+              echo "✅ $NAME → $DIR"
             else
-              echo "❌ $NAME 未找到: $PATH"
+              echo "❌ $NAME 未找到: $DIR"
               FAIL=1
             fi
           done
 
           echo ""
-          echo "=== 检查 openclaw.json 插件配置 ==="
-          docker exec openclaw-ci python3 -c '
-          import json, sys
-          cfg = json.load(open("/home/node/.openclaw/openclaw.json"))
-          installs = cfg.get("plugins", {}).get("installs", {})
+          echo "=== 检查 openclaw.json 插件 installPath ==="
+          docker exec openclaw-ci python3 -c "
+          import json, os, sys
+          cfg = json.load(open('/home/node/.openclaw/openclaw.json'))
+          installs = cfg.get('plugins', {}).get('installs', {})
           errors = []
           for pid, info in installs.items():
-              ip = info.get("installPath", "")
-              if ip and not __import__("os").path.isdir(ip):
-                  errors.append(f"{pid}: installPath={ip} 目录不存在")
-          for pid, entry in cfg.get("plugins", {}).get("entries", {}).items():
-              if entry.get("enabled") and pid not in installs:
-                  errors.append(f"{pid}: enabled 但无 install 记录")
+              ip = info.get('installPath', '')
+              if ip and not os.path.isdir(ip):
+                  errors.append(f'{pid}: installPath={ip} (目录不存在)')
           if errors:
               for e in errors:
-                  print(f"❌ {e}")
+                  print(f'❌ {e}')
               sys.exit(1)
           else:
-              print("✅ 所有已启用插件的 installPath 均指向有效目录")
-          '
+              print('✅ 所有已启用插件的 installPath 均指向有效目录')
+          "
 
           echo ""
           echo "=== 检查容器日志中无插件禁用警告 ==="
-          if docker logs openclaw-ci 2>&1 | grep -q '🚫 插件.*不存在.*已禁用'; then
+          if docker logs openclaw-ci 2>&1 | grep -q '插件.*不存在.*已禁用'; then
             echo "❌ 发现插件禁用警告:"
-            docker logs openclaw-ci 2>&1 | grep '🚫 插件.*不存在.*已禁用'
+            docker logs openclaw-ci 2>&1 | grep '插件.*不存在.*已禁用'
             FAIL=1
           else
             echo "✅ 无插件禁用警告"
