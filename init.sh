@@ -2189,42 +2189,80 @@ def apply_feishu_plugin_switch(ctx):
         print('ℹ️ 未检测到飞书凭证且飞书官方插件开关未配置，已同时禁用官方插件和旧版飞书渠道')
 
 
-def normalize_install_paths(ctx):
-    """校正 plugins.installs 的 installPath，匹配实际 extensions 目录中的子目录名。
+def normalize_install_paths(ctx, openclaw_home=None):
+    """校正 plugins.installs 的 installPath，匹配实际目录中的插件位置。
 
-    npm 包安装后的目录名可能与 CHANNEL_INSTALLS 中预定义的不一致，
-    例如 @openclaw/feishu 可能安装为 openclaw-feishu 而非 feishu。
-    此函数遍历实际 extensions 目录，据此校正 installPath。
+    openclaw plugins install 将 npm 包安装到 ~/.openclaw/npm/node_modules/@scope/package，
+    而非 extensions/ 目录。此函数同时扫描 extensions/ 和 npm/node_modules/，
+    将 installPath 校正为实际路径。
     """
-    extensions_dir = '/home/node/.openclaw/extensions'
-    if not os.path.isdir(extensions_dir):
-        print('ℹ️ extensions 目录不存在，跳过 installPath 校正')
-        return
+    if openclaw_home is None:
+        openclaw_home = os.environ.get('OPENCLAW_HOME', '/home/node/.openclaw')
+    extensions_dir = os.path.join(openclaw_home, 'extensions')
+    npm_modules_dir = os.path.join(openclaw_home, 'npm', 'node_modules')
 
-    actual_dirs = set()
-    for item in os.listdir(extensions_dir):
-        item_path = os.path.join(extensions_dir, item)
-        if os.path.isdir(item_path):
-            actual_dirs.add(item)
+    ext_dirs = set()
+    if os.path.isdir(extensions_dir):
+        for item in os.listdir(extensions_dir):
+            if os.path.isdir(os.path.join(extensions_dir, item)):
+                ext_dirs.add(item)
 
-    if not actual_dirs:
-        print('ℹ️ extensions 目录为空，跳过 installPath 校正')
+    # 收集 npm/node_modules/ 中所有包的实际路径，按包名最后一段（即插件名）建立索引
+    # 例如 npm/node_modules/@openclaw/discord → {'discord': '/home/node/.openclaw/npm/node_modules/@openclaw/discord'}
+    npm_packages = {}
+    if os.path.isdir(npm_modules_dir):
+        for item in os.listdir(npm_modules_dir):
+            item_path = os.path.join(npm_modules_dir, item)
+            if not os.path.isdir(item_path):
+                continue
+            if item.startswith('@'):
+                # scoped package: @scope/package
+                for sub in os.listdir(item_path):
+                    sub_path = os.path.join(item_path, sub)
+                    if os.path.isdir(sub_path):
+                        npm_packages[sub] = sub_path
+            else:
+                npm_packages[item] = item_path
+
+    if not ext_dirs and not npm_packages:
+        print('ℹ️ extensions 和 npm 目录均为空，跳过 installPath 校正')
         return
 
     corrected = []
     for plugin_id, install_info in list(ctx.installs.items()):
         install_path = install_info.get('installPath', '')
         expected_dir = os.path.basename(install_path)
+        spec = install_info.get('spec', '')
 
-        if expected_dir not in actual_dirs:
-            # 模糊匹配：优先完全包含插件 ID 的目录名
+        if expected_dir in ext_dirs:
+            # 在 extensions/ 中找到了，无需校正
+            continue
+
+        # 尝试从 npm/node_modules/ 中查找
+        matched_path = None
+
+        # 1. 用插件 ID 精确匹配 npm 包名最后一段
+        if plugin_id in npm_packages:
+            matched_path = npm_packages[plugin_id]
+        # 2. 用 spec 中的包名匹配（例如 @openclaw/discord → discord）
+        elif spec:
+            spec_name = spec.split('/')[-1].split('@')[0]
+            if spec_name in npm_packages:
+                matched_path = npm_packages[spec_name]
+        # 3. 模糊匹配 expected_dir
+        elif expected_dir in npm_packages:
+            matched_path = npm_packages[expected_dir]
+
+        if matched_path:
+            install_info['installPath'] = matched_path
+            corrected.append(f'{plugin_id}: {expected_dir} → {matched_path}')
+        else:
+            # 在 extensions/ 中模糊匹配
             matched_dir = None
-            for actual_dir in actual_dirs:
-                # 完全匹配优先
+            for actual_dir in ext_dirs:
                 if actual_dir == plugin_id:
                     matched_dir = actual_dir
                     break
-                # 插件 ID 包含目录名 或 反之
                 if plugin_id in actual_dir or actual_dir in plugin_id:
                     matched_dir = actual_dir
                     break

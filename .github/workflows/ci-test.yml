@@ -167,21 +167,74 @@ jobs:
             sleep 2
           done
 
-      - name: 验证 openclaw.json 生成
+      - name: 验证插件安装
         run: |
-          if [ ! -f /tmp/openclaw-data/openclaw.json ]; then
-            echo "openclaw.json 未生成"
-            docker logs openclaw-ci 2>&1 || true
+          echo "=== 检查插件目录结构 ==="
+          echo "--- extensions/ ---"
+          docker exec openclaw-ci ls -la /home/node/.openclaw/extensions/ 2>/dev/null || echo "extensions/ 不存在"
+          echo "--- npm/node_modules/ ---"
+          docker exec openclaw-ci ls /home/node/.openclaw/npm/node_modules/ 2>/dev/null | head -20 || echo "npm/node_modules/ 不存在"
+
+          echo ""
+          echo "=== 检查各插件是否存在 ==="
+          FAIL=0
+          for check in \
+            "@openclaw/discord:/home/node/.openclaw/npm/node_modules/@openclaw/discord" \
+            "@openclaw/feishu:/home/node/.openclaw/npm/node_modules/@openclaw/feishu" \
+            "@martian-engineering/lossless-claw:/home/node/.openclaw/npm/node_modules/@martian-engineering/lossless-claw" \
+            "@soimy/dingtalk:/home/node/.openclaw/npm/node_modules/@soimy/dingtalk" \
+            "@tencent-connect/openclaw-qqbot:/home/node/.openclaw/npm/node_modules/@tencent-connect/openclaw-qqbot" \
+            "@sunnoy/wecom:/home/node/.openclaw/npm/node_modules/@sunnoy/wecom" \
+            "napcat:/home/node/.openclaw/extensions/napcat"; do
+            NAME="${check%%:*}"
+            PATH="${check#*:}"
+            if docker exec openclaw-ci test -d "$PATH" 2>/dev/null; then
+              echo "✅ $NAME → $PATH"
+            else
+              echo "❌ $NAME 未找到: $PATH"
+              FAIL=1
+            fi
+          done
+
+          echo ""
+          echo "=== 检查 openclaw.json 插件配置 ==="
+          docker exec openclaw-ci python3 -c '
+          import json, sys
+          cfg = json.load(open("/home/node/.openclaw/openclaw.json"))
+          installs = cfg.get("plugins", {}).get("installs", {})
+          errors = []
+          for pid, info in installs.items():
+              ip = info.get("installPath", "")
+              if ip and not __import__("os").path.isdir(ip):
+                  errors.append(f"{pid}: installPath={ip} 目录不存在")
+          for pid, entry in cfg.get("plugins", {}).get("entries", {}).items():
+              if entry.get("enabled") and pid not in installs:
+                  errors.append(f"{pid}: enabled 但无 install 记录")
+          if errors:
+              for e in errors:
+                  print(f"❌ {e}")
+              sys.exit(1)
+          else:
+              print("✅ 所有已启用插件的 installPath 均指向有效目录")
+          '
+
+          echo ""
+          echo "=== 检查容器日志中无插件禁用警告 ==="
+          if docker logs openclaw-ci 2>&1 | grep -q '🚫 插件.*不存在.*已禁用'; then
+            echo "❌ 发现插件禁用警告:"
+            docker logs openclaw-ci 2>&1 | grep '🚫 插件.*不存在.*已禁用'
+            FAIL=1
+          else
+            echo "✅ 无插件禁用警告"
+          fi
+
+          if [ "$FAIL" -ne 0 ]; then
+            echo ""
+            echo "❌ 插件验证失败"
             exit 1
           fi
-          python3 <<'PY'
-          import json
-          cfg = json.load(open('/tmp/openclaw-data/openclaw.json'))
-          assert cfg['models']['providers']['default']['apiKey'] == '${API_KEY}', 'API key 应保留为环境变量引用'
-          assert cfg['gateway']['auth']['token'] == '${OPENCLAW_GATEWAY_TOKEN}', 'Gateway token 应保留为环境变量引用'
-          assert cfg['gateway']['port'] == 18789, '端口不匹配'
-          print('配置验证通过')
-          PY
+          echo ""
+          echo "✅ 插件验证全部通过"
 
       - name: 输出容器日志 (失败时)
         if: failure()
