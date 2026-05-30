@@ -2475,6 +2475,7 @@ install_agent_reach() {
         else
             echo "Agent Reach 检测到可更新版本，开始自动更新..."
             if ! gosu node bash -c "
+                set -e
                 export PATH=\$PATH:/home/node/.local/bin
                 $pip_index_env
                 if [ -f ~/.agent-reach-venv/bin/activate ]; then
