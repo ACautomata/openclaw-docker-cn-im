@@ -406,7 +406,7 @@ class TestNormalizeInstallPaths:
         assert ctx.installs["napcat"]["installPath"] == original_path
 
     def test_plugin_not_found_disabled(self, config_dir):
-        """插件在 extensions/ 和 npm/ 中都找不到时，应被禁用。"""
+        """插件在 extensions/ 和 npm/ 中都找不到时，应被移除配置。"""
         import openclaw_config_module as mod
 
         # 创建一个不相关的 extensions 子目录，避免函数因空目录提前返回
@@ -421,7 +421,8 @@ class TestNormalizeInstallPaths:
 
         mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
 
-        assert ctx.entries["unknown-plugin"]["enabled"] is False
+        assert "unknown-plugin" not in ctx.entries
+        assert "unknown-plugin" not in ctx.installs
 
     def test_spec_name_matching(self, config_dir):
         """插件 ID 与目录名不同时，通过 spec 包名匹配（如 dingtalk → @soimy/dingtalk）。"""
