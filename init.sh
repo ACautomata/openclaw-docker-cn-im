@@ -2649,7 +2649,8 @@ main() {
         # Ensure node user (gateway runs as) can still read plugin directories
         # npm install may create directories with restrictive 700 permissions
         find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type d -exec chmod 755 {} + 2>/dev/null || true
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f -exec chmod 644 {} + 2>/dev/null || true
+        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} + 2>/dev/null || true
+        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} + 2>/dev/null || true
     fi
     print_runtime_summary
     setup_runtime_env
