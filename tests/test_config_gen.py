@@ -1,6 +1,8 @@
 """init.sh Python 配置生成逻辑的测试。"""
 
 import json
+import os
+import types
 
 import pytest
 
@@ -316,3 +318,196 @@ class TestAllChannels:
         assert channels["telegram"]["botToken"] == "111:token"
         assert channels["discord"]["enabled"] is True
         assert channels["discord"]["token"]["id"] == "DISCORD_BOT_TOKEN"
+
+
+def _make_normalize_ctx(installs, entries):
+    """创建 normalize_install_paths 所需的最小 ctx 对象。"""
+    import openclaw_config_module as mod
+    ctx = types.SimpleNamespace()
+    ctx.installs = installs
+    ctx.entries = entries
+    ctx.plugins = {"allow": list(installs.keys())}
+    return ctx
+
+
+def _create_npm_layout(base_dir, packages):
+    """在 base_dir 下创建模拟的 npm/node_modules 目录结构。
+
+    packages: list of (scope, name) tuples, e.g. [('@openclaw', 'discord'), (None, 'some-pkg')]
+    """
+    nm_dir = os.path.join(base_dir, "npm", "node_modules")
+    os.makedirs(nm_dir, exist_ok=True)
+    for scope, name in packages:
+        if scope:
+            pkg_dir = os.path.join(nm_dir, scope, name)
+        else:
+            pkg_dir = os.path.join(nm_dir, name)
+        os.makedirs(pkg_dir, exist_ok=True)
+        # 写入 package.json 以便验证这是有效目录
+        with open(os.path.join(pkg_dir, "package.json"), "w") as f:
+            json.dump({"name": f"{scope}/{name}" if scope else name}, f)
+    return nm_dir
+
+
+class TestNormalizeInstallPaths:
+    """测试 normalize_install_paths 对 extensions/ 和 npm/node_modules/ 的扫描。"""
+
+    def test_npm_scoped_package_corrected(self, config_dir):
+        """npm scoped 包（@openclaw/discord）在 npm/node_modules/ 中找到时，installPath 应被校正。"""
+        import openclaw_config_module as mod
+
+        _create_npm_layout(str(config_dir), [
+            ("@openclaw", "discord"),
+            ("@openclaw", "feishu"),
+            ("@martian-engineering", "lossless-claw"),
+        ])
+
+        ctx = _make_normalize_ctx(
+            installs={
+                "discord": {"source": "npm", "spec": "@openclaw/discord", "installPath": f"{config_dir}/extensions/discord"},
+                "feishu": {"source": "npm", "spec": "@openclaw/feishu", "installPath": f"{config_dir}/extensions/feishu"},
+                "lossless-claw": {"source": "npm", "spec": "@martian-engineering/lossless-claw", "installPath": f"{config_dir}/extensions/lossless-claw"},
+            },
+            entries={
+                "discord": {"enabled": True},
+                "feishu": {"enabled": True},
+                "lossless-claw": {"enabled": True},
+            },
+        )
+
+        mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
+
+        expected_discord = f"{config_dir}/npm/node_modules/@openclaw/discord"
+        assert ctx.installs["discord"]["installPath"] == expected_discord
+        assert ctx.installs["feishu"]["installPath"] == f"{config_dir}/npm/node_modules/@openclaw/feishu"
+        assert ctx.installs["lossless-claw"]["installPath"] == f"{config_dir}/npm/node_modules/@martian-engineering/lossless-claw"
+        # 应保持启用
+        assert ctx.entries["discord"]["enabled"] is True
+        assert ctx.entries["feishu"]["enabled"] is True
+        assert ctx.entries["lossless-claw"]["enabled"] is True
+
+    def test_extensions_dir_found_unchanged(self, config_dir):
+        """extensions/ 中已有插件目录时，installPath 不应改变。"""
+        import openclaw_config_module as mod
+
+        ext_dir = os.path.join(str(config_dir), "extensions", "napcat")
+        os.makedirs(ext_dir, exist_ok=True)
+
+        original_path = f"{config_dir}/extensions/napcat"
+        ctx = _make_normalize_ctx(
+            installs={
+                "napcat": {"source": "path", "installPath": original_path},
+            },
+            entries={"napcat": {"enabled": True}},
+        )
+
+        mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
+
+        assert ctx.installs["napcat"]["installPath"] == original_path
+
+    def test_plugin_not_found_disabled(self, config_dir):
+        """插件在 extensions/ 和 npm/ 中都找不到时，应被禁用。"""
+        import openclaw_config_module as mod
+
+        # 创建一个不相关的 extensions 子目录，避免函数因空目录提前返回
+        os.makedirs(os.path.join(str(config_dir), "extensions", "other-plugin"), exist_ok=True)
+
+        ctx = _make_normalize_ctx(
+            installs={
+                "unknown-plugin": {"source": "npm", "spec": "@nonexistent/plugin", "installPath": f"{config_dir}/extensions/unknown-plugin"},
+            },
+            entries={"unknown-plugin": {"enabled": True}},
+        )
+
+        mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
+
+        assert ctx.entries["unknown-plugin"]["enabled"] is False
+
+    def test_spec_name_matching(self, config_dir):
+        """插件 ID 与目录名不同时，通过 spec 包名匹配（如 dingtalk → @soimy/dingtalk）。"""
+        import openclaw_config_module as mod
+
+        _create_npm_layout(str(config_dir), [
+            ("@soimy", "dingtalk"),
+            ("@sunnoy", "wecom"),
+            ("@tencent-connect", "openclaw-qqbot"),
+        ])
+
+        ctx = _make_normalize_ctx(
+            installs={
+                "dingtalk": {"source": "npm", "spec": "@soimy/dingtalk", "installPath": f"{config_dir}/extensions/dingtalk"},
+                "wecom": {"source": "npm", "spec": "@sunnoy/wecom", "installPath": f"{config_dir}/extensions/wecom"},
+                "openclaw-qqbot": {"source": "path", "spec": "@tencent-connect/openclaw-qqbot", "installPath": f"{config_dir}/extensions/openclaw-qqbot"},
+            },
+            entries={
+                "dingtalk": {"enabled": True},
+                "wecom": {"enabled": True},
+                "openclaw-qqbot": {"enabled": True},
+            },
+        )
+
+        mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
+
+        assert ctx.installs["dingtalk"]["installPath"] == f"{config_dir}/npm/node_modules/@soimy/dingtalk"
+        assert ctx.installs["wecom"]["installPath"] == f"{config_dir}/npm/node_modules/@sunnoy/wecom"
+        assert ctx.installs["openclaw-qqbot"]["installPath"] == f"{config_dir}/npm/node_modules/@tencent-connect/openclaw-qqbot"
+
+    def test_mixed_extensions_and_npm(self, config_dir):
+        """napcat 在 extensions/ 中，其余在 npm/ 中，混合场景。"""
+        import openclaw_config_module as mod
+
+        os.makedirs(os.path.join(str(config_dir), "extensions", "napcat"), exist_ok=True)
+        _create_npm_layout(str(config_dir), [
+            ("@openclaw", "discord"),
+        ])
+
+        ctx = _make_normalize_ctx(
+            installs={
+                "napcat": {"source": "path", "installPath": f"{config_dir}/extensions/napcat"},
+                "discord": {"source": "npm", "spec": "@openclaw/discord", "installPath": f"{config_dir}/extensions/discord"},
+            },
+            entries={
+                "napcat": {"enabled": True},
+                "discord": {"enabled": True},
+            },
+        )
+
+        mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
+
+        assert ctx.installs["napcat"]["installPath"] == f"{config_dir}/extensions/napcat"
+        assert ctx.installs["discord"]["installPath"] == f"{config_dir}/npm/node_modules/@openclaw/discord"
+
+    def test_empty_dirs_skips(self, config_dir):
+        """extensions/ 和 npm/ 都为空时，函数应正常跳过，不改变任何状态。"""
+        import openclaw_config_module as mod
+
+        os.makedirs(os.path.join(str(config_dir), "extensions"), exist_ok=True)
+
+        ctx = _make_normalize_ctx(
+            installs={
+                "discord": {"source": "npm", "spec": "@openclaw/discord", "installPath": f"{config_dir}/extensions/discord"},
+            },
+            entries={"discord": {"enabled": True}},
+        )
+
+        mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
+
+        # 目录为空时函数跳过，状态不变
+        assert ctx.entries["discord"]["enabled"] is True
+
+    def test_allow_list_filtered(self, config_dir):
+        """plugins.allow 中不存在的插件 ID 应被移除（需要有至少一个目录触发处理）。"""
+        import openclaw_config_module as mod
+
+        # 创建一个 extensions 子目录以触发主处理逻辑
+        os.makedirs(os.path.join(str(config_dir), "extensions", "some-plugin"), exist_ok=True)
+
+        ctx = _make_normalize_ctx(
+            installs={},
+            entries={},
+        )
+        ctx.plugins["allow"] = ["nonexistent-plugin", "another-missing"]
+
+        mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
+
+        assert ctx.plugins["allow"] == []

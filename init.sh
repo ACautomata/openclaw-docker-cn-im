@@ -2189,16 +2189,17 @@ def apply_feishu_plugin_switch(ctx):
         print('ℹ️ 未检测到飞书凭证且飞书官方插件开关未配置，已同时禁用官方插件和旧版飞书渠道')
 
 
-def normalize_install_paths(ctx):
+def normalize_install_paths(ctx, openclaw_home=None):
     """校正 plugins.installs 的 installPath，匹配实际目录中的插件位置。
 
     openclaw plugins install 将 npm 包安装到 ~/.openclaw/npm/node_modules/@scope/package，
     而非 extensions/ 目录。此函数同时扫描 extensions/ 和 npm/node_modules/，
     将 installPath 校正为实际路径。
     """
-    # 收集 extensions/ 目录中的子目录
-    extensions_dir = '/home/node/.openclaw/extensions'
-    npm_modules_dir = '/home/node/.openclaw/npm/node_modules'
+    if openclaw_home is None:
+        openclaw_home = os.environ.get('OPENCLAW_HOME', '/home/node/.openclaw')
+    extensions_dir = os.path.join(openclaw_home, 'extensions')
+    npm_modules_dir = os.path.join(openclaw_home, 'npm', 'node_modules')
 
     ext_dirs = set()
     if os.path.isdir(extensions_dir):
