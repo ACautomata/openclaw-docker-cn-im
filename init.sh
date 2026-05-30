@@ -78,8 +78,8 @@ ensure_config_persistence() {
 
     # 4. 权限修复
     if is_root; then
-        chown -R node:node "$persistent_config_dir" || true
-        chown -h node:node "$container_config_dir" || true
+        chown -R node:node "$persistent_config_dir"
+        chown -h node:node "$container_config_dir"
     fi
 }
 
@@ -176,7 +176,7 @@ sync_seed_extensions() {
     esac
 
     if is_root; then
-        chown -R node:node "$target_dir" || true
+        chown -R node:node "$target_dir"
     fi
 
     rm -rf "$seed_dir"
@@ -202,12 +202,12 @@ fix_permissions_if_needed() {
 
     if [ "$current_owner" != "${NODE_UID}:${NODE_GID}" ]; then
         echo "检测到宿主机挂载目录所有者与容器运行用户不一致，尝试自动修复..."
-        chown -R node:node "$OPENCLAW_HOME" || true
+        chown -R node:node "$OPENCLAW_HOME"
     fi
 
     if [ -S /var/run/docker.sock ]; then
         echo "检测到 Docker Socket，正在尝试修复权限以支持沙箱..."
-        chmod 666 /var/run/docker.sock || true
+        chmod 666 /var/run/docker.sock
     fi
 
     if ! gosu node test -w "$OPENCLAW_HOME"; then
@@ -1387,8 +1387,8 @@ def _lcm_env_num(env, key, cfg, cfg_key, cast):
     if v:
         try:
             cfg[cfg_key] = cast(v)
-        except (ValueError, TypeError):
-            pass
+        except (ValueError, TypeError) as ex:
+            raise ValueError(f'{key} 值 "{v}" 无法转换为 {cast.__name__}: {ex}')
 
 def _lcm_env_csv(env, key, cfg, cfg_key):
     v = (env.get(key) or '').strip()
@@ -1661,17 +1661,10 @@ def sync_agent_and_tools(ctx):
                 qmd_path = 'qmd'
                 subprocess.run([qmd_path, '--version'], capture_output=True, check=True)
                 qmd_path = subprocess.check_output(['which', 'qmd']).decode().strip()
-            except Exception:
-                print('⚠️ 警告: qmd 命令执行失败，向量内存功能可能受限')
-                qmd_path = None
+            except Exception as ex2:
+                raise ValueError(f'qmd 命令执行失败，无法使用向量内存后端: {ex2}')
 
-        if qmd_path:
-            memory_cfg['command'] = qmd_path
-        else:
-            # 如果 qmd 不可用，禁用内存后端或切换回默认
-            if memory.get('backend') == 'qmd':
-                print('⚠️ 自动禁用 qmd 内存后端（命令不可用或架构不兼容）')
-                memory['backend'] = 'off'
+        memory_cfg['command'] = qmd_path
     else:
         memory_cfg.setdefault('command', '/usr/local/bin/qmd')
     # 参考官方文档模式: off | non-main | all
@@ -2490,7 +2483,8 @@ install_agent_reach() {
                 pip install --upgrade pip $pip_mirror
                 pip install --upgrade $github_url $pip_mirror
             "; then
-                echo "⚠️ Agent Reach 更新失败，将使用现有版本继续"
+                echo "❌ Agent Reach 更新失败"
+                exit 1
             fi
         fi
     else
@@ -2506,9 +2500,8 @@ install_agent_reach() {
             pip install $github_url $pip_mirror
             agent-reach install --env=auto
         "; then
-            echo "⚠️ Agent Reach 安装失败，请检查网络连接或尝试设置 AGENT_REACH_USE_CN_MIRROR=true"
-            echo "   错误详情: pip install 可能因网络问题失败，或 agent-reach install --env=auto 遇到依赖问题"
-            return
+            echo "❌ Agent Reach 安装失败，请检查网络连接或尝试设置 AGENT_REACH_USE_CN_MIRROR=true"
+            exit 1
         fi
         echo "✅ Agent Reach 安装完成"
     fi
@@ -2523,24 +2516,24 @@ install_agent_reach() {
 
         # 配置代理（如果提供）
         if [ -n \"\$AGENT_REACH_PROXY\" ]; then
-            agent-reach configure proxy \"\$AGENT_REACH_PROXY\" || true
+            agent-reach configure proxy \"\$AGENT_REACH_PROXY\"
         fi
 
         # 配置 Twitter Cookies
         if [ -n \"\$AGENT_REACH_TWITTER_COOKIES\" ]; then
-            agent-reach configure twitter-cookies \"\$AGENT_REACH_TWITTER_COOKIES\" || true
+            agent-reach configure twitter-cookies \"\$AGENT_REACH_TWITTER_COOKIES\"
         fi
 
         # 配置 Groq Key
         if [ -n \"\$AGENT_REACH_GROQ_KEY\" ]; then
-            agent-reach configure groq-key \"\$AGENT_REACH_GROQ_KEY\" || true
+            agent-reach configure groq-key \"\$AGENT_REACH_GROQ_KEY\"
         fi
 
         # 配置小红书 Cookies
         if [ -n \"\$AGENT_REACH_XHS_COOKIES\" ]; then
-            agent-reach configure xhs-cookies \"\$AGENT_REACH_XHS_COOKIES\" || true
+            agent-reach configure xhs-cookies \"\$AGENT_REACH_XHS_COOKIES\"
         fi
-    " || true
+    "
 
     # 同步 Agent Reach skills 到工作空间
     local workspace_parent
@@ -2551,10 +2544,10 @@ install_agent_reach() {
         echo "检测到 $src，正在将其同步到工作空间: $dst"
         mkdir -p "$dst"
         rm -f "$dst/SKILL.md"
-        cp -af "$src/." "$dst/" || true
+        cp -af "$src/." "$dst/"
         rm -rf "$src"
         if is_root; then
-            chown -R node:node "$dst" || true
+            chown -R node:node "$dst"
         fi
         echo "✅ Agent Reach skills 已同步到工作空间"
     fi
@@ -2595,9 +2588,9 @@ init_wiki() {
     fi
 
     log_section "初始化 Wiki Vault"
-    gosu node env HOME=/home/node openclaw wiki init 2>&1 || {
-        echo "⚠️ Wiki vault 初始化失败，将在首次使用时自动创建"
-        return
+    gosu node env HOME=/home/node openclaw wiki init || {
+        echo "❌ Wiki vault 初始化失败"
+        exit 1
     }
     echo "✅ Wiki vault 初始化完成"
 }
@@ -2627,7 +2620,7 @@ wait_for_gateway() {
 
 finalize_permissions() {
     if is_root; then
-        chown -R node:node "$OPENCLAW_HOME" || true
+        chown -R node:node "$OPENCLAW_HOME"
     fi
 }
 
@@ -2645,12 +2638,12 @@ main() {
     # security. finalize_permissions chowns everything to node, so we restore
     # root ownership for plugin paths after it completes.
     if [ "$(id -u)" = "0" ]; then
-        chown -R 0:0 /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ 2>/dev/null || true
+        chown -R 0:0 /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/
         # Ensure node user (gateway runs as) can still read plugin directories
         # npm install may create directories with restrictive 700 permissions
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type d -exec chmod 755 {} + 2>/dev/null || true
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} + 2>/dev/null || true
-        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} + 2>/dev/null || true
+        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type d -exec chmod 755 {} +
+        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f -perm /111 -exec chmod 755 {} +
+        find /home/node/.openclaw/extensions/ /home/node/.openclaw/npm/ -type f ! -perm /111 -exec chmod 644 {} +
     fi
     print_runtime_summary
     setup_runtime_env
