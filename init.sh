@@ -317,7 +317,7 @@ sync_config_with_env() {
     ensure_base_config
 
     echo "正在根据当前环境变量同步配置状态..."
-    CONFIG_FILE="$config_file" python3 - <<'PYCODE'
+    CONFIG_FILE="$config_file" python3 - <<'PYCODE' || true
 import json
 import os
 import re
