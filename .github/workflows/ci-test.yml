@@ -189,58 +189,37 @@ jobs:
           echo ""
           echo "=== 检查各插件是否存在 ==="
           # OpenClaw 2026.5+ 的插件可能安装在 npm/node_modules 或 npm/projects 目录下
-          # 使用 Python 直接读取 openclaw.json 中的 installs 记录，并验证对应路径是否存在
-          docker exec openclaw-ci python3 -c "
-import json, os, sys
+          FAIL=0
+          docker exec -i openclaw-ci python3 <<'PY'
+          import glob
+          import os
+          import sys
 
-known_plugins = {
-    'discord':      '/home/node/.openclaw/npm/node_modules/@openclaw/discord',
-    'feishu':       '/home/node/.openclaw/npm/node_modules/@openclaw/feishu',
-    'lossless-claw':'/home/node/.openclaw/npm/node_modules/@martian-engineering/lossless-claw',
-    'dingtalk':     '/home/node/.openclaw/npm/node_modules/@soimy/dingtalk',
-    'qqbot':        '/home/node/.openclaw/npm/node_modules/@tencent-connect/openclaw-qqbot',
-    'wecom':        '/home/node/.openclaw/npm/node_modules/@sunnoy/wecom',
-    'napcat':       '/home/node/.openclaw/extensions/napcat',
-}
+          base = '/home/node/.openclaw'
+          required = {
+              'discord': [f'{base}/npm/node_modules/@openclaw/discord', f'{base}/npm/projects/*/node_modules/@openclaw/discord'],
+              'feishu': [f'{base}/npm/node_modules/@openclaw/feishu', f'{base}/npm/projects/*/node_modules/@openclaw/feishu'],
+              'lossless-claw': [f'{base}/npm/node_modules/@martian-engineering/lossless-claw', f'{base}/npm/projects/*/node_modules/@martian-engineering/lossless-claw'],
+              'dingtalk': [f'{base}/npm/node_modules/@soimy/dingtalk', f'{base}/npm/projects/*/node_modules/@soimy/dingtalk'],
+              'qqbot': [f'{base}/npm/node_modules/@tencent-connect/openclaw-qqbot', f'{base}/npm/projects/*/node_modules/@tencent-connect/openclaw-qqbot'],
+              'wecom': [f'{base}/npm/node_modules/@sunnoy/wecom', f'{base}/npm/projects/*/node_modules/@sunnoy/wecom'],
+              'napcat': [f'{base}/extensions/napcat'],
+          }
 
-base = '/home/node/.openclaw'
-projects_dir = os.path.join(base, 'npm', 'projects')
-found = {}
-missing = []
+          missing = []
+          for name, patterns in required.items():
+              found = []
+              for pattern in patterns:
+                  found.extend(path for path in glob.glob(pattern) if os.path.isdir(path))
+              if found:
+                  print(f'✅ {name} → {found[0]}')
+              else:
+                  missing.append(name)
 
-for name, default_path in known_plugins.items():
-    if os.path.isdir(default_path):
-        found[name] = default_path
-    elif os.path.isdir(projects_dir):
-        # Search in npm/projects for packages under known scopes
-        search_dirs = []
-        for entry in os.listdir(projects_dir):
-            sub = os.path.join(projects_dir, entry)
-            if os.path.isdir(sub):
-                search_dirs.append(sub)
-        for subdir in search_dirs:
-            for root, dirs, files in os.walk(subdir):
-                depth = root.replace(subdir, '').count(os.sep)
-                if depth > 3:
-                    continue
-                if name in dirs or os.path.isdir(os.path.join(root, name)):
-                    found[name] = os.path.join(root, name)
-                    break
-            if name in found:
-                break
-    if name not in found:
-        missing.append(f'{name}: {default_path}')
-
-if missing:
-    print('❌ 未找到以下插件:')
-    for m in missing:
-        print(f'  - {m}')
-    sys.exit(1)
-else:
-    print('✅ 所有插件均已找到:')
-    for name, path in found.items():
-        print(f'  - {name} -> {path}')
-"
+          if missing:
+              print('❌ 未找到插件: ' + ', '.join(missing))
+              sys.exit(1)
+          PY
 
           echo ""
           echo "=== 检查 openclaw.json 插件 installPath ==="
