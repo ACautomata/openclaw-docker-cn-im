@@ -188,6 +188,32 @@ jobs:
 
           echo ""
           echo "=== 检查各插件是否存在 ==="
+          # OpenClaw 2026.5+ 的插件可能安装在 npm/node_modules 或 npm/projects 目录下
+          resolve_plugin_path() {
+            local plugin_path="$1"
+            # 先检查旧路径（node_modules）
+            if docker exec openclaw-ci test -d "$plugin_path" 2>/dev/null; then
+              echo "$plugin_path"
+              return 0
+            fi
+            # 再检查新路径（npm/projects），尝试从最后一个路径段推断 projects 目录
+            local plugin_name
+            plugin_name=$(basename "$plugin_path")
+            local scope
+            scope=$(basename "$(dirname "$plugin_path")")
+            if [ "$scope" = "@openclaw" ] || [ "$scope" = "@soimy" ] || [ "$scope" = "@tencent-connect" ] || [ "$scope" = "@sunnoy" ] || [ "$scope" = "@martian-engineering" ]; then
+              local projects_check="/home/node/.openclaw/npm/projects"
+              if docker exec openclaw-ci test -d "$projects_check" 2>/dev/null; then
+                local resolved
+                resolved=$(docker exec openclaw-ci find "$projects_check" -maxdepth 3 -name "$plugin_name" -type d 2>/dev/null | head -1)
+                if [ -n "$resolved" ]; then
+                  echo "$resolved"
+                  return 0
+                fi
+              fi
+            fi
+            return 1
+          }
           FAIL=0
           for check in \
             "discord:/home/node/.openclaw/npm/node_modules/@openclaw/discord" \
@@ -199,10 +225,11 @@ jobs:
             "napcat:/home/node/.openclaw/extensions/napcat"; do
             NAME="${check%%:*}"
             DIR="${check#*:}"
-            if docker exec openclaw-ci test -d "$DIR" 2>/dev/null; then
-              echo "✅ $NAME → $DIR"
+            RESOLVED=$(resolve_plugin_path "$DIR")
+            if [ -n "$RESOLVED" ]; then
+              echo "✅ $NAME → $RESOLVED"
             else
-              echo "❌ $NAME 未找到: $DIR"
+              echo "❌ $NAME 未找到: $DIR (已搜索 node_modules 和 npm/projects)"
               FAIL=1
             fi
           done
