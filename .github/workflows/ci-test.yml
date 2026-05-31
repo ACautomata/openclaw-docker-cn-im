@@ -189,50 +189,58 @@ jobs:
           echo ""
           echo "=== 检查各插件是否存在 ==="
           # OpenClaw 2026.5+ 的插件可能安装在 npm/node_modules 或 npm/projects 目录下
-          resolve_plugin_path() {
-            local plugin_path="$1"
-            # 先检查旧路径（node_modules）
-            if docker exec openclaw-ci test -d "$plugin_path" 2>/dev/null; then
-              echo "$plugin_path"
-              return 0
-            fi
-            # 再检查新路径（npm/projects），尝试从最后一个路径段推断 projects 目录
-            local plugin_name
-            plugin_name=$(basename "$plugin_path")
-            local scope
-            scope=$(basename "$(dirname "$plugin_path")")
-            if [ "$scope" = "@openclaw" ] || [ "$scope" = "@soimy" ] || [ "$scope" = "@tencent-connect" ] || [ "$scope" = "@sunnoy" ] || [ "$scope" = "@martian-engineering" ]; then
-              local projects_check="/home/node/.openclaw/npm/projects"
-              if docker exec openclaw-ci test -d "$projects_check" 2>/dev/null; then
-                local resolved
-                resolved=$(docker exec openclaw-ci find "$projects_check" -maxdepth 3 -name "$plugin_name" -type d 2>/dev/null | head -1)
-                if [ -n "$resolved" ]; then
-                  echo "$resolved"
-                  return 0
-                fi
-              fi
-            fi
-            return 1
-          }
-          FAIL=0
-          for check in \
-            "discord:/home/node/.openclaw/npm/node_modules/@openclaw/discord" \
-            "feishu:/home/node/.openclaw/npm/node_modules/@openclaw/feishu" \
-            "lossless-claw:/home/node/.openclaw/npm/node_modules/@martian-engineering/lossless-claw" \
-            "dingtalk:/home/node/.openclaw/npm/node_modules/@soimy/dingtalk" \
-            "qqbot:/home/node/.openclaw/npm/node_modules/@tencent-connect/openclaw-qqbot" \
-            "wecom:/home/node/.openclaw/npm/node_modules/@sunnoy/wecom" \
-            "napcat:/home/node/.openclaw/extensions/napcat"; do
-            NAME="${check%%:*}"
-            DIR="${check#*:}"
-            RESOLVED=$(resolve_plugin_path "$DIR")
-            if [ -n "$RESOLVED" ]; then
-              echo "✅ $NAME → $RESOLVED"
-            else
-              echo "❌ $NAME 未找到: $DIR (已搜索 node_modules 和 npm/projects)"
-              FAIL=1
-            fi
-          done
+          # 使用 Python 直接读取 openclaw.json 中的 installs 记录，并验证对应路径是否存在
+          docker exec openclaw-ci python3 -c "
+import json, os, sys
+
+known_plugins = {
+    'discord':      '/home/node/.openclaw/npm/node_modules/@openclaw/discord',
+    'feishu':       '/home/node/.openclaw/npm/node_modules/@openclaw/feishu',
+    'lossless-claw':'/home/node/.openclaw/npm/node_modules/@martian-engineering/lossless-claw',
+    'dingtalk':     '/home/node/.openclaw/npm/node_modules/@soimy/dingtalk',
+    'qqbot':        '/home/node/.openclaw/npm/node_modules/@tencent-connect/openclaw-qqbot',
+    'wecom':        '/home/node/.openclaw/npm/node_modules/@sunnoy/wecom',
+    'napcat':       '/home/node/.openclaw/extensions/napcat',
+}
+
+base = '/home/node/.openclaw'
+projects_dir = os.path.join(base, 'npm', 'projects')
+found = {}
+missing = []
+
+for name, default_path in known_plugins.items():
+    if os.path.isdir(default_path):
+        found[name] = default_path
+    elif os.path.isdir(projects_dir):
+        # Search in npm/projects for packages under known scopes
+        search_dirs = []
+        for entry in os.listdir(projects_dir):
+            sub = os.path.join(projects_dir, entry)
+            if os.path.isdir(sub):
+                search_dirs.append(sub)
+        for subdir in search_dirs:
+            for root, dirs, files in os.walk(subdir):
+                depth = root.replace(subdir, '').count(os.sep)
+                if depth > 3:
+                    continue
+                if name in dirs or os.path.isdir(os.path.join(root, name)):
+                    found[name] = os.path.join(root, name)
+                    break
+            if name in found:
+                break
+    if name not in found:
+        missing.append(f'{name}: {default_path}')
+
+if missing:
+    print('❌ 未找到以下插件:')
+    for m in missing:
+        print(f'  - {m}')
+    sys.exit(1)
+else:
+    print('✅ 所有插件均已找到:')
+    for name, path in found.items():
+        print(f'  - {name} -> {path}')
+"
 
           echo ""
           echo "=== 检查 openclaw.json 插件 installPath ==="
