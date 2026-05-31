@@ -188,24 +188,38 @@ jobs:
 
           echo ""
           echo "=== 检查各插件是否存在 ==="
+          # OpenClaw 2026.5+ 的插件可能安装在 npm/node_modules 或 npm/projects 目录下
           FAIL=0
-          for check in \
-            "discord:/home/node/.openclaw/npm/node_modules/@openclaw/discord" \
-            "feishu:/home/node/.openclaw/npm/node_modules/@openclaw/feishu" \
-            "lossless-claw:/home/node/.openclaw/npm/node_modules/@martian-engineering/lossless-claw" \
-            "dingtalk:/home/node/.openclaw/npm/node_modules/@soimy/dingtalk" \
-            "qqbot:/home/node/.openclaw/npm/node_modules/@tencent-connect/openclaw-qqbot" \
-            "wecom:/home/node/.openclaw/npm/node_modules/@sunnoy/wecom" \
-            "napcat:/home/node/.openclaw/extensions/napcat"; do
-            NAME="${check%%:*}"
-            DIR="${check#*:}"
-            if docker exec openclaw-ci test -d "$DIR" 2>/dev/null; then
-              echo "✅ $NAME → $DIR"
-            else
-              echo "❌ $NAME 未找到: $DIR"
-              FAIL=1
-            fi
-          done
+          docker exec -i openclaw-ci python3 <<'PY'
+          import glob
+          import os
+          import sys
+
+          base = '/home/node/.openclaw'
+          required = {
+              'discord': [f'{base}/npm/node_modules/@openclaw/discord', f'{base}/npm/projects/*/node_modules/@openclaw/discord'],
+              'feishu': [f'{base}/npm/node_modules/@openclaw/feishu', f'{base}/npm/projects/*/node_modules/@openclaw/feishu'],
+              'lossless-claw': [f'{base}/npm/node_modules/@martian-engineering/lossless-claw', f'{base}/npm/projects/*/node_modules/@martian-engineering/lossless-claw'],
+              'dingtalk': [f'{base}/npm/node_modules/@soimy/dingtalk', f'{base}/npm/projects/*/node_modules/@soimy/dingtalk'],
+              'qqbot': [f'{base}/npm/node_modules/@tencent-connect/openclaw-qqbot', f'{base}/npm/projects/*/node_modules/@tencent-connect/openclaw-qqbot'],
+              'wecom': [f'{base}/npm/node_modules/@sunnoy/wecom', f'{base}/npm/projects/*/node_modules/@sunnoy/wecom'],
+              'napcat': [f'{base}/extensions/napcat'],
+          }
+
+          missing = []
+          for name, patterns in required.items():
+              found = []
+              for pattern in patterns:
+                  found.extend(path for path in glob.glob(pattern) if os.path.isdir(path))
+              if found:
+                  print(f'✅ {name} → {found[0]}')
+              else:
+                  missing.append(name)
+
+          if missing:
+              print('❌ 未找到插件: ' + ', '.join(missing))
+              sys.exit(1)
+          PY
 
           echo ""
           echo "=== 检查 openclaw.json 插件 installPath ==="
