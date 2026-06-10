@@ -1491,26 +1491,53 @@ def sync_lossless_claw(ctx):
 
 
 def sync_memory_wiki(ctx):
-    wiki_env = (ctx.env.get('WIKI_ENABLED') or '').strip().lower()
-    if wiki_env not in ('true', '1', 'yes', 'on'):
-        if 'memory-wiki' in ctx.entries:
-            ctx.entries['memory-wiki'] = {'enabled': False}
-            print('Wiki 已显式禁用')
+    if 'memory-wiki' in ctx.entries:
         return
 
-    vault_mode = (ctx.env.get('WIKI_VAULT_MODE') or '').strip().lower()
+    wiki_env = (ctx.env.get('WIKI_ENABLED') or '').strip().lower()
+    if wiki_env not in ('true', '1', 'yes', 'on'):
+        return
 
-    config = {'vaultMode': vault_mode}
-    if vault_mode == 'bridge':
-        config['bridge'] = {
+    vault_mode = (ctx.env.get('WIKI_VAULT_MODE') or 'isolated').strip().lower()
+
+    config = {
+        'vaultMode': vault_mode,
+        'vault': {
+            'path': '~/.openclaw/wiki/main',
+            'renderMode': 'obsidian',
+        },
+        'obsidian': {
             'enabled': True,
+            'useOfficialCli': True,
+            'vaultName': 'OpenClaw Wiki',
+            'openAfterWrites': False,
+        },
+        'bridge': {
+            'enabled': vault_mode == 'bridge',
             'readMemoryArtifacts': True,
             'indexDreamReports': True,
             'indexDailyNotes': True,
             'indexMemoryRoot': True,
             'followMemoryEvents': True,
-        }
-        config['search'] = {'backend': 'shared', 'corpus': 'all'}
+        },
+        'ingest': {
+            'autoCompile': True,
+            'maxConcurrentJobs': 1,
+            'allowUrlIngest': True,
+        },
+        'search': {
+            'backend': 'shared',
+            'corpus': 'wiki' if vault_mode == 'isolated' else 'all',
+        },
+        'context': {
+            'includeCompiledDigestPrompt': False,
+        },
+        'render': {
+            'preserveHumanBlocks': True,
+            'createBacklinks': True,
+            'createDashboards': True,
+        },
+    }
 
     ctx.entries['memory-wiki'] = {'enabled': True, 'config': config}
     print(f'✅ Wiki 已启用 (模式: {vault_mode})')
