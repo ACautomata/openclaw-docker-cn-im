@@ -1498,9 +1498,7 @@ def sync_memory_wiki(ctx):
             print('Wiki 已显式禁用')
         return
 
-    vault_mode = (ctx.env.get('WIKI_VAULT_MODE') or 'bridge').strip().lower()
-    if vault_mode not in ('isolated', 'bridge', 'unsafe-local'):
-        vault_mode = 'bridge'
+    vault_mode = (ctx.env.get('WIKI_VAULT_MODE') or '').strip().lower()
 
     config = {'vaultMode': vault_mode}
     if vault_mode == 'bridge':
