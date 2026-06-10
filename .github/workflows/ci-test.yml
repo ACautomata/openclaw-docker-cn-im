@@ -342,21 +342,29 @@ jobs:
 
           print('✅ 所有顶层 key 存在')
 
-          # 验证 plugins.installs
-          installs = cfg.get('plugins', {}).get('installs', {})
-          expected_plugins = ['discord', 'feishu', 'dingtalk', 'openclaw-qqbot', 'napcat', 'wecom', 'lossless-claw']
+          # 验证 models 结构
+          providers = cfg.get('models', {}).get('providers', {})
+          if 'default' not in providers:
+              print('❌ 缺少 models.providers.default')
+              sys.exit(1)
+          print('✅ models.providers.default 存在')
 
-          for pid in expected_plugins:
-              if pid in installs:
-                  ip = installs[pid].get('installPath', '')
-                  if ip:
-                      print(f'  ✅ {pid}: {ip}')
-                  else:
-                      print(f'  ❌ {pid}: installPath 为空')
-                      sys.exit(1)
-              else:
-                  print(f'  ❌ {pid}: 不在 plugins.installs 中')
+          # 验证 gateway 结构
+          gw = cfg.get('gateway', {})
+          if 'port' not in gw:
+              print('❌ gateway.port 缺失')
+              sys.exit(1)
+          print(f'✅ gateway.port = {gw[\"port\"]}')
+
+          # 验证 plugins 结构完整性 (entries + installs 字段存在即可,
+          # installs 的具体条目取决于启用的 channel 环境变量)
+          plugins = cfg.get('plugins', {})
+          for field in ['entries', 'installs']:
+              if field not in plugins:
+                  print(f'❌ plugins.{field} 缺失')
                   sys.exit(1)
+          print(f'✅ plugins.entries ({len(plugins[\"entries\"])} entries)')
+          print(f'✅ plugins.installs ({len(plugins[\"installs\"])} installs)')
 
           print('✅ openclaw.json 结构完整')
           "
