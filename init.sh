@@ -2208,14 +2208,17 @@ def apply_feishu_plugin_switch(ctx):
 def normalize_install_paths(ctx, openclaw_home=None):
     """校正 plugins.installs 的 installPath，匹配实际目录中的插件位置。
 
-    openclaw plugins install 将 npm 包安装到 ~/.openclaw/npm/node_modules/@scope/package，
-    而非 extensions/ 目录。此函数同时扫描 extensions/ 和 npm/node_modules/，
+    openclaw plugins install 将 npm 包安装到以下两个位置之一（取决于版本）：
+      - 旧版：~/.openclaw/npm/node_modules/@scope/package
+      - 新版 (>=2026.6.5)：~/.openclaw/npm/projects/<hash>/node_modules/@scope/package
+    此函数同时扫描 extensions/、npm/node_modules/ 和 npm/projects/*/node_modules/，
     将 installPath 校正为实际路径。
     """
     if openclaw_home is None:
         openclaw_home = os.environ.get('OPENCLAW_HOME', '/home/node/.openclaw')
     extensions_dir = os.path.join(openclaw_home, 'extensions')
     npm_modules_dir = os.path.join(openclaw_home, 'npm', 'node_modules')
+    npm_projects_dir = os.path.join(openclaw_home, 'npm', 'projects')
 
     ext_dirs = set()
     if os.path.isdir(extensions_dir):
@@ -2223,12 +2226,16 @@ def normalize_install_paths(ctx, openclaw_home=None):
             if os.path.isdir(os.path.join(extensions_dir, item)):
                 ext_dirs.add(item)
 
-    # 收集 npm/node_modules/ 中所有包的实际路径，按包名最后一段（即插件名）建立索引
+    # 收集所有 npm 包的实际路径，按包名最后一段（即插件名）建立索引
     # 例如 npm/node_modules/@openclaw/discord → {'discord': '/home/node/.openclaw/npm/node_modules/@openclaw/discord'}
     npm_packages = {}
-    if os.path.isdir(npm_modules_dir):
-        for item in os.listdir(npm_modules_dir):
-            item_path = os.path.join(npm_modules_dir, item)
+
+    def _index_npm_dir(base_dir):
+        """扫描一个 npm 目录（node_modules 或 projects/*/node_modules），将包路径加入索引"""
+        if not os.path.isdir(base_dir):
+            return
+        for item in os.listdir(base_dir):
+            item_path = os.path.join(base_dir, item)
             if not os.path.isdir(item_path):
                 continue
             if item.startswith('@'):
@@ -2239,6 +2246,15 @@ def normalize_install_paths(ctx, openclaw_home=None):
                         npm_packages[sub] = sub_path
             else:
                 npm_packages[item] = item_path
+
+    # 1. 旧版格式：npm/node_modules/@scope/package
+    _index_npm_dir(npm_modules_dir)
+
+    # 2. 新版格式（>=2026.6.5）：npm/projects/<hash>/node_modules/@scope/package
+    if os.path.isdir(npm_projects_dir):
+        for project_dir in os.listdir(npm_projects_dir):
+            project_node_modules = os.path.join(npm_projects_dir, project_dir, 'node_modules')
+            _index_npm_dir(project_node_modules)
 
     if not ext_dirs and not npm_packages:
         print('ℹ️ extensions 和 npm 目录均为空，跳过 installPath 校正')
