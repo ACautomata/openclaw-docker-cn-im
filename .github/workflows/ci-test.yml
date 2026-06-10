@@ -258,6 +258,138 @@ jobs:
           echo ""
           echo "✅ 插件验证全部通过"
 
+      - name: 验证 openclaw CLI
+        run: |
+          echo "=== openclaw 版本 ==="
+          docker exec openclaw-ci openclaw --version || {
+            echo "❌ openclaw CLI 无法运行"
+            exit 1
+          }
+          echo "✅ openclaw CLI 正常"
+
+      - name: 验证全局 npm 包
+        run: |
+          echo "=== 检查全局 npm 包 ==="
+          FAIL=0
+          PKGS="openclaw @tobilu/qmd @larksuiteoapi/node-sdk playwright clawhub"
+          for pkg in $PKGS; do
+            if docker exec openclaw-ci test -d "/usr/local/lib/node_modules/$pkg"; then
+              echo "✅ $pkg"
+            else
+              echo "❌ $pkg 未安装"
+              FAIL=1
+            fi
+          done
+          if [ "$FAIL" -ne 0 ]; then
+            echo "❌ 缺少全局 npm 包"
+            exit 1
+          fi
+          echo "✅ 所有全局 npm 包已安装"
+
+      - name: 验证 openclaw plugins list
+        run: |
+          echo "=== openclaw plugins list ==="
+          PLUGINS_OUT=$(docker exec openclaw-ci openclaw plugins list 2>&1) || {
+            echo "❌ openclaw plugins list 执行失败"
+            echo "$PLUGINS_OUT"
+            exit 1
+          }
+          echo "$PLUGINS_OUT"
+          echo ""
+          FAIL=0
+          EXPECTED="discord feishu dingtalk qqbot wecom napcat lossless-claw"
+          for pid in $EXPECTED; do
+            if echo "$PLUGINS_OUT" | grep -qi "$pid"; then
+              echo "✅ 插件 $pid 已识别"
+            else
+              echo "❌ 插件 $pid 未在列表中"
+              FAIL=1
+            fi
+          done
+          if [ "$FAIL" -ne 0 ]; then
+            exit 1
+          fi
+          echo "✅ openclaw plugins list 通过"
+
+      - name: 验证 seed-version 一致性
+        run: |
+          echo "=== seed-version 检查 ==="
+          SEED_VERSION=$(docker exec openclaw-ci cat /home/node/.openclaw-seed/extensions/.seed-version 2>/dev/null | tr -d '[:space:]')
+          IMAGE_VERSION=$(tr -d '[:space:]' < version.txt)
+          echo "seed-version: $SEED_VERSION"
+          echo "version.txt:  $IMAGE_VERSION"
+          if [ "$SEED_VERSION" = "$IMAGE_VERSION" ]; then
+            echo "✅ seed-version 与 version.txt 一致"
+          else
+            echo "❌ seed-version ($SEED_VERSION) 与 version.txt ($IMAGE_VERSION) 不一致"
+            exit 1
+          fi
+
+      - name: 验证 openclaw.json 结构
+        run: |
+          echo "=== openclaw.json 结构检查 ==="
+          docker exec openclaw-ci python3 -c "
+          import json, sys
+
+          with open('/home/node/.openclaw/openclaw.json') as f:
+              cfg = json.load(f)
+
+          required_keys = ['models', 'gateway', 'plugins', 'channels', 'agents', 'tools', 'messages', 'browser']
+          missing = [k for k in required_keys if k not in cfg]
+          if missing:
+              print(f'❌ 缺少顶层 key: {missing}')
+              sys.exit(1)
+
+          print('✅ 所有顶层 key 存在')
+
+          # 验证 plugins.installs
+          installs = cfg.get('plugins', {}).get('installs', {})
+          expected_plugins = ['discord', 'feishu', 'dingtalk', 'openclaw-qqbot', 'napcat', 'wecom', 'lossless-claw']
+
+          for pid in expected_plugins:
+              if pid in installs:
+                  ip = installs[pid].get('installPath', '')
+                  if ip:
+                      print(f'  ✅ {pid}: {ip}')
+                  else:
+                      print(f'  ❌ {pid}: installPath 为空')
+                      sys.exit(1)
+              else:
+                  print(f'  ❌ {pid}: 不在 plugins.installs 中')
+                  sys.exit(1)
+
+          print('✅ openclaw.json 结构完整')
+          "
+
+      - name: 验证容器日志无错误
+        run: |
+          echo "=== 日志错误扫描 ==="
+          LOGS=$(docker logs openclaw-ci 2>&1)
+          FAIL=0
+
+          # 检查致命错误模式
+          for pattern in 'FATAL' 'panic' 'segmentation fault' 'SIGSEGV'; do
+            if echo "$LOGS" | grep -qi "$pattern"; then
+              echo "❌ 发现错误模式: $pattern"
+              echo "$LOGS" | grep -i "$pattern" || true
+              FAIL=1
+            fi
+          done
+
+          # 检查启动错误 (排除正常的 info 日志)
+          ERRORS=$(echo "$LOGS" | grep -i '\[error\]' || true)
+          if [ -n "$ERRORS" ]; then
+            echo "⚠️ 发现 error 级别日志 (需人工判断):"
+            echo "$ERRORS"
+          else
+            echo "✅ 无 error 级别日志"
+          fi
+
+          if [ "$FAIL" -ne 0 ]; then
+            exit 1
+          fi
+          echo "✅ 日志无致命错误"
+
       - name: 输出容器日志 (失败时)
         if: failure()
         run: |
