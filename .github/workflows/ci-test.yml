@@ -314,7 +314,7 @@ jobs:
       - name: 验证 seed-version 一致性
         run: |
           echo "=== seed-version 检查 ==="
-          SEED_VERSION=$(docker exec openclaw-ci cat /home/node/.openclaw-seed/extensions/.seed-version 2>/dev/null | tr -d '[:space:]')
+          SEED_VERSION=$(docker exec openclaw-ci cat /home/node/.openclaw/extensions/.seed-version 2>/dev/null | tr -d '[:space:]')
           IMAGE_VERSION=$(tr -d '[:space:]' < version.txt)
           echo "seed-version: $SEED_VERSION"
           echo "version.txt:  $IMAGE_VERSION"
