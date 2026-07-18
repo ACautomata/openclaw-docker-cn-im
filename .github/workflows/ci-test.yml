@@ -41,10 +41,6 @@ jobs:
           OPENCLAW_IMAGE: openclaw-test:ci
           OPENCLAW_DATA_DIR: /tmp/openclaw-data
           OPENCLAW_GATEWAY_PORT: 18789
-          DISCORD_BOT_TOKEN: ""
-          DISCORD_DM_POLICY: ""
-          DISCORD_ALLOW_FROM: ""
-          DISCORD_GROUP_POLICY: ""
         run: docker compose config --quiet 2>&1
 
   python-config-tests:
@@ -197,7 +193,6 @@ jobs:
 
           base = '/home/node/.openclaw'
           required = {
-              'discord': [f'{base}/npm/node_modules/@openclaw/discord', f'{base}/npm/projects/*/node_modules/@openclaw/discord'],
               'feishu': [f'{base}/npm/node_modules/@openclaw/feishu', f'{base}/npm/projects/*/node_modules/@openclaw/feishu'],
               'lossless-claw': [f'{base}/npm/node_modules/@martian-engineering/lossless-claw', f'{base}/npm/projects/*/node_modules/@martian-engineering/lossless-claw'],
               'dingtalk': [f'{base}/npm/node_modules/@soimy/dingtalk', f'{base}/npm/projects/*/node_modules/@soimy/dingtalk'],
@@ -297,7 +292,7 @@ jobs:
           echo "$PLUGINS_OUT"
           echo ""
           FAIL=0
-          EXPECTED="discord feishu dingtalk qqbot wecom napcat lossless-claw"
+          EXPECTED="feishu dingtalk qqbot wecom napcat lossless-claw"
           for pid in $EXPECTED; do
             if echo "$PLUGINS_OUT" | grep -qi "$pid"; then
               echo "✅ 插件 $pid 已识别"

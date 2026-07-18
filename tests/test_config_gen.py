@@ -34,7 +34,7 @@ class TestMinimalConfig:
     def test_no_channels_enabled(self, config_dir):
         cfg = run_sync(config_dir, {})
         entries = cfg["plugins"]["entries"]
-        for ch in ["feishu", "dingtalk", "qqbot", "openclaw-qqbot", "napcat", "wecom", "telegram"]:
+        for ch in ["feishu", "dingtalk", "qqbot", "openclaw-qqbot", "napcat", "wecom"]:
             if ch in entries:
                 assert entries[ch].get("enabled") is not True, f"{ch} 不应启用"
 
@@ -129,16 +129,6 @@ class TestNapCat:
         assert ch["accessToken"] == "test_nc_token"
         assert ch["admins"] == [12345, 67890]
         assert cfg["plugins"]["entries"]["napcat"]["enabled"] is True
-
-
-class TestTelegram:
-    def test_basic(self, config_dir):
-        cfg = run_sync(config_dir, {
-            "TELEGRAM_BOT_TOKEN": "123456:test_token",
-        })
-        ch = cfg["channels"]["telegram"]
-        assert ch["botToken"] == "123456:test_token"
-        assert "streaming" in ch
 
 
 class TestMultiProvider:
@@ -306,8 +296,6 @@ class TestAllChannels:
             "WECOM_BOT_ID": "wc_bot",
             "WECOM_SECRET": "wc_s",
             "NAPCAT_REVERSE_WS_PORT": "3001",
-            "TELEGRAM_BOT_TOKEN": "111:token",
-            "DISCORD_BOT_TOKEN": "discord-token",
         })
         channels = cfg["channels"]
         assert channels["feishu"]["enabled"] is True
@@ -315,9 +303,6 @@ class TestAllChannels:
         assert channels["qqbot"]["enabled"] is True
         assert channels["wecom"]["enabled"] is True
         assert channels["napcat"]["enabled"] is True
-        assert channels["telegram"]["botToken"] == "111:token"
-        assert channels["discord"]["enabled"] is True
-        assert channels["discord"]["token"]["id"] == "DISCORD_BOT_TOKEN"
 
 
 def _make_normalize_ctx(installs, entries):
@@ -333,7 +318,7 @@ def _make_normalize_ctx(installs, entries):
 def _create_npm_layout(base_dir, packages):
     """在 base_dir 下创建模拟的 npm/node_modules 目录结构。
 
-    packages: list of (scope, name) tuples, e.g. [('@openclaw', 'discord'), (None, 'some-pkg')]
+    packages: list of (scope, name) tuples, e.g. [('@openclaw', 'feishu'), (None, 'some-pkg')]
     """
     nm_dir = os.path.join(base_dir, "npm", "node_modules")
     os.makedirs(nm_dir, exist_ok=True)
@@ -353,23 +338,20 @@ class TestNormalizeInstallPaths:
     """测试 normalize_install_paths 对 extensions/ 和 npm/node_modules/ 的扫描。"""
 
     def test_npm_scoped_package_corrected(self, config_dir):
-        """npm scoped 包（@openclaw/discord）在 npm/node_modules/ 中找到时，installPath 应被校正。"""
+        """npm scoped 包（@openclaw/feishu）在 npm/node_modules/ 中找到时，installPath 应被校正。"""
         import openclaw_config_module as mod
 
         _create_npm_layout(str(config_dir), [
-            ("@openclaw", "discord"),
             ("@openclaw", "feishu"),
             ("@martian-engineering", "lossless-claw"),
         ])
 
         ctx = _make_normalize_ctx(
             installs={
-                "discord": {"source": "npm", "spec": "@openclaw/discord", "installPath": f"{config_dir}/extensions/discord"},
                 "feishu": {"source": "npm", "spec": "@openclaw/feishu", "installPath": f"{config_dir}/extensions/feishu"},
                 "lossless-claw": {"source": "npm", "spec": "@martian-engineering/lossless-claw", "installPath": f"{config_dir}/extensions/lossless-claw"},
             },
             entries={
-                "discord": {"enabled": True},
                 "feishu": {"enabled": True},
                 "lossless-claw": {"enabled": True},
             },
@@ -377,12 +359,9 @@ class TestNormalizeInstallPaths:
 
         mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
 
-        expected_discord = f"{config_dir}/npm/node_modules/@openclaw/discord"
-        assert ctx.installs["discord"]["installPath"] == expected_discord
         assert ctx.installs["feishu"]["installPath"] == f"{config_dir}/npm/node_modules/@openclaw/feishu"
         assert ctx.installs["lossless-claw"]["installPath"] == f"{config_dir}/npm/node_modules/@martian-engineering/lossless-claw"
         # 应保持启用
-        assert ctx.entries["discord"]["enabled"] is True
         assert ctx.entries["feishu"]["enabled"] is True
         assert ctx.entries["lossless-claw"]["enabled"] is True
 
@@ -459,24 +438,24 @@ class TestNormalizeInstallPaths:
 
         os.makedirs(os.path.join(str(config_dir), "extensions", "napcat"), exist_ok=True)
         _create_npm_layout(str(config_dir), [
-            ("@openclaw", "discord"),
+            ("@openclaw", "feishu"),
         ])
 
         ctx = _make_normalize_ctx(
             installs={
                 "napcat": {"source": "path", "installPath": f"{config_dir}/extensions/napcat"},
-                "discord": {"source": "npm", "spec": "@openclaw/discord", "installPath": f"{config_dir}/extensions/discord"},
+                "feishu": {"source": "npm", "spec": "@openclaw/feishu", "installPath": f"{config_dir}/extensions/feishu"},
             },
             entries={
                 "napcat": {"enabled": True},
-                "discord": {"enabled": True},
+                "feishu": {"enabled": True},
             },
         )
 
         mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
 
         assert ctx.installs["napcat"]["installPath"] == f"{config_dir}/extensions/napcat"
-        assert ctx.installs["discord"]["installPath"] == f"{config_dir}/npm/node_modules/@openclaw/discord"
+        assert ctx.installs["feishu"]["installPath"] == f"{config_dir}/npm/node_modules/@openclaw/feishu"
 
     def test_empty_dirs_skips(self, config_dir):
         """extensions/ 和 npm/ 都为空时，函数应正常跳过，不改变任何状态。"""
@@ -486,15 +465,15 @@ class TestNormalizeInstallPaths:
 
         ctx = _make_normalize_ctx(
             installs={
-                "discord": {"source": "npm", "spec": "@openclaw/discord", "installPath": f"{config_dir}/extensions/discord"},
+                "feishu": {"source": "npm", "spec": "@openclaw/feishu", "installPath": f"{config_dir}/extensions/feishu"},
             },
-            entries={"discord": {"enabled": True}},
+            entries={"feishu": {"enabled": True}},
         )
 
         mod.normalize_install_paths(ctx, openclaw_home=str(config_dir))
 
         # 目录为空时函数跳过，状态不变
-        assert ctx.entries["discord"]["enabled"] is True
+        assert ctx.entries["feishu"]["enabled"] is True
 
     def test_allow_list_filtered(self, config_dir):
         """plugins.allow 中不存在的插件 ID 应被移除（需要有至少一个目录触发处理）。"""

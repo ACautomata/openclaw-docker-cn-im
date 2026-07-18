@@ -413,7 +413,6 @@ QQBOT_RESERVED_FIELDS = {
 }
 
 CHANNEL_INSTALLS = {
-    'discord': {'source': 'npm', 'spec': '@openclaw/discord', 'installPath': '/home/node/.openclaw/extensions/discord'},
     'feishu': {'source': 'npm', 'spec': '@openclaw/feishu', 'installPath': '/home/node/.openclaw/extensions/feishu'},
     'dingtalk': {'source': 'npm', 'spec': 'https://github.com/soimy/clawdbot-channel-dingtalk.git', 'installPath': '/home/node/.openclaw/extensions/dingtalk'},
     'openclaw-qqbot': {'source': 'path', 'sourcePath': '/home/node/.openclaw/openclaw-qqbot', 'installPath': '/home/node/.openclaw/extensions/openclaw-qqbot'},
@@ -795,84 +794,6 @@ def normalize_qqbot_config(channels):
 
     if migrated:
         print('✅ QQ 机器人配置已标准化为多 Bot 结构')
-
-
-def normalize_telegram_config(channels):
-    telegram = channels.get('telegram')
-    if not isinstance(telegram, dict):
-        return
-
-    streaming = telegram.get('streaming')
-    if streaming is None:
-        return
-
-    migrated = False
-
-    # 旧版格式：streaming 是字符串，迁移为新版嵌套对象
-    if isinstance(streaming, str):
-        print('检测到 Telegram 旧版 streaming 配置格式，正在执行自动迁移...')
-        mode = streaming if streaming in ('off', 'partial', 'block', 'progress') else 'partial'
-        telegram['streaming'] = {
-            'mode': mode,
-            'chunkMode': 'length',
-        }
-        print('✅ Telegram 配置已迁移到新版嵌套结构')
-        return
-
-    if not isinstance(streaming, dict):
-        return
-
-    normalized = dict(streaming)
-
-    chunk_mode = normalized.get('chunkMode')
-    if chunk_mode == 'default':
-        normalized['chunkMode'] = 'length'
-        migrated = True
-
-    preview = normalized.get('preview')
-    if isinstance(preview, dict):
-        preview = dict(preview)
-        preview_chunk = preview.get('chunk')
-        if preview_chunk is True:
-            preview['chunk'] = {
-                'minChars': 200,
-                'maxChars': 800,
-                'breakPreference': 'paragraph',
-            }
-            normalized['preview'] = preview
-            migrated = True
-        elif preview_chunk in (False, None):
-            preview.pop('chunk', None)
-            if preview:
-                normalized['preview'] = preview
-            else:
-                normalized.pop('preview', None)
-            if preview_chunk is False:
-                migrated = True
-
-    block = normalized.get('block')
-    if isinstance(block, dict):
-        block = dict(block)
-        coalesce = block.get('coalesce')
-        if coalesce is True:
-            block['coalesce'] = {
-                'idleMs': 1000,
-            }
-            normalized['block'] = block
-            migrated = True
-        elif coalesce in (False, None):
-            block.pop('coalesce', None)
-            if block:
-                normalized['block'] = block
-            else:
-                normalized.pop('block', None)
-            if coalesce is False:
-                migrated = True
-
-    if migrated:
-        print('检测到 Telegram streaming 子字段包含旧版值，正在修正为当前 schema...')
-        telegram['streaming'] = normalized
-        print('✅ Telegram 配置已迁移到新版嵌套结构')
 
 
 def normalize_feishu_config(channels):
@@ -1969,8 +1890,6 @@ def sync_wecom_channel(ctx, channel):
 
 def apply_channel_rules(ctx):
     channel_labels = {
-        'telegram': 'Telegram',
-        'discord': 'Discord',
         'feishu': '飞书',
         'dingtalk': '钉钉',
         'qqbot': 'QQ 机器人',
@@ -1979,50 +1898,6 @@ def apply_channel_rules(ctx):
     }
 
     rules = [
-        {
-            'channel': 'telegram',
-            'required_envs': ['TELEGRAM_BOT_TOKEN'],
-            'sync': lambda channel: channel.update({
-                'botToken': ctx.env['TELEGRAM_BOT_TOKEN'],
-                'dmPolicy': ctx.env.get('TELEGRAM_DM_POLICY') or ctx.default_dm_policy,
-                'allowFrom': parse_csv(ctx.env.get('TELEGRAM_ALLOW_FROM')) or ctx.default_allow_from,
-                'groupPolicy': ctx.env.get('TELEGRAM_GROUP_POLICY') or ctx.default_group_policy,
-                'streaming': {
-                    'mode': 'partial',
-                    'chunkMode': 'length',
-                    'preview': {
-                        'chunk': {
-                            'minChars': 200,
-                            'maxChars': 800,
-                            'breakPreference': 'paragraph',
-                        },
-                    },
-                    'block': {
-                        'enabled': False,
-                        'coalesce': {
-                            'idleMs': 1000,
-                        },
-                    },
-                },
-            }),
-            'install': False,
-        },
-        {
-            'channel': 'discord',
-            'required_envs': ['DISCORD_BOT_TOKEN'],
-            'sync': lambda channel: channel.update({
-                'enabled': True,
-                'token': {
-                    'source': 'env',
-                    'provider': 'default',
-                    'id': 'DISCORD_BOT_TOKEN',
-                },
-                'dmPolicy': ctx.env.get('DISCORD_DM_POLICY') or ctx.default_dm_policy,
-                'allowFrom': parse_csv(ctx.env.get('DISCORD_ALLOW_FROM')) or ctx.default_allow_from,
-                'groupPolicy': ctx.env.get('DISCORD_GROUP_POLICY') or ctx.default_group_policy,
-            }),
-            'install': True,
-        },
         {
             'channel': 'feishu',
             'required_envs': ['FEISHU_APP_ID', 'FEISHU_APP_SECRET'],
@@ -2301,7 +2176,7 @@ def normalize_install_paths(ctx, openclaw_home=None):
         # 1. 用插件 ID 精确匹配 npm 包名最后一段
         if plugin_id in npm_packages:
             matched_path = npm_packages[plugin_id]
-        # 2. 用 spec 中的包名匹配（例如 @openclaw/discord → discord）
+        # 2. 用 spec 中的包名匹配（例如 @openclaw/feishu → feishu）
         elif spec:
             spec_name = spec.split('/')[-1].split('@')[0]
             if spec_name in npm_packages:
@@ -2457,7 +2332,6 @@ def sync():
         normalize_dingtalk_config(ctx.channels)
         normalize_wecom_config(ctx.channels)
         normalize_qqbot_config(ctx.channels)
-        normalize_telegram_config(ctx.channels)
 
         sync_models(ctx)
         sync_agent_and_tools(ctx)

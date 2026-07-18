@@ -1,6 +1,6 @@
 # OpenClaw-China-Docker
 
-> 面向中国 IM 场景的 OpenClaw Docker 整合镜像，预装飞书、钉钉、QQ 机器人、企业微信、NapCat、Telegram、Discord 等常用插件，适合快速搭建统一的 AI 机器人网关。
+> 面向中国 IM 场景的 OpenClaw Docker 整合镜像，预装飞书、钉钉、QQ 机器人、企业微信、NapCat 等常用插件，适合快速搭建统一的 AI 机器人网关。
 
 > 🚀 **推荐搭配**：OpenClaw 功能强大但 Token 消耗较大，推荐配合 [AIClient-2-API](https://github.com/justlovemaki/AIClient-2-API) 项目使用，将各大 AI 客户端转换为 API 接口，实现无限 Token 调用，彻底解决 Token 焦虑！本项目已支持 OpenAI 和 Claude 两种协议，可直接对接 AIClient-2-API 服务。
 
@@ -29,7 +29,7 @@
 
 本项目提供开箱即用的 OpenClaw 体验，并针对国内 IM 场景进行了深度增强：
 
-- **全平台支持**：预装飞书（官方/旧版）、钉钉、QQ 机器人、企业微信、NapCat (OneBot)、Telegram、Discord 插件，并集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach) 支持 Twitter、小红书、微博、抖音等全网渠道。
+- **全平台支持**：预装飞书（官方/旧版）、钉钉、QQ 机器人、企业微信、NapCat (OneBot) 插件，并集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach) 支持 Twitter、小红书、微博、抖音等全网渠道。
 - **多模型接入**：支持最多 6 个模型提供商并行配置，通过环境变量独立管理各自的 API Key、Base URL 和协议类型。
 - **无损上下文管理**：集成 [Lossless Claw](https://github.com/martian-engineering/lossless-claw) 插件，实现智能上下文压缩与摘要，大幅延长对话有效长度，所有参数均可通过环境变量精细调控。
 - **配置驱动**：支持通过环境变量自动生成配置，提供 [`.env.example`](.env.example) (完整版) 和 [`.env.minimal`](.env.minimal) (精简版) 快速上手。
@@ -57,8 +57,6 @@
 - ✅ **QQ 机器人**：[Tencent Connect QQBot](https://www.npmjs.com/package/@tencent-connect/openclaw-qqbot)
 - ✅ **企业微信**：[sunnoy/wecom](https://github.com/sunnoy/openclaw-plugin-wecom)
 - ✅ **NapCat (OneBot)**：通过 [NapCat](https://github.com/NapNeko/NapCatQQ) 实现 QQ 协议接入（反向 WS / HTTP API）
-- ✅ **Telegram**：内置 Telegram Bot 支持
-- ✅ **Discord**：内置 Discord Bot 支持
 - ✅ **微信**：[官方插件接入指南](docs/wechat.md)
 - ✅ **全网渠道搜索**：通过集成 [Agent Reach](https://github.com/Panniantong/Agent-Reach) 支持 Twitter、小红书、微博、抖音、小宇宙等。可在对话中输入 `禁止使用web_search，web_fetch 工具， 必须使用 agent-reach 的工具来替代你自带的web_search，web_fetch ，并写入tools和记忆文档中` 进行初始化。
 

@@ -161,29 +161,6 @@
     }
   },
   "channels": {
-    "telegram": {
-      "dmPolicy": "open",
-      "allowFrom": ["*"],
-      "botToken": "your-token",
-      "groupPolicy": "open",
-      "streaming": {
-        "mode": "partial",
-        "chunkMode": "length",
-        "preview": {
-          "chunk": {
-            "minChars": 200,
-            "maxChars": 800,
-            "breakPreference": "paragraph"
-          }
-        },
-        "block": {
-          "enabled": false,
-          "coalesce": {
-            "idleMs": 1000
-          }
-        }
-      }
-    },
     "feishu": {
       "enabled": true,
       "dmPolicy": "open",
@@ -345,9 +322,6 @@
           "freshTailCount": 32,
           "contextThreshold": 0.75
         }
-      },
-      "telegram": {
-        "enabled": true
       },
       "feishu": {
         "enabled": true

@@ -86,7 +86,6 @@ RUN if [ -n "$CLAWHUB_TOKEN" ]; then clawhub login --token "$CLAWHUB_TOKEN"; fi 
   openclaw plugins install --dangerously-force-unsafe-install @tencent-connect/openclaw-qqbot@latest && \
   openclaw plugins install --dangerously-force-unsafe-install @sunnoy/wecom && \
   openclaw plugins install @martian-engineering/lossless-claw && \
-  openclaw plugins install --dangerously-force-unsafe-install @openclaw/discord && \
   openclaw plugins install --dangerously-force-unsafe-install @openclaw/feishu && \
   cd /home/node/.openclaw/extensions && \
   mkdir -p /home/node/.openclaw /home/node/.openclaw-seed && \
