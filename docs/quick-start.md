@@ -198,8 +198,8 @@ cat ~/.openclaw/openclaw.json
 # 查看工作空间
 ls -la ~/.openclaw/workspace
 
-# 手动执行配对审批（以 Telegram 为例）
-openclaw pairing approve telegram {token}
+# 手动执行配对审批（以飞书为例）
+openclaw pairing approve feishu {token}
 
 # 手动安装飞书官方插件
 npx -y @larksuite/openclaw-lark-tools install
